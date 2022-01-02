@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Chats\Telegram\" />
     <Folder Include="Modules\" />
   </ItemGroup>
 

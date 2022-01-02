@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 
-namespace Beef.Core.Chats.Discord;
+namespace Beef.Discord;
 
 public class DiscordSocketClientWrapper : DiscordSocketClient, IDiscordChatClient
 {

@@ -1,14 +1,18 @@
-﻿using Discord;
-using Discord.Interactions;
+﻿using Beef.Core.Chats;
+using Beef.Core.Chats.Interactions.Registration;
+using Discord;
 
-namespace Beef.Core.Chats.Discord;
+namespace Beef.Discord;
 
-public class DiscordLauncher : IDiscordLauncher
+public class DiscordLauncher : IChatClientLauncher
 {
-    private readonly IDiscordOptions _discordOptions;
     private readonly IDiscordChatClient _discordChatClient;
+    private readonly IDiscordOptions _discordOptions;
 
-    public DiscordLauncher(IDiscordOptions discordOptions, IDiscordChatClient discordChatClient)
+    public DiscordLauncher(
+        IDiscordOptions discordOptions,
+        IDiscordChatClient discordChatClient
+    )
     {
         _discordOptions = discordOptions;
         _discordChatClient = discordChatClient;

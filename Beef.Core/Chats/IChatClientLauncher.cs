@@ -1,4 +1,4 @@
-﻿namespace Beef.Core.Chats.Discord;
+﻿namespace Beef.Core.Chats;
 
 public interface IChatClientLauncher
 {

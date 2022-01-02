@@ -2,13 +2,19 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Beef.Core.Chats.Discord;
+using Beef.Core.Chats;
+using Beef.Core.Chats.Interactions.Execution;
+using Beef.Core.Chats.Interactions.Registration;
 using Beef.Core.Extensions;
+using Beef.Core.Modules;
+using Beef.Discord;
 using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
 
 namespace Beef.Tests;
 
@@ -16,115 +22,100 @@ namespace Beef.Tests;
 [TestCategory("Integration")]
 public class DiscordTests
 {
-    private IConfigurationRoot _configuration;
-    
+    private DiscordOptions _discordOptions;
+
     [TestInitialize]
     public void TestInitialize()
     {
-        _configuration = new ConfigurationBuilder()
+        var configuration = new ConfigurationBuilder()
             .AddUserSecrets<DiscordTests>()
             .Build();
+        _discordOptions = configuration.GetFromSection<DiscordOptions>() ??
+            throw new Exception("Integration tests configuration not found.");
     }
 
-    [TestMethod]
-    public async Task Login_OK()
+    private async Task WithClientAsync(Func<DiscordSocketClientWrapper, InteractionServiceWrapper, Task> action)
     {
-        var discordOptions = _configuration.GetFromSection<DiscordOptions>();
-
         var client = new DiscordSocketClientWrapper();
-
-        var discordLauncher = new DiscordLauncher(
-            discordOptions,
-            client
-        );
-
-        await discordLauncher.StartAsync(CancellationToken.None);
-
-        var applicationInfo = await client.GetApplicationInfoAsync();
-        await applicationInfo.Owner.SendMessageAsync($"Test {nameof(Login_OK)} successful.");
-
-        await client.StopAsync();
-    }
-
-    [TestMethod]
-    public async Task GuildCommands_Registration_OK()
-    {
-        var discordOptions = _configuration.GetFromSection<DiscordOptions>();
-
-        var client = new DiscordSocketClientWrapper();
-
-        var discordLauncher = new DiscordLauncher(
-            discordOptions,
-            client
-        );
 
         var interactionService = new InteractionServiceWrapper(client);
 
-        var chatService = new ChatService(
-            new ModuleRegistrar(new[] { interactionService }, new ServiceCollection().BuildServiceProvider()),
+        var discordLauncher = new DiscordLauncher(
+            _discordOptions,
+            client
+        );
+
+        var moduleRegistrar = new ModuleRegistrar(interactionService, new ServiceCollection().BuildServiceProvider());
+
+        var chatClientLauncher = new ChatStartupService(
             new[] { discordLauncher },
-            new[] { new GuildSpecificCommandRegistrar(discordOptions, interactionService) });
+            new[] { new DiscordGuildsCommandRegistrationService(client, interactionService) },
+            moduleRegistrar
+        );
+        try
+        {
+            await chatClientLauncher.StartAsync(CancellationToken.None);
+            await action(client, interactionService);
+        }
+        finally
+        {
+            await chatClientLauncher.StopAsync(CancellationToken.None);
+        }
 
-        await chatService.StartAsync(CancellationToken.None);
-
-        Assert.IsTrue(interactionService.Modules.Any(m => m.SlashCommands.Any(c => c.Name == "ping")));
-
-        await chatService.StopAsync(CancellationToken.None);
     }
 
     [TestMethod]
     public async Task Interaction_Interception_OK()
     {
-        var discordOptions = _configuration.GetFromSection<DiscordOptions>();
-
-        var client = new DiscordSocketClientWrapper();
-
-        var discordLauncher = new DiscordLauncher(
-            discordOptions,
-            client
+        await WithClientAsync(
+            async (client, _) =>
+            {
+                var interaction = await InteractionUtility.WaitForInteractionAsync(
+                    client,
+                    TimeSpan.FromMinutes(1),
+                    x => x is IApplicationCommandInteraction { Data.Name: "test" } c &&
+                        c.Data.Options.Count(o => o.Name == "ping") == 1
+                );
+                await interaction.RespondAsync("Pong from interaction interception integration test");
+            }
         );
-
-        var interactionService = new InteractionServiceWrapper(client);
-
-        var chatService = new ChatService(
-            new ModuleRegistrar(new[] { interactionService }, new ServiceCollection().BuildServiceProvider()),
-            new[] { discordLauncher },
-            new[] { new GuildSpecificCommandRegistrar(discordOptions, interactionService) });
-
-        await chatService.StartAsync(CancellationToken.None);
-
-        var interaction = await InteractionUtility.WaitForInteractionAsync(
-            client,
-            TimeSpan.FromMinutes(1),
-            x => x is IApplicationCommandInteraction { Data.Name: "ping" });
-        await interaction.RespondAsync("pong");
-
-        await chatService.StopAsync(CancellationToken.None);
     }
 
     [TestMethod]
     public async Task Interaction_Module_Interception_OK()
     {
-        var discordOptions = _configuration.GetFromSection<DiscordOptions>();
+        await WithClientAsync(
+            async (client, interactionService) =>
+            {
+                var services = new ServiceCollection().BuildServiceProvider();
+                var interactionExecutor = Substitute.For<IInteractionExecutor>();
+                var tcs = new TaskCompletionSource<IResult>();
+                interactionExecutor
+                    .ExecuteInteractionAsync(Arg.Any<IInteractionContext>())
+                    .Returns(
+                        async x =>
+                        {
+                            var r = await interactionService.ExecuteCommandAsync(
+                                x.Arg<IInteractionContext>(),
+                                services
+                            );
+                            tcs.TrySetResult(r);
+                            return r;
+                        }
+                    );
 
-        var client = new DiscordSocketClientWrapper();
+                var interactionListener = new DiscordInteractionListener(
+                    client,
+                    new InteractionHandler(interactionExecutor, Substitute.For<ILogger<InteractionHandler>>())
+                );
 
-        var discordLauncher = new DiscordLauncher(
-            discordOptions,
-            client
+                await interactionListener.StartAsync(CancellationToken.None);
+
+                var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+                cts.Token.Register(() => tcs.TrySetCanceled());
+                var result = await tcs.Task;
+                Assert.AreEqual("Pong", (result as CommandResult)?.Result);
+            }
         );
-
-        var interactionService = new InteractionServiceWrapper(client);
-
-        var chatService = new ChatService(
-            new ModuleRegistrar(new[] { interactionService }, new ServiceCollection().BuildServiceProvider()),
-            new[] { discordLauncher },
-            new[] { new GuildSpecificCommandRegistrar(discordOptions, interactionService) });
-
-        await chatService.StartAsync(CancellationToken.None);
-
-        // TODO: hook the execution of the ping command via module
-
-        await chatService.StopAsync(CancellationToken.None);
     }
 }
