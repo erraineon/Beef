@@ -1,4 +1,5 @@
 ﻿using Beef.Core.Chats.Interactions.Execution;
+using Beef.Core.Data;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -14,4 +15,6 @@ public class InteractionServiceWrapper : InteractionService, IDiscordCommandRegi
     )
     {
     }
+
+    public ChatType ChatType => ChatType.Discord;
 }

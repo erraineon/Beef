@@ -4,7 +4,7 @@ using Discord.Rest;
 
 namespace Beef.Core.Chats.Interactions.Registration;
 
-public interface ICommandRegistrar 
+public interface ICommandRegistrar : IChatService
 {
     Task<IReadOnlyCollection<RestGuildCommand>> RegisterCommandsToGuildAsync(ulong guildId, bool deleteMissing = true);
     Task<IReadOnlyCollection<RestGlobalCommand>> RegisterCommandsGloballyAsync(bool deleteMissing = true);

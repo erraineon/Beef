@@ -38,6 +38,6 @@ public class TestModule : InteractionModuleBase<IInteractionContext>
             Context.Guild,
             new ApplicationCommandPermission(target, enable)
         );
-        return CommandResult.Ok("Ok");
+        return CommandResult.Ok();
     }
 }

@@ -9,8 +9,9 @@ public class CommandResult : RuntimeResult, ICommandResult
         Result = result;
     }
 
-    public static RuntimeResult Ok(object result)
+    public static RuntimeResult Ok(object? result = default)
     {
+        result ??= "👌";
         return new CommandResult(
             null,
             string.Empty,
