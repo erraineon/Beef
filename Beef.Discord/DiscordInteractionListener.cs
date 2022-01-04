@@ -31,7 +31,7 @@ public class DiscordInteractionListener : IInteractionListener
 
     private Task HandleInteractionAsync(SocketInteraction interaction)
     {
-        // TODO: replace with InteractionContext when #2012 is fixed.
+        // TODO: replace with BotInteractionContext when #2012 is fixed.
         var context = new SocketInteractionContext(
             (DiscordSocketClient)_discordChatClient,
             interaction

@@ -20,11 +20,8 @@ public class InteractionHandler : IInteractionHandler
     {
         try
         {
-
             var interactionExecutionTask = _interactionExecutor.ExecuteInteractionAsync(context);
-
             var interactionResponseType = await DeferInteractionIfLateAsync(context, interactionExecutionTask);
-
             var result = await interactionExecutionTask;
             await HandleResultAsync(context, result, interactionResponseType);
         }
@@ -34,7 +31,10 @@ public class InteractionHandler : IInteractionHandler
         }
     }
 
-    private static async Task<InteractionResponseType> DeferInteractionIfLateAsync(IInteractionContext context, Task<IResult> interactionExecutionTask)
+    private static async Task<InteractionResponseType> DeferInteractionIfLateAsync(
+        IInteractionContext context,
+        Task<IResult> interactionExecutionTask
+    )
     {
         // The actual timeout is 3 seconds, but shave a second off to account for network delays.
         var interactionTimeout = TimeSpan.FromSeconds(2);
@@ -66,7 +66,7 @@ public class InteractionHandler : IInteractionHandler
                 await (interactionResponseType switch
                 {
                     InteractionResponseType.Reply => context.Interaction.RespondAsync(resultString),
-                    InteractionResponseType.FollowUp => context.Interaction.FollowupAsync(resultString),
+                    InteractionResponseType.FollowUp => context.Interaction.FollowupAsync(resultString)
                 });
             }
         }

@@ -9,6 +9,8 @@ public class CommandResult : RuntimeResult, ICommandResult
         Result = result;
     }
 
+    public object Result { get; }
+
     public static RuntimeResult Ok(object? result = default)
     {
         result ??= "👌";
@@ -18,6 +20,4 @@ public class CommandResult : RuntimeResult, ICommandResult
             result
         );
     }
-
-    public object Result { get; }
 }

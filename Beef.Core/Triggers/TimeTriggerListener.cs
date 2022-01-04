@@ -7,13 +7,13 @@ namespace Beef.Core.Triggers;
 
 public class TimeTriggerListener : BackgroundService
 {
-    private readonly IBeefDbContext _dbContext;
-    private readonly ICurrentTimeProvider _currentTimeProvider;
-    private readonly ITimeTriggerFactory _timeTriggerFactory;
     private readonly IChatServiceScopeFactory _chatServiceScopeFactory;
+    private readonly ICurrentTimeProvider _currentTimeProvider;
+    private readonly IBeefDbContext _dbContext;
+    private readonly ITimeTriggerFactory _timeTriggerFactory;
 
     public TimeTriggerListener(
-        IBeefDbContext dbContext, 
+        IBeefDbContext dbContext,
         ICurrentTimeProvider currentTimeProvider,
         ITimeTriggerFactory timeTriggerFactory,
         IChatServiceScopeFactory chatServiceScopeFactory
@@ -34,14 +34,13 @@ public class TimeTriggerListener : BackgroundService
             var minimumTimeGranularity = TimeSpan.FromSeconds(5);
             await Task.Delay(minimumTimeGranularity, stoppingToken);
         }
-
     }
 
     private async Task ProcessTimeTriggersAsync(CancellationToken stoppingToken)
     {
         var now = _currentTimeProvider.Now;
         var guilds = _dbContext.Guilds.ToAsyncEnumerable();
-        
+
         await foreach (var guild in guilds.WithCancellation(stoppingToken))
         {
             var updatedTriggers = await Task.WhenAll(

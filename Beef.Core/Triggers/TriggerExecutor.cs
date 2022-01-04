@@ -1,38 +1,47 @@
 ﻿using Beef.Core.Chats;
 using Beef.Core.Chats.Interactions.Execution;
 using Discord;
-using Discord.Interactions;
 
 namespace Beef.Core.Triggers;
 
 public class TriggerExecutor : ITriggerExecutor
 {
-    private readonly IInteractionExecutor _interactionExecutor;
     private readonly IChatClient _chatClient;
+    private readonly IInteractionExecutor _interactionExecutor;
+    private readonly IInteractionFactory _interactionFactory;
 
-    public TriggerExecutor(IInteractionExecutor interactionExecutor,
-        IChatClient chatClient)
+    public TriggerExecutor(
+        IInteractionExecutor interactionExecutor,
+        IChatClient chatClient,
+        IInteractionFactory interactionFactory
+    )
     {
         _interactionExecutor = interactionExecutor;
         _chatClient = chatClient;
+        _interactionFactory = interactionFactory;
     }
+
     public async Task ExecuteAsync(Trigger trigger)
     {
         var triggerContext = trigger.Context;
         var textChannel = (IMessageChannel)await _chatClient.GetChannelAsync(triggerContext.ChannelId);
         var user = await _chatClient.GetUserAsync(triggerContext.UserId);
-        var triggerInteractionContext = new InteractionContext(
+        var guild = await _chatClient.GetGuildAsync(triggerContext.GuildId);
+        var triggerInteractionContext = new BotInteractionContext(
             _chatClient,
-            new EmulatedInteraction(
-                textChannel,
-                user,
-                EmulatedInteractionData.FromCommand(triggerContext.Command)
-            ),
+            guild,
+            textChannel,
             user,
-            textChannel
+            _interactionFactory.CreateInteraction(user, textChannel, triggerContext.Command)
         );
         await _interactionExecutor.ExecuteInteractionAsync(triggerInteractionContext);
     }
-
-    
 }
+
+public record BotInteractionContext(
+    IDiscordClient Client,
+    IGuild Guild,
+    IMessageChannel Channel,
+    IUser User,
+    IDiscordInteraction Interaction
+) : IInteractionContext;

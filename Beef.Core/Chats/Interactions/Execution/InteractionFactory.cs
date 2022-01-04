@@ -3,7 +3,7 @@ using Discord.Interactions;
 
 namespace Beef.Core.Chats.Interactions.Execution;
 
-public class InteractionFactory
+public class InteractionFactory : IInteractionFactory
 {
     private readonly IInteractionService _interactionService;
 
@@ -11,35 +11,73 @@ public class InteractionFactory
     {
         _interactionService = interactionService;
     }
-    public IDiscordInteraction? CreateInteraction(IUser user, ITextChannel channel, string text)
+
+    public IDiscordInteraction CreateInteraction(IUser user, IMessageChannel channel, string text)
     {
-        var targetCommand = FindTargetCommand(text);
+        var interactionData = CreateInteractionData(text);
+        return new BotInteraction(user, channel, interactionData);
     }
 
-    private SlashCommandInfo? FindTargetCommand(string text)
+    private BotInteractionData CreateInteractionData(string text)
     {
-        if (string.IsNullOrWhiteSpace(text)) return null;
         var tokens = new Queue<string>(text.Split(' ', StringSplitOptions.RemoveEmptyEntries));
-        var candidates = new List<SlashCommandInfo>();
+        var firstToken = tokens.TryDequeue(out var x) ? x : string.Empty;
+        var subModules = FilterSubModules(_interactionService.Modules, firstToken);
+        var options = CreateInteractionDataOptions(subModules, tokens).ToList();
+        var interactionData = new BotInteractionData(firstToken, options);
+        return interactionData;
+    }
 
-        do
-        {
-            // TODO: this should go through groups, then sub-groups, then commands.
-            var currentToken = tokens.Dequeue();
-            candidates.Clear();
-            candidates.AddRange(
-                _interactionService.SlashCommands
-                    .Where(
-                        x => string.Equals(
-                            x.Name,
-                            currentToken,
-                            StringComparison.OrdinalIgnoreCase
-                        )
-                    )
+    private List<ModuleInfo> FilterSubModules(
+        IReadOnlyCollection<ModuleInfo> modules,
+        string token
+    )
+    {
+        var candidateCommand = modules
+            .SelectMany(x => x.SlashCommands)
+            .FirstOrDefault(
+                x => string.Equals(
+                    x.Name,
+                    token,
+                    StringComparison.OrdinalIgnoreCase
+                )
             );
-        } while (candidates.Count > 1 && tokens.Any());
+        var filteredModules = modules
+            .SelectMany(x => x.SubModules)
+            .Where(
+                x => string.Equals(
+                    x.SlashGroupName,
+                    token,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
+            .ToList();
+        return filteredModules;
+    }
 
-        var target = candidates.FirstOrDefault();
-        return target;
+    private IEnumerable<IApplicationCommandInteractionDataOption> CreateInteractionDataOptions(
+        IReadOnlyCollection<ModuleInfo> modules,
+        Queue<string> tokens
+    )
+    {
+        if (!modules.Any())
+            // We found a command, so we just need to list out the options.
+            foreach (var valueToken in tokens)
+                yield return new BotInteractionDataOption(
+                    valueToken,
+                    ApplicationCommandOptionType.String,
+                    Array.Empty<IApplicationCommandInteractionDataOption>()
+                );
+        if (tokens.TryDequeue(out var subToken))
+        {
+            var subModules = FilterSubModules(modules, subToken);
+            yield return new BotInteractionDataOption(
+                subToken,
+                subModules.Any()
+                    ? ApplicationCommandOptionType.SubCommandGroup
+                    : ApplicationCommandOptionType.SubCommand,
+                CreateInteractionDataOptions(subModules, tokens).ToList()
+            );
+        }
     }
 }

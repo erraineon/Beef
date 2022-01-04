@@ -2,7 +2,7 @@
 
 namespace Beef.Core.Chats;
 
-class ScopedChatContextHolder : IScopedChatContextHolder
+internal class ScopedChatContextHolder : IScopedChatContextHolder
 {
     private IChatClient? _chatClient;
     private ICommandRegistrar? _commandRegistrar;

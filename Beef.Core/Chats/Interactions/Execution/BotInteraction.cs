@@ -2,11 +2,11 @@
 
 namespace Beef.Core.Chats.Interactions.Execution;
 
-public class EmulatedInteraction : ISlashCommandInteraction
+public class BotInteraction : ISlashCommandInteraction
 {
     private readonly IMessageChannel _textChannel;
 
-    public EmulatedInteraction(IMessageChannel textChannel, IUser user, IApplicationCommandInteractionData data)
+    public BotInteraction(IUser user, IMessageChannel textChannel, IApplicationCommandInteractionData data)
     {
         _textChannel = textChannel;
         User = user;
@@ -39,7 +39,17 @@ public class EmulatedInteraction : ISlashCommandInteraction
         RequestOptions options = null
     )
     {
-        return FollowupWithFilesAsync(attachments, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
+        return FollowupWithFilesAsync(
+            attachments,
+            text,
+            embeds,
+            isTTS,
+            ephemeral,
+            allowedMentions,
+            components,
+            embed,
+            options
+        );
     }
 
     public Task<IUserMessage> FollowupAsync(
