@@ -9,6 +9,10 @@ namespace Beef.Core.Data;
 
 public class BeefDbContext : DbContext, IBeefDbContext
 {
+    public BeefDbContext(DbContextOptions<BeefDbContext> options) : base(options)
+    {
+    }
+
     public DbSet<GuildOptionsEntity> Guilds { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

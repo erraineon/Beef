@@ -1,3 +1,3 @@
 ﻿namespace Beef.Core.Triggers;
 
-public abstract record TimeTrigger(TriggerContext Context, DateTime FireAt) : Trigger(Context);
+public abstract record TimeTrigger(TriggerContext Context, DateTimeOffset FireAt) : Trigger(Context);

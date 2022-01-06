@@ -9,20 +9,20 @@ public class TimeTriggerListener : BackgroundService
 {
     private readonly IChatServiceScopeFactory _chatServiceScopeFactory;
     private readonly ICurrentTimeProvider _currentTimeProvider;
-    private readonly IBeefDbContext _dbContext;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ITimeTriggerFactory _timeTriggerFactory;
 
     public TimeTriggerListener(
-        IBeefDbContext dbContext,
         ICurrentTimeProvider currentTimeProvider,
         ITimeTriggerFactory timeTriggerFactory,
-        IChatServiceScopeFactory chatServiceScopeFactory
+        IChatServiceScopeFactory chatServiceScopeFactory,
+        IServiceProvider serviceProvider
     )
     {
-        _dbContext = dbContext;
         _currentTimeProvider = currentTimeProvider;
         _timeTriggerFactory = timeTriggerFactory;
         _chatServiceScopeFactory = chatServiceScopeFactory;
+        _serviceProvider = serviceProvider;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -39,7 +39,9 @@ public class TimeTriggerListener : BackgroundService
     private async Task ProcessTimeTriggersAsync(CancellationToken stoppingToken)
     {
         var now = _currentTimeProvider.Now;
-        var guilds = _dbContext.Guilds.ToAsyncEnumerable();
+        var scope = _serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<IBeefDbContext>();
+        var guilds = dbContext.Guilds.ToAsyncEnumerable();
 
         await foreach (var guild in guilds.WithCancellation(stoppingToken))
         {
@@ -53,7 +55,7 @@ public class TimeTriggerListener : BackgroundService
             guild.Value.Triggers.AddRange(updatedTriggers.Where(t => t != default)!);
         }
 
-        await _dbContext.SaveChangesAsync(stoppingToken);
+        await dbContext.SaveChangesAsync(stoppingToken);
     }
 
     private async Task<TimeTrigger?> ExecuteTimeTriggerAsync(TimeTrigger trigger)

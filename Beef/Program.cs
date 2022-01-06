@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Beef.Core.Chats;
+using Beef.Core.Chats.Interactions.Execution;
 using Beef.Core.Data;
 using Beef.Core.Extensions;
 using Beef.Core.Modules;
@@ -15,7 +16,11 @@ Host.CreateDefaultBuilder(args)
     .ConfigureServices(
         (hostBuilderContext, services) =>
         {
-            var typesToExclude = new List<Type> { typeof(BeefDbContext) };
+            var typesToExclude = new List<Type>
+            {
+                typeof(BeefDbContext), typeof(ChatContext), typeof(BotInteraction), typeof(BotInteractionData),
+                typeof(BotInteractionDataOption)
+            };
 
             services
                 .AddDbContext<IBeefDbContext, BeefDbContext>(
@@ -24,6 +29,11 @@ Host.CreateDefaultBuilder(args)
                     )
                 );
 
+            services.AddScoped<IChatContext, ChatContext>();
+            //services.AddScoped(s => s.GetRequiredService<IChatContext>().ChatClient);
+            //services.AddScoped(s => s.GetRequiredService<IChatContext>().CommandRegistrar);
+
+
             services.Scan(
                 x => x.FromAssemblyOf<ChatStartupService>()
                     .AddClasses(
@@ -31,6 +41,7 @@ Host.CreateDefaultBuilder(args)
                             // Don't register the modules.
                             .NotInNamespaceOf<TestModule>()
                             .Where(t => !typesToExclude.Contains(t))
+                            .Where(ExcludeConcreteTypesAndRecords)
                     )
                     .AsImplementedInterfaces()
                     .WithTransientLifetime()
@@ -63,6 +74,7 @@ void AddDiscord(
                     f => f
                         .Where(t => !singletonTypes.Contains(t))
                         .Where(t => !typesToExclude.Contains(t))
+                        .Where(ExcludeConcreteTypesAndRecords)
                 )
                 .AsImplementedInterfaces()
                 .WithTransientLifetime()
@@ -75,3 +87,5 @@ void AddDiscord(
         );
     }
 }
+
+bool ExcludeConcreteTypesAndRecords(Type t) => t.GetInterfaces().Any() && t.GetMethods().All(m => m.Name != "<Clone>$");

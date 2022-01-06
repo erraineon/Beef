@@ -1,8 +1,9 @@
 ﻿using Beef.Core.Chats.Interactions.Registration;
+using Discord;
 
 namespace Beef.Core.Chats;
 
-internal class ScopedChatContextHolder : IScopedChatContextHolder
+public class ChatContext : IChatContext
 {
     private IChatClient? _chatClient;
     private ICommandRegistrar? _commandRegistrar;

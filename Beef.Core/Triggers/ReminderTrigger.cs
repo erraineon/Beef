@@ -1,3 +1,3 @@
 ﻿namespace Beef.Core.Triggers;
 
-public record ReminderTrigger(TriggerContext Context, DateTime FireAt, string Reminder) : TimeTrigger(Context, FireAt);
+public record ReminderTrigger(TriggerContext Context, DateTimeOffset FireAt, string Reminder) : TimeTrigger(Context, FireAt);

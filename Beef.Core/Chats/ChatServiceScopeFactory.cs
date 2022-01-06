@@ -24,7 +24,7 @@ public class ChatServiceScopeFactory : IChatServiceScopeFactory
     public IServiceScope CreateScope(ChatType chatType)
     {
         var scope = _serviceProvider.CreateScope();
-        var scopedContextHolder = scope.ServiceProvider.GetRequiredService<IScopedChatContextHolder>();
+        var scopedContextHolder = scope.ServiceProvider.GetRequiredService<IChatContext>();
         scopedContextHolder.ChatClient = _chatClients.First(x => x.ChatType == chatType);
         scopedContextHolder.CommandRegistrar = _commandRegistrars.First(x => x.ChatType == chatType);
         return scope;
