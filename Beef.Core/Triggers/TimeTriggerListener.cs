@@ -7,7 +7,7 @@ namespace Beef.Core.Triggers;
 
 public class TimeTriggerListener : BackgroundService
 {
-    private readonly IChatServiceScopeFactory _chatServiceScopeFactory;
+    private readonly IChatScopeFactory _chatScopeFactory;
     private readonly ICurrentTimeProvider _currentTimeProvider;
     private readonly IServiceProvider _serviceProvider;
     private readonly ITimeTriggerFactory _timeTriggerFactory;
@@ -15,13 +15,13 @@ public class TimeTriggerListener : BackgroundService
     public TimeTriggerListener(
         ICurrentTimeProvider currentTimeProvider,
         ITimeTriggerFactory timeTriggerFactory,
-        IChatServiceScopeFactory chatServiceScopeFactory,
+        IChatScopeFactory chatScopeFactory,
         IServiceProvider serviceProvider
     )
     {
         _currentTimeProvider = currentTimeProvider;
         _timeTriggerFactory = timeTriggerFactory;
-        _chatServiceScopeFactory = chatServiceScopeFactory;
+        _chatScopeFactory = chatScopeFactory;
         _serviceProvider = serviceProvider;
     }
 
@@ -30,7 +30,6 @@ public class TimeTriggerListener : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             await ProcessTimeTriggersAsync(stoppingToken);
-
             var minimumTimeGranularity = TimeSpan.FromSeconds(5);
             await Task.Delay(minimumTimeGranularity, stoppingToken);
         }
@@ -60,7 +59,7 @@ public class TimeTriggerListener : BackgroundService
 
     private async Task<TimeTrigger?> ExecuteTimeTriggerAsync(TimeTrigger trigger)
     {
-        var triggerScope = _chatServiceScopeFactory.CreateScope(trigger.Context.ChatType);
+        var triggerScope = _chatScopeFactory.CreateScope(trigger.Context.ChatType);
         var triggerExecutor = triggerScope.ServiceProvider.GetRequiredService<ITriggerExecutor>();
         await triggerExecutor.ExecuteAsync(trigger);
         var newTrigger = _timeTriggerFactory.Advance(trigger);

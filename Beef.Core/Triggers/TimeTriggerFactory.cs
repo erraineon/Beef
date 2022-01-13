@@ -1,4 +1,6 @@
-﻿namespace Beef.Core.Triggers;
+﻿using NCrontab;
+
+namespace Beef.Core.Triggers;
 
 public class TimeTriggerFactory : ITimeTriggerFactory
 {
@@ -15,16 +17,16 @@ public class TimeTriggerFactory : ITimeTriggerFactory
         var now = _currentTimeProvider.Now;
         return timeTrigger switch
         {
-            IntervalTrigger intervalTrigger => intervalTrigger with { FireAt = now + intervalTrigger.Interval },
+            IntervalTrigger intervalTrigger => intervalTrigger with {FireAt = now + intervalTrigger.Interval},
             OneTimeTrigger => default,
             ReminderTrigger => default,
             ScheduleTrigger scheduleTrigger => scheduleTrigger with
             {
                 FireAt = new DateTimeOffset(
-                    NCrontab.CrontabSchedule.Parse(scheduleTrigger.Schedule).GetNextOccurrence(now.UtcDateTime)
+                    CrontabSchedule.Parse(scheduleTrigger.Schedule).GetNextOccurrence(now.UtcDateTime)
                 )
             },
-            _ => throw new ArgumentOutOfRangeException(nameof(timeTrigger)),
+            _ => throw new ArgumentOutOfRangeException(nameof(timeTrigger))
         };
     }
 }

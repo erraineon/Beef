@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace Beef.Core.Triggers;
+namespace Beef.Core.Chats.Interactions.Execution;
 
 public record BotInteractionContext(
     IDiscordClient Client,

@@ -6,8 +6,8 @@ namespace Beef.Core.Triggers;
 
 public class TriggerExecutor : ITriggerExecutor
 {
-    private readonly IInteractionExecutor _interactionExecutor;
     private readonly IChatContext _chatContext;
+    private readonly IInteractionExecutor _interactionExecutor;
     private readonly IInteractionFactory _interactionFactory;
 
     public TriggerExecutor(
@@ -25,7 +25,7 @@ public class TriggerExecutor : ITriggerExecutor
     {
         var triggerContext = trigger.Context;
         var chatClient = _chatContext.ChatClient;
-        var textChannel = (IMessageChannel)await chatClient.GetChannelAsync(triggerContext.ChannelId);
+        var textChannel = (IMessageChannel) await chatClient.GetChannelAsync(triggerContext.ChannelId);
         var user = await chatClient.GetUserAsync(triggerContext.UserId);
         var guild = await chatClient.GetGuildAsync(triggerContext.GuildId);
         var triggerInteractionContext = new BotInteractionContext(

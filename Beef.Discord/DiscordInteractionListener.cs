@@ -33,7 +33,7 @@ public class DiscordInteractionListener : IInteractionListener
     {
         // TODO: replace with BotInteractionContext when #2012 is fixed.
         var context = new SocketInteractionContext(
-            (DiscordSocketClient)_discordChatClient,
+            (DiscordSocketClient) _discordChatClient,
             interaction
         );
         _interactionHandler.HandleInteractionNoAwait(context);

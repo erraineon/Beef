@@ -5,18 +5,18 @@ namespace Beef.Core.Chats.Interactions.Execution;
 
 public class InteractionExecutor : IInteractionExecutor
 {
-    private readonly IChatServiceScopeFactory _chatServiceScopeFactory;
+    private readonly IChatScopeFactory _chatScopeFactory;
     private readonly IInteractionService _interactionService;
 
-    public InteractionExecutor(IInteractionService interactionService, IChatServiceScopeFactory chatServiceScopeFactory)
+    public InteractionExecutor(IInteractionService interactionService, IChatScopeFactory chatScopeFactory)
     {
         _interactionService = interactionService;
-        _chatServiceScopeFactory = chatServiceScopeFactory;
+        _chatScopeFactory = chatScopeFactory;
     }
 
     public async Task<IResult> ExecuteInteractionAsync(IInteractionContext interactionContext)
     {
-        var scope = _chatServiceScopeFactory.CreateScope(((IChatClient)interactionContext.Client).ChatType);
+        var scope = _chatScopeFactory.CreateScope(((IChatClient) interactionContext.Client).ChatType);
         var result = await _interactionService.ExecuteCommandAsync(interactionContext, scope.ServiceProvider);
         return result;
     }

@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Beef.Core.Chats;
 
-public interface IChatServiceScopeFactory
+public interface IChatScopeFactory
 {
     IServiceScope CreateScope(ChatType chatType);
 }

@@ -1,19 +1,27 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using Beef.Core;
 using Beef.Core.Chats;
 using Beef.Core.Chats.Interactions.Execution;
+using Beef.Core.Chats.Interactions.Registration;
 using Beef.Core.Data;
-using Beef.Core.Extensions;
-using Beef.Core.Modules;
+using Beef.Core.Triggers;
 using Beef.Discord;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-CreateHostBuilder(args)
-    .Build()
-    .Run();
+var host = CreateHostBuilder(args).Build();
+Migrate(host);
+host.Run();
+
+static void Migrate(IHost host)
+{
+    using var scope = host.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<IBeefDbContext>();
+    dbContext.Database.Migrate();
+}
 
 static IHostBuilder CreateHostBuilder(string[] strings)
 {
@@ -21,12 +29,7 @@ static IHostBuilder CreateHostBuilder(string[] strings)
         .ConfigureServices(
             (hostBuilderContext, services) =>
             {
-                var typesToExclude = new List<Type>
-                {
-                    typeof(BeefDbContext), typeof(ChatContext), typeof(BotInteraction), typeof(BotInteractionData),
-                    typeof(BotInteractionDataOption)
-                };
-
+                // Database
                 services
                     .AddDbContext<IBeefDbContext, BeefDbContext>(
                         optionsBuilder => optionsBuilder.UseSqlite(
@@ -34,23 +37,23 @@ static IHostBuilder CreateHostBuilder(string[] strings)
                         )
                     );
 
-                services.AddScoped<IChatContext, ChatContext>();
-                //services.AddScoped(s => s.GetRequiredService<IChatContext>().ChatClient);
-                //services.AddScoped(s => s.GetRequiredService<IChatContext>().CommandRegistrar);
+                // Core interactions and commands
+                services.AddTransient<IInteractionExecutor, InteractionExecutor>();
+                services.AddTransient<IInteractionFactory, InteractionFactory>();
+                services.AddTransient<IInteractionHandler, InteractionHandler>();
+                services.AddTransient<IModuleRegistrar, ModuleRegistrar>();
+                services.AddHostedService<ChatStartupService>();
 
+                // Triggers
+                services.AddTransient<ITimeTriggerFactory, TimeTriggerFactory>();
+                services.AddTransient<ITriggerExecutor, TriggerExecutor>();
+                services.AddHostedService<TimeTriggerListener>();
 
-                services.Scan(
-                    x => x.FromAssemblyOf<ChatStartupService>()
-                        .AddClasses(
-                            f => f
-                                // Don't register the modules.
-                                .NotInNamespaceOf<TestModule>()
-                                .Where(t => !typesToExclude.Contains(t))
-                                .Where(ExcludeConcreteTypesAndRecords)
-                        )
-                        .AsImplementedInterfaces()
-                        .WithTransientLifetime()
-                );
+                // Utilities
+                services.AddScoped<IChatContextHolder, ChatContextHolder>();
+                services.AddTransient(s => s.GetRequiredService<IChatContextHolder>().Context);
+                services.AddTransient<IChatScopeFactory, ChatScopeFactory>();
+                services.AddTransient<ICurrentTimeProvider, CurrentTimeProvider>();
 
                 AddDiscord(services, hostBuilderContext);
             }
@@ -64,33 +67,28 @@ static IHostBuilder CreateHostBuilder(string[] strings)
         var discordOptions = hostBuilderContext.Configuration.GetFromSection<DiscordOptions>();
         if (discordOptions != null)
         {
-            var singletonTypes = new[] {typeof(DiscordSocketClientWrapper), typeof(InteractionServiceWrapper)};
-            var typesToExclude = new List<Type> {typeof(DiscordOptions)};
-
+            // Options
             services.AddSingleton<IDiscordOptions>(discordOptions);
-            if (!hostBuilderContext.HostingEnvironment.IsProduction())
-                typesToExclude.Add(typeof(DiscordGlobalCommandRegistrationService));
 
-            services.Scan(
-                x => x.FromAssemblyOf<DiscordOptions>()
-                    .AddClasses(
-                        f => f
-                            .Where(t => !singletonTypes.Contains(t))
-                            .Where(t => !typesToExclude.Contains(t))
-                            .Where(ExcludeConcreteTypesAndRecords)
-                    )
-                    .AsImplementedInterfaces()
-                    .WithTransientLifetime()
-            );
+            // Discord chat services
+            services.AddSingleton<DiscordSocketClientWrapper>();
+            services.AddSingleton<IDiscordChatClient>(s => s.GetRequiredService<DiscordSocketClientWrapper>());
+            services.AddSingleton<IChatClient>(s => s.GetRequiredService<DiscordSocketClientWrapper>());
+            services.AddSingleton<IChatComponent>(s => s.GetRequiredService<DiscordSocketClientWrapper>());
 
-            services.Scan(
-                x => x.AddTypes(singletonTypes)
-                    .AsSelfWithInterfaces()
-                    .WithSingletonLifetime()
-            );
+            services.AddSingleton<InteractionServiceWrapper>();
+            services.AddSingleton<IInteractionService>(s => s.GetRequiredService<InteractionServiceWrapper>());
+            services.AddSingleton<IDiscordCommandRegistrar>(s => s.GetRequiredService<InteractionServiceWrapper>());
+            services.AddSingleton<ICommandRegistrar>(s => s.GetRequiredService<InteractionServiceWrapper>());
+            services.AddSingleton<IChatComponent>(s => s.GetRequiredService<InteractionServiceWrapper>());
+
+            services.AddHostedService<DiscordInteractionListener>();
+            services.AddTransient<IChatClientLauncher, DiscordLauncher>();
+
+            // Command registration services
+            services.AddTransient<ICommandRegistrationService, DiscordGuildsCommandRegistrationService>();
+            if (hostBuilderContext.HostingEnvironment.IsProduction())
+                services.AddTransient<ICommandRegistrationService, DiscordGlobalCommandRegistrationService>();
         }
     }
-
-    bool ExcludeConcreteTypesAndRecords(Type t) =>
-        t.GetInterfaces().Any() && t.GetMethods().All(m => m.Name != "<Clone>$");
 }

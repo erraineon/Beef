@@ -1,5 +1,4 @@
 ﻿using Beef.Core.Chats;
-using Beef.Core.Chats.Interactions.Registration;
 using Discord;
 
 namespace Beef.Discord;

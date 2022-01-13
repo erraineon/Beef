@@ -4,7 +4,7 @@ using Discord.Rest;
 
 namespace Beef.Core.Chats.Interactions.Registration;
 
-public interface ICommandRegistrar : IChatService
+public interface ICommandRegistrar : IChatComponent
 {
     IReadOnlyList<ModuleInfo> Modules { get; }
     IReadOnlyList<SlashCommandInfo> SlashCommands { get; }

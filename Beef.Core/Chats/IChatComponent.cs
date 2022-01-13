@@ -2,7 +2,7 @@
 
 namespace Beef.Core.Chats;
 
-public interface IChatService
+public interface IChatComponent
 {
     ChatType ChatType { get; }
 }

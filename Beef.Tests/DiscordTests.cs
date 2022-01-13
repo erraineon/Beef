@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Beef.Core;
 using Beef.Core.Chats;
 using Beef.Core.Chats.Interactions.Execution;
 using Beef.Core.Chats.Interactions.Registration;
-using Beef.Core.Extensions;
 using Beef.Core.Modules;
 using Beef.Discord;
 using Discord;
@@ -31,7 +31,7 @@ public class DiscordTests
             .AddUserSecrets<DiscordTests>()
             .Build();
         _discordOptions = configuration.GetFromSection<DiscordOptions>() ??
-            throw new Exception("Integration tests configuration not found.");
+                          throw new Exception("Integration tests configuration not found.");
     }
 
     private async Task WithClientAsync(Func<DiscordSocketClientWrapper, InteractionServiceWrapper, Task> action)
@@ -45,11 +45,14 @@ public class DiscordTests
             client
         );
 
-        var moduleRegistrar = new ModuleRegistrar(interactionService, new ServiceCollection().BuildServiceProvider());
+        var moduleRegistrar = new ModuleRegistrar(
+            interactionService,
+            new ChatScopeFactory(new ServiceCollection().BuildServiceProvider())
+        );
 
         var chatClientLauncher = new ChatStartupService(
-            new[] { discordLauncher },
-            new[] { new DiscordGuildsCommandRegistrationService(client, interactionService) },
+            new[] {discordLauncher},
+            new[] {new DiscordGuildsCommandRegistrationService(client, interactionService)},
             moduleRegistrar
         );
         try
@@ -61,7 +64,6 @@ public class DiscordTests
         {
             await chatClientLauncher.StopAsync(CancellationToken.None);
         }
-
     }
 
     [TestMethod]
@@ -73,8 +75,8 @@ public class DiscordTests
                 var interaction = await InteractionUtility.WaitForInteractionAsync(
                     client,
                     TimeSpan.FromMinutes(1),
-                    x => x is IApplicationCommandInteraction { Data.Name: "test" } c &&
-                        c.Data.Options.Count(o => o.Name == "ping") == 1
+                    x => x is IApplicationCommandInteraction {Data.Name: "test"} c &&
+                         c.Data.Options.Count(o => o.Name == "ping") == 1
                 );
                 await interaction.RespondAsync("Pong from interaction interception integration test");
             }

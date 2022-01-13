@@ -3,11 +3,10 @@ using Beef.Core.Data;
 using Beef.Core.Triggers;
 using Discord;
 using Discord.Interactions;
-using RuntimeResult = Discord.Interactions.RuntimeResult;
 
 namespace Beef.Core.Modules;
 
-[Discord.Interactions.Group("test", "Test commands.")]
+[Group("test", "Test commands.")]
 public class TestModule : InteractionModuleBase<IInteractionContext>
 {
     private readonly ICommandRegistrar _commandRegistrar;

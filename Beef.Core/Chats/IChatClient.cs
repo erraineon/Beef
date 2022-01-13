@@ -2,6 +2,6 @@
 
 namespace Beef.Core.Chats;
 
-public interface IChatClient : IDiscordClient, IChatService
+public interface IChatClient : IDiscordClient, IChatComponent
 {
 }

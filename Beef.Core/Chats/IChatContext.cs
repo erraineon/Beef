@@ -4,6 +4,6 @@ namespace Beef.Core.Chats;
 
 public interface IChatContext
 {
-    IChatClient ChatClient { get; set; }
-    ICommandRegistrar CommandRegistrar { get; set; }
+    IChatClient ChatClient { get; }
+    ICommandRegistrar CommandRegistrar { get; }
 }
