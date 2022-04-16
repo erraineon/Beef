@@ -18,15 +18,15 @@ jobs:
     environment: Release
 
     steps:
+      - name: build and publish the artifacts
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1
-        with: 
-          dotnet-version: '6.x' 
-      - name: build and publish the artifacts
+        with: dotnet-version: '6.x' 
         run: dotnet publish -o ${{ env.ARTIFACT_PATH }}
 
       - name: terminate remote process
         uses: appleboy/ssh-action@master
+        continue-on-error: true
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
