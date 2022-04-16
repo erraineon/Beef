@@ -1,0 +1,57 @@
+name: build and deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build and deploy:
+    runs-on: ubuntu-latest
+    env: 
+      ARTIFACT_PATH: build_artifact
+      TARGET_DEPLOY_PATH: beef
+      PROCESS_NAME: Beef
+      PROCESS_USER_NAME: Administrator
+
+    environment: Release
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v1
+        with: 
+          dotnet-version: '6.x' 
+      - name: build and publish the artifacts
+        run: dotnet publish -o ${{ env.ARTIFACT_PATH }}
+
+      - name: terminate remote process
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: pkill -f ${{ env.PROCESS_NAME }}
+
+      - name: copy file via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: ${{ env.ARTIFACT_PATH }}
+          target: ${{ env.TARGET_DEPLOY_PATH }}
+          strip_components: 1
+
+      - name: restart remote process
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ env.TARGET_DEPLOY_PATH }}
+            nohup ./${{ env.PROCESS_NAME }} 1>std.out 2> err.out < /dev/null &

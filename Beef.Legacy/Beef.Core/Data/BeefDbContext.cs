@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 
 namespace Beef.Core.Data;
 
+
+
 public class BeefDbContext : DbContext, IBeefDbContext
 {
     public BeefDbContext(DbContextOptions<BeefDbContext> options) : base(options)
