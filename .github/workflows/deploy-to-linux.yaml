@@ -21,7 +21,8 @@ jobs:
       - name: build and publish the artifacts
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1
-        with: dotnet-version: '6.x' 
+        with: 
+          dotnet-version: '6.x' 
         run: dotnet publish -o ${{ env.ARTIFACT_PATH }}
 
       - name: terminate remote process
