@@ -25,6 +25,24 @@ jobs:
       - name: build and publish the artifacts
         run: dotnet publish -o ${{ env.ARTIFACT_PATH }}
 
+      - name: populate settings
+        uses: microsoft/variable-substitution@v1 
+        with:
+          files: ${{ env.ARTIFACT_PATH }}/appsettings.json
+        env:
+          DiscordOptions.Token: ${{ secrets.DISCORD_TOKEN }}
+          TelegramOptions.Token: ${{ secrets.TELEGRAM_TOKEN }}
+          TelegramOptions.BotOwnerId: ${{ secrets.TELEGRAM_BOT_OWNER_ID }}
+          GoogleOptions.SearchEngineId: ${{ secrets.GOOGLE_SEARCH_ENGINE_ID }}
+          GoogleOptions.ApiKey: ${{ secrets.GOOGLE_API_KEY }}
+          Gpt3TadmorMindOptions.ApiKey: ${{ secrets.OPENAI_APIKEY }}
+          Gpt3TadmorMindOptions.ModelName: ${{ secrets.OPENAI_MODELNAME }}
+          Gpt3TadmorMindOptions.Enabled: true
+          TwitterOptions.ConsumerKey: ${{ secrets.TWITTER_CONSUMER_KEY }}
+          TwitterOptions.ConsumerSecret: ${{ secrets.TWITTER_CONSUMER_SECRET }}
+          TwitterOptions.OAuthToken: ${{ secrets.TWITTER_OAUTH_TOKEN }}
+          TwitterOptions.OAuthTokenSecret: ${{ secrets.TWITTER_OAUTH_TOKEN_SECRET }}
+
       - name: terminate remote process
         uses: appleboy/ssh-action@master
         continue-on-error: true
