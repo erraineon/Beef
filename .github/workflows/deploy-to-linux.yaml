@@ -31,7 +31,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
           script: pkill -f ${{ env.PROCESS_NAME }}
 
       - name: copy file via ssh
@@ -40,7 +39,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
           source: ${{ env.ARTIFACT_PATH }}
           target: ${{ env.TARGET_DEPLOY_PATH }}
           strip_components: 1
