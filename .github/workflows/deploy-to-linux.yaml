@@ -51,7 +51,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
           script: |
             cd ${{ env.TARGET_DEPLOY_PATH }}
             nohup ./${{ env.PROCESS_NAME }} 1>std.out 2> err.out < /dev/null &
