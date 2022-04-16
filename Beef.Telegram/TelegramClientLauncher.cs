@@ -36,6 +36,11 @@ public class TelegramClientLauncher : IHostedService
     private async Task OnUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
     {
         if (update is { Type: UpdateType.Message, Message.Text: "ping" })
-            await client.SendTextMessageAsync(update.Message.Chat.Id, "pong", cancellationToken: cancellationToken);
+            await client.SendTextMessageAsync(
+                update.Message.Chat.Id,
+                "pong",
+                replyToMessageId: update.Message.MessageId,
+                cancellationToken: cancellationToken
+            );
     }
 }

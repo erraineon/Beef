@@ -1,9 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿namespace Beef.Core;
 
-namespace Beef.Core
+public class Class1
 {
-    public class Class1
-    {
-
-    }
 }
