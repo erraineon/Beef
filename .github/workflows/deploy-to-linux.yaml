@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build and deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     env: 
       ARTIFACT_PATH: build_artifact
