@@ -3,6 +3,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Beef.Core;
@@ -14,13 +15,15 @@ public class DiscordClientLauncher : IHostedService
     private readonly IInteractionHandler _interactionHandler;
     private readonly InteractionService _interactionService;
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<DiscordClientLauncher> _logger;
 
     public DiscordClientLauncher(
         IOptions<DiscordOptions> discordOptions,
         DiscordSocketClient discordClient,
         IServiceProvider serviceProvider,
         InteractionService interactionService,
-        IInteractionHandler interactionHandler
+        IInteractionHandler interactionHandler,
+        ILogger<DiscordClientLauncher> logger
     )
     {
         _discordOptions = discordOptions;
@@ -28,11 +31,14 @@ public class DiscordClientLauncher : IHostedService
         _serviceProvider = serviceProvider;
         _interactionService = interactionService;
         _interactionHandler = interactionHandler;
+        _logger = logger;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _discordClient.InteractionCreated += OnInteractionCreatedAsync;
+        _discordClient.GuildAvailable += RegisterCommandsToGuildAsync;
+        _discordClient.JoinedGuild += RegisterCommandsToGuildAsync;
 
         await _interactionService.AddModulesAsync(GetType().Assembly, _serviceProvider);
         await LoginAsync();
@@ -65,55 +71,62 @@ public class DiscordClientLauncher : IHostedService
         }
 
         _discordClient.Ready += OnReady;
-        _discordClient.GuildAvailable += RegisterCommandsAsync;
-        _discordClient.JoinedGuild += RegisterCommandsAsync;
 
         await _discordClient.LoginAsync(TokenType.Bot, _discordOptions.Value.Token);
         await _discordClient.StartAsync();
         await discordReady.Task;
     }
 
-    private async Task RegisterCommandsAsync(SocketGuild guild)
+    private async Task RegisterCommandsToGuildAsync(SocketGuild guild)
     {
-        var botOwner = (await _discordClient.GetApplicationInfoAsync()).Owner;
-        await _interactionService.RegisterCommandsToGuildAsync(guild.Id);
+        try
+        {
+            var botOwner = (await _discordClient.GetApplicationInfoAsync()).Owner;
+            await _interactionService.RegisterCommandsToGuildAsync(guild.Id);
 
-        var giveOwnerPermissions = _interactionService.SlashCommands
-            .Where(x => !x.DefaultPermission && x.Preconditions.OfType<RequireOwnerAttribute>().Any())
-            .Select(
-                ownerCommand => _interactionService.ModifySlashCommandPermissionsAsync(
-                    ownerCommand,
-                    guild,
-                    new ApplicationCommandPermission(botOwner, true)
-                )
-            );
-
-        var giveRolePermissions = _interactionService.SlashCommands
-            .Where(x => !x.DefaultPermission)
-            .Select(
-                ownerCommand =>
-                {
-                    var roleAttribute = ownerCommand.Preconditions.OfType<RequireRoleAttribute>().FirstOrDefault();
-                    var role = roleAttribute == null
-                        ? null
-                        : roleAttribute.RoleId.HasValue
-                            ? guild.GetRole(roleAttribute.RoleId.Value)
-                            : guild.Roles.FirstOrDefault(x => x.Name == roleAttribute.RoleName);
-                    return (ownerCommand, role);
-                }
-            )
-            .Where(t => t.role != null)
-            .Select(
-                t =>
-                {
-                    var (ownerCommand, role) = t;
-                    return _interactionService.ModifySlashCommandPermissionsAsync(
+            var giveOwnerPermissions = _interactionService.SlashCommands
+                .Where(x => !x.DefaultPermission && x.Preconditions.OfType<RequireOwnerAttribute>().Any())
+                .Select(
+                    ownerCommand => _interactionService.ModifySlashCommandPermissionsAsync(
                         ownerCommand,
                         guild,
-                        new ApplicationCommandPermission(role, true)
-                    );
-                }
-            );
-        await Task.WhenAll(giveOwnerPermissions.Concat(giveRolePermissions));
+                        new ApplicationCommandPermission(botOwner, true)
+                    )
+                );
+
+            var giveRolePermissions = _interactionService.SlashCommands
+                .Where(x => !x.DefaultPermission)
+                .Select(
+                    ownerCommand =>
+                    {
+                        var roleAttribute = ownerCommand.Preconditions.OfType<RequireRoleAttribute>().FirstOrDefault();
+                        var role = roleAttribute == null
+                            ? null
+                            : roleAttribute.RoleId.HasValue
+                                ? guild.GetRole(roleAttribute.RoleId.Value)
+                                : guild.Roles.FirstOrDefault(x => x.Name == roleAttribute.RoleName);
+                        return (ownerCommand, role);
+                    }
+                )
+                .Where(t => t.role != null)
+                .Select(
+                    t =>
+                    {
+                        var (ownerCommand, role) = t;
+                        return _interactionService.ModifySlashCommandPermissionsAsync(
+                            ownerCommand,
+                            guild,
+                            new ApplicationCommandPermission(role, true)
+                        );
+                    }
+                );
+            await Task.WhenAll(giveOwnerPermissions.Concat(giveRolePermissions));
+        }
+        catch (Exception e)
+        {
+            var message = $"Error while registering {_interactionService.SlashCommands.Count} " +
+                $"commands against guild {guild.Name}.";
+            _logger.LogError(e, message);
+        }
     }
 }

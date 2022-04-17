@@ -70,7 +70,7 @@ public class InteractionFactory : IInteractionFactory
             }
         }
 
-        if (commandToRun == null || commandToRun.Parameters.Count(x => x.IsRequired) < tokensQueue.Count ||
+        if (commandToRun == null || commandToRun.Parameters.Count(x => x.IsRequired) > tokensQueue.Count ||
             interactionData == null)
             throw new Exception($"No command was found for {text}");
 
@@ -82,7 +82,7 @@ public class InteractionFactory : IInteractionFactory
                         if (!parameter.IsRequired && i >= tokensQueue.Count) return null;
 
                         var token = parameter.DiscordOptionType == ApplicationCommandOptionType.String &&
-                            i == currentOptionsList.Count - 1
+                            i == commandToRun.Parameters.Count - 1
                                 ? string.Join(" ", tokensQueue.Skip(i))
                                 : tokensQueue.ElementAt(i);
 
