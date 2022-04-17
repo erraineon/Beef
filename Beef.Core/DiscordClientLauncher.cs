@@ -65,16 +65,12 @@ public class DiscordClientLauncher : IHostedService
         }
 
         _discordClient.Ready += OnReady;
-        _discordClient.GuildAvailable += OnGuildAvailable;
+        _discordClient.GuildAvailable += RegisterCommandsAsync;
+        _discordClient.JoinedGuild += RegisterCommandsAsync;
 
         await _discordClient.LoginAsync(TokenType.Bot, _discordOptions.Value.Token);
         await _discordClient.StartAsync();
         await discordReady.Task;
-    }
-
-    private async Task OnGuildAvailable(SocketGuild guild)
-    {
-        await RegisterCommandsAsync(guild);
     }
 
     private async Task RegisterCommandsAsync(SocketGuild guild)
