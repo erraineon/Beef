@@ -1,10 +1,9 @@
 ﻿using Beef.Core;
+using Beef.Core.Interactions;
 using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace Beef.Telegram;
 

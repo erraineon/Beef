@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace Beef.Core;
+namespace Beef.Core.Interactions;
 
 public class BotInteractionData : IApplicationCommandInteractionData
 {

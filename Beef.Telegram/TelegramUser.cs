@@ -24,11 +24,6 @@ namespace Beef.Telegram
             throw new NotImplementedException();
         }
 
-        public string GetBannerUrl(ImageFormat format = ImageFormat.Auto, ushort size = 256)
-        {
-            throw new NotImplementedException();
-        }
-
         public string GetDefaultAvatarUrl()
         {
             throw new NotImplementedException();
@@ -39,14 +34,7 @@ namespace Beef.Telegram
             throw new NotImplementedException();
         }
 
-        public Task<IDMChannel> GetOrCreateDMChannelAsync(RequestOptions? options = null)
-        {
-            throw new NotImplementedException();
-        }
-
         public string AvatarId => throw new NotSupportedException();
-        public string BannerId => throw new NotImplementedException();
-        public Color? AccentColor => throw new NotImplementedException();
         public string Discriminator => string.Empty;
         public ushort DiscriminatorValue => default;
         public bool IsBot => _user.IsBot;

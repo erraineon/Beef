@@ -2,7 +2,7 @@
 using Discord;
 using Discord.Interactions;
 
-namespace Beef.Core;
+namespace Beef.Core.Interactions;
 
 public class InteractionFactory : IInteractionFactory
 {
@@ -21,11 +21,7 @@ public class InteractionFactory : IInteractionFactory
 
     private IApplicationCommandInteractionData CreateInteractionData(string text)
     {
-        var allTokens = Regex
-            .Matches(text, @"(?<match>\w+)|\""(?<match>[\w\s]*)""")
-            .Select(m => m.Groups["match"].Value)
-            .ToList();
-
+        var allTokens = text.SplitBySpaceAndQuotes();
         var tokensQueue = new Queue<string>(allTokens);
         SlashCommandInfo? commandToRun = default;
         BotInteractionData? interactionData = default;

@@ -3,7 +3,7 @@ using Discord.Interactions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Beef.Core;
+namespace Beef.Core.Interactions;
 
 public class InteractionHandler : IInteractionHandler
 {

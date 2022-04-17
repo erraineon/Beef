@@ -1046,7 +1046,7 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public string Mention => _chat.Title;
+    public string Mention => _chat.Title ?? _chat.Id.ToString();
 
     public IGuildUser CreateGuildUser(ChatMember chatMember)
     {
@@ -1132,14 +1132,13 @@ public class TelegramGuild : IGuild, ITextChannel
             ? _messageCache.FirstOrDefault(um => um.Id == (ulong)messageId)
             : null;
 
-        var message = new TelegramUserMessage
-        {
-            ApiMessage = apiMessage,
-            Attachments = GetAttachments().ToList(),
-            Channel = channel,
-            Author = author,
-            ReferencedMessage = referencedMessage,
-        };
-        return message;
+        var message = new TelegramUserMessage(
+            channel,
+            author,
+            GetAttachments().ToList(),
+            referencedMessage,
+            apiMessage
+        );
+            return message;
     }
 }

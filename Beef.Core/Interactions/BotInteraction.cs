@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace Beef.Core;
+namespace Beef.Core.Interactions;
 
 public class BotInteraction : ISlashCommandInteraction
 {
@@ -11,6 +11,7 @@ public class BotInteraction : ISlashCommandInteraction
         _textChannel = textChannel;
         User = user;
         Data = data;
+        CreatedAt = DateTimeOffset.Now;
     }
 
     public Task RespondAsync(
@@ -138,11 +139,9 @@ public class BotInteraction : ISlashCommandInteraction
     public int Version => 0;
     public bool HasResponded => false;
     public IUser User { get; }
-    public string UserLocale { get; }
-    public string GuildLocale { get; }
-    public bool IsDMInteraction { get; }
-
+    public string UserLocale => "en-US";
+    public string GuildLocale => "en-US";
+    public bool IsDMInteraction => false;
     ulong IEntity<ulong>.Id => throw new NotImplementedException();
-
-    public DateTimeOffset CreatedAt => throw new NotImplementedException();
+    public DateTimeOffset CreatedAt { get; init; }
 }

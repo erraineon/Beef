@@ -17,15 +17,15 @@ namespace Beef.Telegram
             var html = stringWriter.ToString();
             return html;
         }
-    }
 
-    public class LineBreakPreservingParagraphRenderer : HtmlObjectRenderer<ParagraphBlock>
-    {
-        protected override void Write(HtmlRenderer renderer, ParagraphBlock obj)
+        private class LineBreakPreservingParagraphRenderer : HtmlObjectRenderer<ParagraphBlock>
         {
-            if (!renderer.IsFirstInContainer) renderer.WriteLine();
-            renderer.WriteLeafInline(obj);
-            renderer.EnsureLine();
+            protected override void Write(HtmlRenderer renderer, ParagraphBlock obj)
+            {
+                if (!renderer.IsFirstInContainer) renderer.WriteLine();
+                renderer.WriteLeafInline(obj);
+                renderer.EnsureLine();
+            }
         }
     }
 }

@@ -3,42 +3,28 @@ using Discord.Interactions;
 
 namespace Beef.Core.Modules;
 
-[Group("test", "Test commands.")]
 public class TestModule : InteractionModuleBase<IInteractionContext>
 {
-    private readonly IInteractionHandler _interactionHandler;
-    private readonly IInteractionFactory _interactionFactory;
-
-    public TestModule(IInteractionHandler interactionHandler, IInteractionFactory interactionFactory)
-    {
-        _interactionHandler = interactionHandler;
-        _interactionFactory = interactionFactory;
-    }
+    [DefaultPermission(false)]
+    [RequireOwner]
     [SlashCommand("ping", "Responds with pong.")]
-    public async Task<RuntimeResult> Ping()
+    public Task<RuntimeResult> Ping()
     {
-        return CommandResult.Ok("Pong");
+        return Task.FromResult(CommandResult.Ok("pong"));
     }
 
-    [SlashCommand("add", "Adds two numbers.")]
-    public async Task<RuntimeResult> Ping(int a, string b)
+    [SlashCommand("pick", "Randomly picks one of the specified values.")]
+    public Task<RuntimeResult> Pick(string options)
     {
-        return CommandResult.Ok(a + int.Parse(b));
+        var tokens = options.SplitBySpaceAndQuotes().ToList();
+        var random = new Random();
+        return Task.FromResult(CommandResult.Ok(tokens[random.Next(tokens.Count)]));
     }
 
-    [SlashCommand("delay", "Responds after a delay.")]
-    public async Task<RuntimeResult> Delay(TimeSpan delay)
+    [SlashCommand("roll", "Rolls a die with the specified number of sides.")]
+    public Task<RuntimeResult> Pick(int sides)
     {
-        await Task.Delay(delay);
-        return CommandResult.Ok("Ok");
-    }
-
-    [SlashCommand("exec", "Executes a command.")]
-    public async Task<RuntimeResult> Execute(string command)
-    {
-        var interaction = _interactionFactory.CreateInteraction(Context.User, Context.Channel, command);
-        var interactionContext = new InteractionContext(Context.Client, interaction, Context.Channel);
-        _interactionHandler.HandleInteractionContext(interactionContext);
-        return CommandResult.Ok();
+        var random = new Random();
+        return Task.FromResult(CommandResult.Ok(random.Next(sides) + 1));
     }
 }
