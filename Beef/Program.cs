@@ -22,13 +22,7 @@ Host.CreateDefaultBuilder(args)
                 .Configure<TelegramOptions>(context.Configuration.GetSection(nameof(TelegramOptions)))
                 .AddHostedService<TelegramClientLauncher>()
                 .AddSingleton<TelegramChatClient>()
-                .AddSingleton<ITelegramBotClient>(
-                    s => new TelegramBotClient(s.GetRequiredService<IOptions<TelegramOptions>>().Value.Token)
-                )
                 .AddTransient<ITelegramGuildCache, TelegramGuildCache>()
-                .AddTransient<ITelegramGuildFactory, TelegramGuildFactory>()
-                .AddTransient<ITelegramUserMessageFactory, TelegramUserMessageFactory>()
-                .AddTransient<IUserMessageCache, UserMessageCache>()
                 .Configure<DiscordOptions>(context.Configuration.GetSection(nameof(DiscordOptions)))
                 .AddSingleton(discordSocketClient)
                 .AddSingleton(

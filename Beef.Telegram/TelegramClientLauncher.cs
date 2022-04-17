@@ -1,4 +1,5 @@
 ﻿using Beef.Core;
+using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,18 +15,15 @@ public class TelegramClientLauncher : IHostedService
     private readonly ILogger<TelegramClientLauncher> _logger;
 
     private readonly TelegramChatClient _telegramChatClient;
-    private readonly ITelegramGuildFactory _telegramGuildFactory;
 
     public TelegramClientLauncher(
         TelegramChatClient telegramChatClient,
-        ITelegramGuildFactory telegramGuildFactory,
         IInteractionFactory interactionFactory,
         ILogger<TelegramClientLauncher> logger,
         IInteractionHandler interactionHandler
     )
     {
         _telegramChatClient = telegramChatClient;
-        _telegramGuildFactory = telegramGuildFactory;
         _interactionFactory = interactionFactory;
         _logger = logger;
         _interactionHandler = interactionHandler;
@@ -33,8 +31,8 @@ public class TelegramClientLauncher : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        _telegramChatClient.MessageReceived += OnMessageReceivedAsync;
         await _telegramChatClient.StartAsync();
-        _telegramChatClient.Update += OnUpdateAsync;
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -42,31 +40,26 @@ public class TelegramClientLauncher : IHostedService
         await _telegramChatClient.StopAsync();
     }
 
-    private async Task OnUpdateAsync(Update update)
+    private Task OnMessageReceivedAsync(IUserMessage message)
     {
         try
         {
-            if (update.Message is { Chat.Type: not ChatType.Private } telegramMessage)
+            const string commandPrefix = ".";
+            if (message.Content.StartsWith(commandPrefix) && message.Content.Length > 1 && !message.Author.IsBot)
             {
-                var telegramGuild = await _telegramGuildFactory.CreateAsync(telegramMessage.Chat);
-                var message = telegramGuild.CacheMessage(telegramMessage);
-
-                const string commandPrefix = ".";
-                if (message.Content.StartsWith(commandPrefix) && message.Content.Length > 1 && !message.Author.IsBot)
-                {
-                    var interaction = _interactionFactory.CreateInteraction(
-                        message.Author,
-                        message.Channel,
-                        message.Content.Substring(commandPrefix.Length)
-                    );
-                    var interactionContext = new InteractionContext(_telegramChatClient, interaction, telegramGuild);
-                    _interactionHandler.HandleInteractionContext(interactionContext);
-                }
+                var interaction = _interactionFactory.CreateInteraction(
+                    message.Author,
+                    message.Channel,
+                    message.Content.Substring(commandPrefix.Length)
+                );
+                var interactionContext = new InteractionContext(_telegramChatClient, interaction, message.Channel);
+                _interactionHandler.HandleInteractionContext(interactionContext);
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while handling a telegram update.");
+            _logger.LogError(e, "An error occurred while handling a telegram message.");
         }
+        return Task.CompletedTask;
     }
 }

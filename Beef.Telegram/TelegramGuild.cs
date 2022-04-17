@@ -12,25 +12,17 @@ namespace Beef.Telegram;
 
 public class TelegramGuild : IGuild, ITextChannel
 {
-    private readonly ITelegramBotClient _api;
-    private readonly TelegramChatClient _telegramChatClient;
+    private readonly ITelegramBotClient _client;
     private readonly Chat _chat;
-    private readonly ITelegramUserMessageFactory _telegramUserMessageFactory;
-    private readonly IUserMessageCache _userMessageCache;
+    private readonly FixedSizedQueue<IUserMessage> _messageCache = new(1000);
 
     public TelegramGuild(
         Chat chat,
-        IUserMessageCache userMessageCache,
-        ITelegramUserMessageFactory telegramUserMessageFactory,
-        ITelegramBotClient api,
-        TelegramChatClient telegramChatClient
+        ITelegramBotClient client
     )
     {
-        _api = api;
-        _telegramChatClient = telegramChatClient;
-        _telegramUserMessageFactory = telegramUserMessageFactory;
+        _client = client;
         _chat = chat;
-        _userMessageCache = userMessageCache;
     }
 
     private IDictionary<ulong, TelegramGuildUser> _cachedUsers { get; } = new Dictionary<ulong, TelegramGuildUser>();
@@ -64,7 +56,7 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public async Task LeaveAsync(RequestOptions? options = null)
     {
-        await _api.LeaveChatAsync(_chat.Id, options?.CancelToken ?? default);
+        await _client.LeaveChatAsync(_chat.Id, options?.CancelToken ?? default);
     }
 
     public IAsyncEnumerable<IReadOnlyCollection<IBan>> GetBansAsync(int limit = 1000, RequestOptions options = null)
@@ -390,7 +382,7 @@ public class TelegramGuild : IGuild, ITextChannel
         RequestOptions? options = null
     )
     {
-        var currentApiUser = await _api.GetMeAsync(options?.CancelToken ?? default);
+        var currentApiUser = await _client.GetMeAsync(options?.CancelToken ?? default);
         var currentUser = CreateGuildUser(currentApiUser);
         return currentUser;
     }
@@ -868,7 +860,7 @@ public class TelegramGuild : IGuild, ITextChannel
 
         var htmlText = TelegramMarkdownConverter.ConvertToHtml(text);
         var replyToMessageId = (int)(messageReference?.MessageId.Value ?? 0);
-        var apiMessage = await _api.SendTextMessageAsync(
+        var apiMessage = await _client.SendTextMessageAsync(
             _chat.Id,
             htmlText,
             ParseMode.Html,
@@ -916,13 +908,13 @@ public class TelegramGuild : IGuild, ITextChannel
         var videoExtensions = new[] { ".gif" };
         var replyToMessageId = (int)(messageReference?.MessageId.Value ?? 0);
         var apiMessage = videoExtensions.Any(filename.EndsWith)
-            ? await _api.SendAnimationAsync(
+            ? await _client.SendAnimationAsync(
                 _chat.Id,
                 new InputOnlineFile(stream, filename),
                 caption: htmlText,
                 replyToMessageId: replyToMessageId
             )
-            : await _api.SendPhotoAsync(
+            : await _client.SendPhotoAsync(
                 _chat.Id,
                 new InputOnlineFile(stream),
                 htmlText,
@@ -972,8 +964,7 @@ public class TelegramGuild : IGuild, ITextChannel
         RequestOptions? options = null
     )
     {
-        var message = _userMessageCache.GetCachedUserMessages(Id)
-            .FirstOrDefault(m => m.Id == id) as IMessage;
+        var message = _messageCache.FirstOrDefault(m => m.Id == id) as IMessage;
         return Task.FromResult(message);
     }
 
@@ -995,13 +986,12 @@ public class TelegramGuild : IGuild, ITextChannel
     )
     {
         // latest messages are first
-        var messages = _userMessageCache.GetCachedUserMessages(Id);
         var selectedMessages = dir switch
         {
-            Direction.After => messages
+            Direction.After => _messageCache
                 .SkipWhile(um => um.Id <= fromMessageId)
                 .Take(limit),
-            Direction.Before => messages
+            Direction.Before => _messageCache
                 .Reverse()
                 .SkipWhile(um => um.Id >= fromMessageId)
                 .Take(limit),
@@ -1029,7 +1019,7 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public Task DeleteMessageAsync(ulong messageId, RequestOptions? options = null)
     {
-        return _api.DeleteMessageAsync(_chat.Id, (int)messageId, options?.CancelToken ?? default);
+        return _client.DeleteMessageAsync(_chat.Id, (int)messageId, options?.CancelToken ?? default);
     }
 
     public Task DeleteMessageAsync(IMessage message, RequestOptions? options = null)
@@ -1077,7 +1067,7 @@ public class TelegramGuild : IGuild, ITextChannel
 
     private async Task<IGuildUser?> GetTelegramGuildUserAsync(int id)
     {
-        var chatMember = await _api.GetChatMemberAsync(_chat.Id, id);
+        var chatMember = await _client.GetChatMemberAsync(_chat.Id, id);
         var currentUser = CreateGuildUser(chatMember);
         return currentUser;
     }
@@ -1121,7 +1111,35 @@ public class TelegramGuild : IGuild, ITextChannel
     public IUserMessage CacheMessage(Message apiMessage)
     {
         var telegramGuildUser = CreateGuildUser(apiMessage.From);
-        var userMessage = _telegramUserMessageFactory.Create(apiMessage, this, telegramGuildUser);
+        var userMessage = CreateMessage(apiMessage, this, telegramGuildUser);
+        _messageCache.Enqueue(userMessage);
         return userMessage;
+    }
+
+
+    private IUserMessage CreateMessage(Message apiMessage, ITextChannel channel, IGuildUser author)
+    {
+        IEnumerable<IAttachment> GetAttachments()
+        {
+            if (apiMessage.Photo is { } photos)
+                yield return new TelegramAttachment
+                {
+                    Filename = photos.Last().FileId
+                };
+        }
+
+        var referencedMessage = apiMessage.ReplyToMessage is { MessageId: var messageId }
+            ? _messageCache.FirstOrDefault(um => um.Id == (ulong)messageId)
+            : null;
+
+        var message = new TelegramUserMessage
+        {
+            ApiMessage = apiMessage,
+            Attachments = GetAttachments().ToList(),
+            Channel = channel,
+            Author = author,
+            ReferencedMessage = referencedMessage,
+        };
+        return message;
     }
 }

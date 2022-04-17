@@ -1,30 +1,29 @@
 ﻿using Discord;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Beef.Telegram;
 
 public class TelegramChatClient : IDiscordClient
 {
-    private readonly ITelegramBotClient _api;
+    private readonly ILogger<TelegramChatClient> _logger;
     private readonly ITelegramGuildCache _telegramGuildCache;
-    private readonly ITelegramGuildFactory _telegramGuildFactory;
     private readonly IOptions<TelegramOptions> _telegramOptions;
-    private IApplication? _application;
     private CancellationTokenSource _cancellationTokenSource = new();
+    private ITelegramBotClient? _telegramBotClient;
 
     public TelegramChatClient(
         IOptions<TelegramOptions> telegramOptions,
-        ITelegramGuildFactory telegramGuildFactory,
-        ITelegramBotClient api,
-        ITelegramGuildCache telegramGuildCache
+        ITelegramGuildCache telegramGuildCache,
+        ILogger<TelegramChatClient> logger
     )
     {
         _telegramOptions = telegramOptions;
-        _telegramGuildFactory = telegramGuildFactory;
-        _api = api;
         _telegramGuildCache = telegramGuildCache;
+        _logger = logger;
     }
 
     public void Dispose()
@@ -34,9 +33,12 @@ public class TelegramChatClient : IDiscordClient
 
     public Task StartAsync()
     {
-        _api.StartReceiving(OnUpdateAsync, OnErrorAsync, cancellationToken: _cancellationTokenSource.Token);
-        CurrentUser = new TelegramSelfUser(_api.BotId.Value);
-        _application = new TelegramApplication(_telegramOptions.Value.BotOwnerId);
+        _telegramBotClient = new TelegramBotClient(_telegramOptions.Value.Token);
+        Client.StartReceiving(
+            OnUpdateAsync,
+            OnErrorAsync,
+            cancellationToken: _cancellationTokenSource.Token
+        );
         return Task.CompletedTask;
     }
 
@@ -44,12 +46,13 @@ public class TelegramChatClient : IDiscordClient
     {
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource = new CancellationTokenSource();
+        _telegramBotClient = null;
         return Task.CompletedTask;
     }
 
     public Task<IApplication?> GetApplicationInfoAsync(RequestOptions? options = null)
     {
-        return Task.FromResult(_application);
+        return Task.FromResult((IApplication?)new TelegramApplication(_telegramOptions.Value.BotOwnerId));
     }
 
     public async Task<IChannel?> GetChannelAsync(
@@ -58,7 +61,7 @@ public class TelegramChatClient : IDiscordClient
         RequestOptions? options = null
     )
     {
-        var channel = await _telegramGuildFactory.CreateAsync((long)id);
+        var channel = await GetOrCreateTelegramGuildAsync((long)id);
         return channel;
     }
 
@@ -125,7 +128,7 @@ public class TelegramChatClient : IDiscordClient
         RequestOptions? options = null
     )
     {
-        var guild = await _telegramGuildFactory.CreateAsync((long)id);
+        var guild = await GetOrCreateTelegramGuildAsync((long)id);
         return guild;
     }
 
@@ -134,10 +137,7 @@ public class TelegramChatClient : IDiscordClient
         RequestOptions? options = null
     )
     {
-        var guilds = Task.WhenAll(
-            _telegramGuildCache.GetAllCachedChatIds()
-                .Select(_telegramGuildFactory.CreateAsync)
-        );
+        var guilds = Task.WhenAll(_telegramGuildCache.GetAllCachedChatIds().Select(GetOrCreateTelegramGuildAsync));
         return await guilds;
     }
 
@@ -196,12 +196,54 @@ public class TelegramChatClient : IDiscordClient
     }
 
     public ConnectionState ConnectionState => throw new NotImplementedException();
-    public ISelfUser? CurrentUser { get; private set; }
+
+    public ISelfUser CurrentUser => new TelegramSelfUser(
+        Client.BotId ?? throw new Exception("Could not retrieve the Telegram bot ID.")
+    );
+
     public TokenType TokenType => TokenType.Bot;
+
+    public ITelegramBotClient Client =>
+        _telegramBotClient ?? throw new Exception("The Telegram client is not running.");
 
     public ValueTask DisposeAsync()
     {
         return ValueTask.CompletedTask;
+    }
+
+    private async Task<TelegramGuild> GetOrCreateTelegramGuildAsync(long chatId)
+    {
+        var guild = await _telegramGuildCache.GetOrCreateAsync(
+            chatId,
+            () => CreateTelegramGuildAsync(chatId)
+        );
+        return guild;
+    }
+
+    private async Task<TelegramGuild> GetOrCreateTelegramGuildAsync(Chat chat)
+    {
+        var guild = await _telegramGuildCache.GetOrCreateAsync(
+            chat.Id,
+            () => CreateTelegramGuildAsync(chat)
+        );
+        return guild;
+    }
+
+    private async Task<TelegramGuild> CreateTelegramGuildAsync(long chatId)
+    {
+        var chat = await Client.GetChatAsync(new ChatId(chatId), CancellationToken.None);
+        return await CreateTelegramGuildAsync(chat);
+    }
+
+    public async Task<TelegramGuild> CreateTelegramGuildAsync(Chat chat)
+    {
+        var telegramGuild = new TelegramGuild(
+            chat,
+            Client
+        );
+        var chatAdministrators = await Client.GetChatAdministratorsAsync(chat.Id);
+        foreach (var chatAdministrator in chatAdministrators) telegramGuild.CreateGuildUser(chatAdministrator);
+        return telegramGuild;
     }
 
     private Task OnErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken cancellationToken)
@@ -209,23 +251,35 @@ public class TelegramChatClient : IDiscordClient
         return Task.CompletedTask;
     }
 
-    public event Func<Update, Task> Update = _ => Task.CompletedTask;
+    public event Func<IUserMessage, Task> MessageReceived = _ => Task.CompletedTask;
 
-    private async Task OnUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
+    private async Task OnUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
     {
-        await Update(update);
+        try
+        {
+            if (update.Message is { Chat.Type: not ChatType.Private } telegramMessage)
+            {
+                var telegramGuild = await GetOrCreateTelegramGuildAsync(telegramMessage.Chat);
+                var message = telegramGuild.CacheMessage(telegramMessage);
+                await MessageReceived(message);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occurred while handling a telegram update.");
+        }
     }
 
     public async Task<byte[]> DownloadFileAsync(string fileId)
     {
         var memoryStream = new MemoryStream();
-        await _api.GetInfoAndDownloadFileAsync(fileId, memoryStream);
+        await Client.GetInfoAndDownloadFileAsync(fileId, memoryStream);
         return memoryStream.ToArray();
     }
 
     public async Task<string?> GetAvatarIdAsync(IUser user)
     {
-        var userPhotos = (await _api.GetUserProfilePhotosAsync((int)user.Id, 0, 1)).Photos;
+        var userPhotos = (await Client.GetUserProfilePhotosAsync((int)user.Id, 0, 1)).Photos;
         return userPhotos.FirstOrDefault()?.FirstOrDefault().FileId;
     }
 }
