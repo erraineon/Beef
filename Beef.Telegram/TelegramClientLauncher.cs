@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using Telegram.Bot;
+﻿using Beef.Core;
+using Discord.Interactions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -8,39 +9,64 @@ namespace Beef.Telegram;
 
 public class TelegramClientLauncher : IHostedService
 {
-    private readonly IOptions<TelegramOptions> _telegramOptions;
-    private TelegramBotClient? _telegramBotClient;
+    private readonly IInteractionFactory _interactionFactory;
+    private readonly IInteractionHandler _interactionHandler;
+    private readonly ILogger<TelegramClientLauncher> _logger;
 
-    public TelegramClientLauncher(IOptions<TelegramOptions> telegramOptions)
+    private readonly TelegramChatClient _telegramChatClient;
+    private readonly ITelegramGuildFactory _telegramGuildFactory;
+
+    public TelegramClientLauncher(
+        TelegramChatClient telegramChatClient,
+        ITelegramGuildFactory telegramGuildFactory,
+        IInteractionFactory interactionFactory,
+        ILogger<TelegramClientLauncher> logger,
+        IInteractionHandler interactionHandler
+    )
     {
-        _telegramOptions = telegramOptions;
+        _telegramChatClient = telegramChatClient;
+        _telegramGuildFactory = telegramGuildFactory;
+        _interactionFactory = interactionFactory;
+        _logger = logger;
+        _interactionHandler = interactionHandler;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _telegramBotClient = new TelegramBotClient(_telegramOptions.Value.Token);
-        _telegramBotClient.StartReceiving(OnUpdateAsync, OnErrorAsync, cancellationToken: cancellationToken);
-        return Task.CompletedTask;
+        await _telegramChatClient.StartAsync();
+        _telegramChatClient.Update += OnUpdateAsync;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
-        return Task.CompletedTask;
+        await _telegramChatClient.StopAsync();
     }
 
-    private Task OnErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken cancellationToken)
+    private async Task OnUpdateAsync(Update update)
     {
-        return Task.CompletedTask;
-    }
+        try
+        {
+            if (update.Message is { Chat.Type: not ChatType.Private } telegramMessage)
+            {
+                var telegramGuild = await _telegramGuildFactory.CreateAsync(telegramMessage.Chat);
+                var message = telegramGuild.CacheMessage(telegramMessage);
 
-    private async Task OnUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
-    {
-        if (update is { Type: UpdateType.Message, Message.Text: "ping" })
-            await client.SendTextMessageAsync(
-                update.Message.Chat.Id,
-                "pong",
-                replyToMessageId: update.Message.MessageId,
-                cancellationToken: cancellationToken
-            );
+                const string commandPrefix = ".";
+                if (message.Content.StartsWith(commandPrefix) && message.Content.Length > 1 && !message.Author.IsBot)
+                {
+                    var interaction = _interactionFactory.CreateInteraction(
+                        message.Author,
+                        message.Channel,
+                        message.Content.Substring(commandPrefix.Length)
+                    );
+                    var interactionContext = new InteractionContext(_telegramChatClient, interaction, telegramGuild);
+                    _interactionHandler.HandleInteractionContext(interactionContext);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occurred while handling a telegram update.");
+        }
     }
 }

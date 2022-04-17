@@ -1,4 +1,4 @@
-﻿namespace Beef.Discord;
+﻿namespace Beef.Core;
 
 public class DiscordOptions
 {
