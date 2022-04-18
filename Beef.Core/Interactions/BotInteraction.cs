@@ -15,36 +15,36 @@ public class BotInteraction : ISlashCommandInteraction
     }
 
     public Task RespondAsync(
-        string text = null,
-        Embed[] embeds = null,
-        bool isTTS = false,
+        string? text = null,
+        Embed[]? embeds = null,
+        bool isTts = false,
         bool ephemeral = false,
-        AllowedMentions allowedMentions = null,
-        MessageComponent components = null,
-        Embed embed = null,
-        RequestOptions options = null
+        AllowedMentions? allowedMentions = null,
+        MessageComponent? components = null,
+        Embed? embed = null,
+        RequestOptions? options = null
     )
     {
-        return FollowupAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
+        return FollowupAsync(text, embeds, isTts, ephemeral, allowedMentions, components, embed, options);
     }
 
     public Task RespondWithFilesAsync(
         IEnumerable<FileAttachment> attachments,
-        string text = null,
-        Embed[] embeds = null,
-        bool isTTS = false,
+        string? text = null,
+        Embed[]? embeds = null,
+        bool isTts = false,
         bool ephemeral = false,
-        AllowedMentions allowedMentions = null,
-        MessageComponent components = null,
-        Embed embed = null,
-        RequestOptions options = null
+        AllowedMentions? allowedMentions = null,
+        MessageComponent? components = null,
+        Embed? embed = null,
+        RequestOptions? options = null
     )
     {
         return FollowupWithFilesAsync(
             attachments,
             text,
             embeds,
-            isTTS,
+            isTts,
             ephemeral,
             allowedMentions,
             components,
@@ -54,19 +54,19 @@ public class BotInteraction : ISlashCommandInteraction
     }
 
     public Task<IUserMessage> FollowupAsync(
-        string text = null,
-        Embed[] embeds = null,
-        bool isTTS = false,
+        string? text = null,
+        Embed[]? embeds = null,
+        bool isTts = false,
         bool ephemeral = false,
-        AllowedMentions allowedMentions = null,
-        MessageComponent components = null,
-        Embed embed = null,
-        RequestOptions options = null
+        AllowedMentions? allowedMentions = null,
+        MessageComponent? components = null,
+        Embed? embed = null,
+        RequestOptions? options = null
     )
     {
         return _textChannel.SendMessageAsync(
             text,
-            isTTS,
+            isTts,
             embed,
             options,
             allowedMentions,
@@ -79,20 +79,20 @@ public class BotInteraction : ISlashCommandInteraction
 
     public Task<IUserMessage> FollowupWithFilesAsync(
         IEnumerable<FileAttachment> attachments,
-        string text = null,
-        Embed[] embeds = null,
-        bool isTTS = false,
+        string? text = null,
+        Embed[]? embeds = null,
+        bool isTts = false,
         bool ephemeral = false,
-        AllowedMentions allowedMentions = null,
-        MessageComponent components = null,
-        Embed embed = null,
-        RequestOptions options = null
+        AllowedMentions? allowedMentions = null,
+        MessageComponent? components = null,
+        Embed? embed = null,
+        RequestOptions? options = null
     )
     {
         return _textChannel.SendFilesAsync(
             attachments,
             text,
-            isTTS,
+            isTts,
             embed,
             options,
             allowedMentions,
@@ -103,27 +103,27 @@ public class BotInteraction : ISlashCommandInteraction
         );
     }
 
-    public Task<IUserMessage> GetOriginalResponseAsync(RequestOptions options = null)
+    public Task<IUserMessage> GetOriginalResponseAsync(RequestOptions? options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IUserMessage> ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions options = null)
+    public Task<IUserMessage> ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions? options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task DeleteOriginalResponseAsync(RequestOptions options = null)
+    public Task DeleteOriginalResponseAsync(RequestOptions? options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task DeferAsync(bool ephemeral = false, RequestOptions options = null)
+    public Task DeferAsync(bool ephemeral = false, RequestOptions? options = null)
     {
         return Task.CompletedTask;
     }
 
-    public Task RespondWithModalAsync(Modal modal, RequestOptions options = null)
+    public Task RespondWithModalAsync(Modal modal, RequestOptions? options = null)
     {
         throw new NotImplementedException();
     }
@@ -143,5 +143,5 @@ public class BotInteraction : ISlashCommandInteraction
     public string GuildLocale => "en-US";
     public bool IsDMInteraction => false;
     ulong IEntity<ulong>.Id => throw new NotImplementedException();
-    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; }
 }

@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Discord;
+﻿using Discord;
 using Discord.Interactions;
 
 namespace Beef.Core.Interactions;
@@ -74,30 +73,29 @@ public class InteractionFactory : IInteractionFactory
             interactionData == null)
             throw new Exception($"No command was found for {text}");
 
-        currentOptionsList.AddRange(
-            commandToRun.Parameters
-                .Select(
-                    (parameter, i) =>
-                    {
-                        if (!parameter.IsRequired && i >= tokensQueue.Count) return null;
+        var parameterOptions = commandToRun.Parameters
+            .Select(
+                (parameter, i) =>
+                {
+                    if (!parameter.IsRequired && i >= tokensQueue.Count) return null;
 
-                        var token = parameter.DiscordOptionType == ApplicationCommandOptionType.String &&
-                            i == commandToRun.Parameters.Count - 1
-                                ? string.Join(" ", tokensQueue.Skip(i))
-                                : tokensQueue.ElementAt(i);
+                    var token = parameter.DiscordOptionType == ApplicationCommandOptionType.String &&
+                        i == commandToRun.Parameters.Count - 1
+                            ? string.Join(" ", tokensQueue.Skip(i))
+                            : tokensQueue.ElementAt(i);
 
-                        return new BotInteractionDataOption(
-                            parameter.Name,
-                            token,
-                            parameter.DiscordOptionType ?? ApplicationCommandOptionType.String,
-                            null
-                        );
-                    }
-                )
-                .Where(x => x != null)
-                .Select(x => x!)
-        );
+                    return new BotInteractionDataOption(
+                        parameter.Name,
+                        token,
+                        parameter.DiscordOptionType ?? ApplicationCommandOptionType.String,
+                        null
+                    );
+                }
+            )
+            .Where(x => x != null)
+            .Select(x => x!);
 
+        currentOptionsList.AddRange(parameterOptions);
         return interactionData;
     }
 }

@@ -13,7 +13,7 @@ public class BotInteractionData : IApplicationCommandInteractionData
         Options = options;
     }
 
-    public ulong Id => throw new NotImplementedException();
+    public ulong Id => throw new NotSupportedException();
     public string Name { get; }
     public IReadOnlyCollection<IApplicationCommandInteractionDataOption> Options { get; }
 }

@@ -1,4 +1,5 @@
-﻿using Beef.Core.Interactions;
+﻿using System.Reflection;
+using Beef.Core.Interactions;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -41,7 +42,21 @@ public class DiscordClientLauncher : IHostedService
         _discordClient.JoinedGuild += RegisterCommandsToGuildAsync;
 
         await _interactionService.AddModulesAsync(GetType().Assembly, _serviceProvider);
-        await LoginAsync();
+
+        var discordReady = new TaskCompletionSource();
+
+        Task OnReady()
+        {
+            _discordClient.Ready -= OnReady;
+            discordReady.SetResult();
+            return Task.CompletedTask;
+        }
+
+        _discordClient.Ready += OnReady;
+
+        await _discordClient.LoginAsync(TokenType.Bot, _discordOptions.Value.Token);
+        await _discordClient.StartAsync();
+        await discordReady.Task;
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -57,24 +72,6 @@ public class DiscordClientLauncher : IHostedService
         );
         _interactionHandler.HandleInteractionContext(context);
         return Task.CompletedTask;
-    }
-
-    private async Task LoginAsync()
-    {
-        var discordReady = new TaskCompletionSource();
-
-        Task OnReady()
-        {
-            _discordClient.Ready -= OnReady;
-            discordReady.SetResult();
-            return Task.CompletedTask;
-        }
-
-        _discordClient.Ready += OnReady;
-
-        await _discordClient.LoginAsync(TokenType.Bot, _discordOptions.Value.Token);
-        await _discordClient.StartAsync();
-        await discordReady.Task;
     }
 
     private async Task RegisterCommandsToGuildAsync(SocketGuild guild)
@@ -124,9 +121,7 @@ public class DiscordClientLauncher : IHostedService
         }
         catch (Exception e)
         {
-            var message = $"Error while registering {_interactionService.SlashCommands.Count} " +
-                $"commands against guild {guild.Name}.";
-            _logger.LogError(e, message);
+            _logger.LogError(e, "Error while registering commands against a guild.");
         }
     }
 }
