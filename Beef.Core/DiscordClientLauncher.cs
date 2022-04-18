@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Beef.Core.Interactions;
+﻿using Beef.Core.Interactions;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;

@@ -13,7 +13,9 @@ public class CommandResult : RuntimeResult
 
     public static RuntimeResult Ok(object? result = default)
     {
-        result ??= "👌";
+        if (result is string x && string.IsNullOrWhiteSpace(x) || result == null)
+            result = "👌";
+
         return new CommandResult(
             null,
             string.Empty,
