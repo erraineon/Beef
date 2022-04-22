@@ -32,7 +32,6 @@ jobs:
         env:
           DiscordOptions.Token: ${{ secrets.DISCORD_TOKEN }}
           TelegramOptions.Token: ${{ secrets.TELEGRAM_TOKEN }}
-          TelegramOptions.BotOwnerId: ${{ secrets.TELEGRAM_BOT_OWNER_ID }}
           GoogleOptions.SearchEngineId: ${{ secrets.GOOGLE_SEARCH_ENGINE_ID }}
           GoogleOptions.ApiKey: ${{ secrets.GOOGLE_API_KEY }}
           Gpt3TadmorMindOptions.ApiKey: ${{ secrets.OPENAI_APIKEY }}

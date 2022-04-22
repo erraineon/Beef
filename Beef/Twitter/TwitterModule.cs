@@ -5,7 +5,6 @@ using Discord.Interactions;
 
 namespace Beef.Twitter;
 
-[Group("twitter", "Twitter utilities.")]
 public class TwitterModule : InteractionModuleBase<IInteractionContext>
 {
     private readonly ITweetProvider _tweetProvider;
