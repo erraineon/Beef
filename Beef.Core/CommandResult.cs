@@ -22,4 +22,13 @@ public class CommandResult : RuntimeResult
             result
         );
     }
+
+    public static RuntimeResult Fail(Exception ex)
+    {
+        return new CommandResult(
+            new InteractionCommandError(),
+            ex.Message,
+            ex.Message
+        );
+    }
 }

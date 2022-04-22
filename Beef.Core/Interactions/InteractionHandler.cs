@@ -40,7 +40,15 @@ public class InteractionHandler : IInteractionHandler
     private async Task<IResult> ExecuteInteractionAsync(IInteractionContext context)
     {
         var scope = _serviceProvider.CreateScope();
-        var result = await _interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
+        IResult result;
+        try
+        {
+            result = await _interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
+        }
+        catch (ModuleException e)
+        {
+            result = CommandResult.Fail(e);
+        }
         return result;
     }
 

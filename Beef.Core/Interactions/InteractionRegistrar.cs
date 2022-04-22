@@ -1,78 +1,40 @@
-﻿using Beef.Core.Interactions;
+﻿using System.Reflection;
+using Beef.Core.Discord;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
-namespace Beef.Core;
+namespace Beef.Core.Interactions;
 
-public class DiscordClientLauncher : IHostedService
+public class InteractionRegistrar : IHostedService
 {
     private readonly DiscordSocketClient _discordClient;
-    private readonly IOptions<DiscordOptions> _discordOptions;
-    private readonly IInteractionHandler _interactionHandler;
+
     private readonly InteractionService _interactionService;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DiscordClientLauncher> _logger;
-
-    public DiscordClientLauncher(
-        IOptions<DiscordOptions> discordOptions,
-        DiscordSocketClient discordClient,
-        IServiceProvider serviceProvider,
-        InteractionService interactionService,
-        IInteractionHandler interactionHandler,
-        ILogger<DiscordClientLauncher> logger
-    )
+    public InteractionRegistrar(DiscordSocketClient discordClient, InteractionService interactionService, IServiceProvider serviceProvider, ILogger<DiscordClientLauncher> logger)
     {
-        _discordOptions = discordOptions;
         _discordClient = discordClient;
-        _serviceProvider = serviceProvider;
         _interactionService = interactionService;
-        _interactionHandler = interactionHandler;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _discordClient.InteractionCreated += OnInteractionCreatedAsync;
-        _discordClient.GuildAvailable += RegisterCommandsToGuildAsync;
-        _discordClient.JoinedGuild += RegisterCommandsToGuildAsync;
-
+        await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
         await _interactionService.AddModulesAsync(GetType().Assembly, _serviceProvider);
 
-        var discordReady = new TaskCompletionSource();
-
-        Task OnReady()
-        {
-            _discordClient.Ready -= OnReady;
-            discordReady.SetResult();
-            return Task.CompletedTask;
-        }
-
-        _discordClient.Ready += OnReady;
-
-        await _discordClient.LoginAsync(TokenType.Bot, _discordOptions.Value.Token);
-        await _discordClient.StartAsync();
-        await discordReady.Task;
+        _discordClient.GuildAvailable += RegisterCommandsToGuildAsync;
+        _discordClient.JoinedGuild += RegisterCommandsToGuildAsync;
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
+    public Task StopAsync(CancellationToken cancellationToken)
     {
-        await _discordClient.StopAsync();
-    }
-
-    private Task OnInteractionCreatedAsync(SocketInteraction interaction)
-    {
-        var context = new SocketInteractionContext(
-            _discordClient,
-            interaction
-        );
-        _interactionHandler.HandleInteractionContext(context);
         return Task.CompletedTask;
     }
-
     private async Task RegisterCommandsToGuildAsync(SocketGuild guild)
     {
         try

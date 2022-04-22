@@ -1,10 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using Beef;
 using Beef.Core;
 using Beef.Core.Data;
+using Beef.Core.Discord;
 using Beef.Core.Interactions;
 using Beef.Core.Telegram;
+using Beef.Twitter;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -18,13 +19,17 @@ var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(
         (context, services) =>
         {
-            // Telegram
+            // Interactions
             services
-                .Configure<TelegramOptions>(context.Configuration.GetSection(nameof(TelegramOptions)))
-                .AddSingleton<TelegramChatClient>()
-                .AddTransient<ITelegramGuildCache, TelegramGuildCache>()
-                .AddMemoryCache()
-                .AddHostedService<TelegramClientLauncher>();
+                .AddSingleton(
+                    s => new InteractionService(
+                        s.GetService<DiscordSocketClient>(),
+                        new InteractionServiceConfig { DefaultRunMode = RunMode.Sync }
+                    )
+                )
+                .AddTransient<IInteractionHandler, InteractionHandler>()
+                .AddTransient<IInteractionFactory, InteractionFactory>()
+                .AddHostedService<InteractionRegistrar>();
 
             // Discord
             services
@@ -36,24 +41,30 @@ var host = Host.CreateDefaultBuilder(args)
                 )
                 .AddHostedService<DiscordClientLauncher>();
 
-            // Interactions
+            // Telegram
             services
-                .AddSingleton(
-                    s => new InteractionService(
-                        s.GetService<DiscordSocketClient>(),
-                        new InteractionServiceConfig { DefaultRunMode = RunMode.Sync }
-                    )
-                )
-                .AddTransient<IInteractionHandler, InteractionHandler>()
-                .AddTransient<IInteractionFactory, InteractionFactory>();
+                .Configure<TelegramOptions>(context.Configuration.GetSection(nameof(TelegramOptions)))
+                .AddSingleton<TelegramChatClient>()
+                .AddTransient<ITelegramGuildCache, TelegramGuildCache>()
+                .AddMemoryCache()
+                .AddHostedService<TelegramClientLauncher>();
 
-            // Everything else
-            services.AddHostedService<TriggerListener>();
-            services.AddDbContextFactory<BeefDbContext>();
+            // Triggers
+            services
+                .AddDbContextFactory<BeefDbContext>()
+                .AddHostedService<TriggerListener>();
+
+            // Twitter
+            services
+                .Configure<TwitterOptions>(context.Configuration.GetSection(nameof(TwitterOptions)))
+                .AddTransient<ITweetProvider, TweetProvider>()
+                .Decorate<ITweetProvider, CachedTweetProviderDecorator>()
+                .AddTransient<ITwitterContextFactory, TwitterContextFactory>()
+                .Decorate<ITwitterContextFactory, CachedTwitterContextFactoryDecorator>();
         }
     )
     .Build();
 
 var dbContext = host.Services.GetRequiredService<BeefDbContext>();
-dbContext.Database.MigrateAsync();
+dbContext.Database.Migrate();
 host.Run();
