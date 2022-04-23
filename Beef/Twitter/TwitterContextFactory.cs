@@ -7,31 +7,36 @@ namespace Beef.Twitter;
 public class TwitterContextFactory : ITwitterContextFactory
 {
     private readonly IOptions<TwitterOptions> _twitterOptions;
+    private TwitterContext? _twitterContext;
 
     public TwitterContextFactory(IOptions<TwitterOptions> twitterOptions)
     {
         _twitterOptions = twitterOptions;
     }
 
-    public async Task<TwitterContext> CreateAsync()
+    public async Task<TwitterContext> GetOrCreateAsync()
     {
-        var authorizer = new SingleUserAuthorizer
+        if (_twitterContext == null)
         {
-            CredentialStore = new InMemoryCredentialStore
+            var authorizer = new SingleUserAuthorizer
             {
-                ConsumerKey = _twitterOptions.Value.ConsumerKey,
-                ConsumerSecret = _twitterOptions.Value.ConsumerSecret,
-                OAuthToken = _twitterOptions.Value.OAuthToken,
-                OAuthTokenSecret = _twitterOptions.Value.OAuthTokenSecret
-            }
-        };
+                CredentialStore = new InMemoryCredentialStore
+                {
+                    ConsumerKey = _twitterOptions.Value.ConsumerKey,
+                    ConsumerSecret = _twitterOptions.Value.ConsumerSecret,
+                    OAuthToken = _twitterOptions.Value.OAuthToken,
+                    OAuthTokenSecret = _twitterOptions.Value.OAuthTokenSecret
+                }
+            };
 
-        await authorizer.AuthorizeAsync();
-        var context = new TwitterContext(authorizer);
-        var verifyResponse = await context.Account
-            .Where(acct => acct.Type == AccountType.VerifyCredentials)
-            .SingleOrDefaultAsync();
-        if (verifyResponse?.User is { } user) authorizer.CredentialStore.ScreenName = user.ScreenNameResponse;
-        return context;
+            await authorizer.AuthorizeAsync();
+            _twitterContext = new TwitterContext(authorizer);
+            var verifyResponse = await _twitterContext.Account
+                .Where(acct => acct.Type == AccountType.VerifyCredentials)
+                .SingleOrDefaultAsync();
+            if (verifyResponse?.User is { } user) authorizer.CredentialStore.ScreenName = user.ScreenNameResponse;
+        }
+
+        return _twitterContext;
     }
 }

@@ -14,19 +14,21 @@ public class TweetProvider : ITweetProvider
 
     public async Task<IList<Tweet>> GetTweetsAsync(string displayName, ulong? minimumStatusId)
     {
-        var twitterContext = await _twitterContextFactory.CreateAsync();
+        var twitterContext = await _twitterContextFactory.GetOrCreateAsync();
         ulong maxId = default;
         var statuses = new List<Status>();
         List<Status> buffer;
         do
         {
-            var query = twitterContext.Status.Where(tweet =>
-                tweet.Type == StatusType.User &&
-                tweet.ScreenName == displayName &&
-                tweet.Count == 200 &&
-                tweet.TweetMode == TweetMode.Compat &&
-                tweet.IncludeRetweets == false &&
-                tweet.ExcludeReplies == true);
+            var query = twitterContext.Status.Where(
+                tweet =>
+                    tweet.Type == StatusType.User &&
+                    tweet.ScreenName == displayName &&
+                    tweet.Count == 200 &&
+                    tweet.TweetMode == TweetMode.Compat &&
+                    tweet.IncludeRetweets == false &&
+                    tweet.ExcludeReplies == true
+            );
             // ReSharper disable once AccessToModifiedClosure
             if (maxId != default) query = query.Where(tweet => tweet.MaxID == maxId);
             if (minimumStatusId != default) query = query.Where(tweet => tweet.SinceID == minimumStatusId);

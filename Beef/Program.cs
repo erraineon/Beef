@@ -5,14 +5,18 @@ using Beef.Core.Data;
 using Beef.Core.Discord;
 using Beef.Core.Interactions;
 using Beef.Core.Telegram;
+using Beef.Google;
 using Beef.Twitter;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Google.Apis.Customsearch.v1;
+using Google.Apis.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(configurationBuilder => configurationBuilder.AddUserSecrets<Program>())
@@ -59,8 +63,20 @@ var host = Host.CreateDefaultBuilder(args)
                 .Configure<TwitterOptions>(context.Configuration.GetSection(nameof(TwitterOptions)))
                 .AddTransient<ITweetProvider, TweetProvider>()
                 .Decorate<ITweetProvider, CachedTweetProviderDecorator>()
-                .AddTransient<ITwitterContextFactory, TwitterContextFactory>()
-                .Decorate<ITwitterContextFactory, CachedTwitterContextFactoryDecorator>();
+                .AddSingleton<ITwitterContextFactory, TwitterContextFactory>();
+
+            // Google
+            services
+                .Configure<GoogleOptions>(context.Configuration.GetSection(nameof(GoogleOptions)))
+                .AddSingleton(
+                    s => new CustomsearchService(
+                        new BaseClientService.Initializer
+                        {
+                            ApiKey = s.GetRequiredService<IOptions<GoogleOptions>>().Value.ApiKey
+                        }
+                    )
+                )
+                .AddTransient<IGoogleSearchEngine, GoogleSearchEngine>();
         }
     )
     .Build();
