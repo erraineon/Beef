@@ -48,7 +48,17 @@ public class Gpt3Client : IGpt3Client
                 stop = " END"
             }
         );
-        return completion;
+        string result;
+        if (prompt.EndsWith("?"))
+        {
+            var separator = completion.FirstOrDefault() is var c && (char.IsLetterOrDigit(c) || c == '"')
+                ? " "
+                : string.Empty;
+            result = $"{prompt}{separator}{completion}";
+        }
+        else result = completion;
+
+        return result;
     }
 
     private async Task<string> CompleteAsync(object requestData)
