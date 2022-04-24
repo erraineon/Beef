@@ -1,5 +1,4 @@
-﻿using Beef.Gpt3;
-using Discord;
+﻿using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -13,7 +12,7 @@ public class RequireTrustedGuildAttribute : PreconditionAttribute
         var trustedGuilds = services.GetRequiredService<IOptionsSnapshot<TrustedGuilds>>().Value;
         var result = trustedGuilds.Ids.Contains(context.Guild.Id)
             ? PreconditionResult.FromSuccess()
-            : PreconditionResult.FromError("Contact the bot's owner to whitelist this chat.");
+            : PreconditionResult.FromError($"Contact the bot's owner to whitelist chat ID {context.Guild.Id}.");
         return Task.FromResult(result);
     }
 }
