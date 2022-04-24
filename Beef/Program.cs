@@ -1,11 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using Beef;
 using Beef.Core;
 using Beef.Core.Data;
 using Beef.Core.Discord;
 using Beef.Core.Interactions;
 using Beef.Core.Telegram;
 using Beef.Google;
+using Beef.Gpt3;
 using Beef.Twitter;
 using Discord;
 using Discord.Interactions;
@@ -58,6 +60,10 @@ var host = Host.CreateDefaultBuilder(args)
                 .AddDbContextFactory<BeefDbContext>()
                 .AddHostedService<TriggerListener>();
 
+            // Whitelisting
+            services
+                .Configure<TrustedGuilds>(context.Configuration.GetSection(nameof(TrustedGuilds)));
+
             // Twitter
             services
                 .Configure<TwitterOptions>(context.Configuration.GetSection(nameof(TwitterOptions)))
@@ -77,6 +83,11 @@ var host = Host.CreateDefaultBuilder(args)
                     )
                 )
                 .AddTransient<IGoogleSearchEngine, GoogleSearchEngine>();
+
+            // Gpt 3
+            services
+                .Configure<Gpt3Options>(context.Configuration.GetSection(nameof(Gpt3Options)))
+                .AddTransient<IGpt3Client, Gpt3Client>();
         }
     )
     .Build();
