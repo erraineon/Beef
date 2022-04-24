@@ -6,9 +6,9 @@ namespace Beef.Gpt3;
 public class Gpt3Client : IGpt3Client
 {
     private const int MaxTokensToGenerate = 256;
-    private readonly IOptions<Gpt3Options> _gpt3Gpt3Options;
+    private readonly IOptionsSnapshot<Gpt3Options> _gpt3Gpt3Options;
 
-    public Gpt3Client(IOptions<Gpt3Options> gpt3Gpt3Options)
+    public Gpt3Client(IOptionsSnapshot<Gpt3Options> gpt3Gpt3Options)
     {
         _gpt3Gpt3Options = gpt3Gpt3Options;
     }
@@ -44,7 +44,7 @@ public class Gpt3Client : IGpt3Client
                 prompt,
                 model = _gpt3Gpt3Options.Value.ModelName,
                 max_tokens = MaxTokensToGenerate,
-                temperature = 0.75f,
+                temperature = _gpt3Gpt3Options.Value.Temperature,
                 stop = " END"
             }
         );
