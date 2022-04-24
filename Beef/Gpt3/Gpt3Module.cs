@@ -20,6 +20,6 @@ public class Gpt3Module : InteractionModuleBase<IInteractionContext>
         prompt ??= string.Empty;
         if (prompt.Length >= 512) throw new ModuleException("the prompt can be up to 512 characters long");
         var generatedText = await _gpt3Client.GenerateCompletionAsync(prompt);
-        return CommandResult.Ok(generatedText);
+        return SuccessResult.Ok(generatedText);
     }
 }

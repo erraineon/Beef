@@ -45,18 +45,18 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
                 sb.AppendLine($"For {userName}");
             }
 
-            return CommandResult.Ok(sb.ToString());
+            return SuccessResult.Ok(sb.ToString());
         }
 
         [SlashCommand("remove", "Removes the trigger with the specified ID.")]
         public async Task<RuntimeResult> RemoveTrigger(int triggerId)
         {
             var trigger = await _beefDbContext.Triggers.FindAsync(triggerId);
-            if (trigger == null) return CommandResult.Ok($"No trigger with ID {triggerId} was found.");
-            if (trigger.UserId != Context.User.Id) return CommandResult.Ok("You can only remove your own triggers.");
+            if (trigger == null) return SuccessResult.Ok($"No trigger with ID {triggerId} was found.");
+            if (trigger.UserId != Context.User.Id) return SuccessResult.Ok("You can only remove your own triggers.");
             _beefDbContext.Triggers.Remove(trigger);
             await _beefDbContext.SaveChangesAsync();
-            return CommandResult.Ok();
+            return SuccessResult.Ok();
         }
     }
 
@@ -87,7 +87,7 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
             };
             await _beefDbContext.Triggers.AddAsync(trigger);
             await _beefDbContext.SaveChangesAsync();
-            return CommandResult.Ok($"Will remind in {timeSpan.Humanize()} ({dateTime} UTC).");
+            return SuccessResult.Ok($"Will remind in {timeSpan.Humanize()} ({dateTime} UTC).");
         }
     }
 }

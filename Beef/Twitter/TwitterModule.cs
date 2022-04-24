@@ -31,6 +31,6 @@ public class TwitterModule : InteractionModuleBase<IInteractionContext>
         var tweet = !filteredTweets.Any()
             ? throw new ModuleException("no tweets that matched the filter were found")
             : filteredTweets[new Random().Next(filteredTweets.Count)];
-        return CommandResult.Ok($"https://twitter.com/{tweet.AuthorName}/status/{tweet.Id}");
+        return SuccessResult.Ok($"https://twitter.com/{tweet.AuthorName}/status/{tweet.Id}");
     }
 }

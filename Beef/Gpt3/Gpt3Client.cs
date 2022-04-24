@@ -1,4 +1,5 @@
-﻿using Flurl.Http;
+﻿using Beef.Core;
+using Flurl.Http;
 using Microsoft.Extensions.Options;
 
 namespace Beef.Gpt3;
@@ -48,31 +49,32 @@ public class Gpt3Client : IGpt3Client
                 stop = " END"
             }
         );
-        string result;
-        if (!prompt.EndsWith("?"))
-        {
-            var separator = completion.FirstOrDefault() is var c && (char.IsLetterOrDigit(c) || c == '"')
-                ? " "
-                : string.Empty;
-            result = $"{prompt}{separator}{completion}";
-        }
-        else result = completion;
-
+        var shouldRepeatPrompt = !prompt.EndsWith("?");
+        var result = shouldRepeatPrompt ? $"{prompt}{completion}" : completion;
         return result;
     }
 
     private async Task<string> CompleteAsync(object requestData)
     {
-        var result = await "https://api.openai.com/v1/completions"
-            .WithOAuthBearerToken(_gpt3Gpt3Options.Value.ApiKey)
-            .PostJsonAsync(requestData);
-        var response = await result.GetJsonAsync();
-        var text = response.choices[0].text.ToString() as string ?? throw new Exception("no data was generated");
-        return RemoveWhiteSpace(text);
+        var attempts = 0;
+        string text;
+        do
+        {
+            var result = await "https://api.openai.com/v1/completions"
+                .WithOAuthBearerToken(_gpt3Gpt3Options.Value.ApiKey)
+                .PostJsonAsync(requestData);
+            var response = await result.GetJsonAsync();
+            text = RemoveWhiteSpace((string)response.choices[0].text.ToString());
+        } while (string.IsNullOrWhiteSpace(text) && attempts++ < _gpt3Gpt3Options.Value.MaxAttempts);
+
+        if (string.IsNullOrWhiteSpace(text))
+            throw new ModuleException("I couldn't think of anything.");
+
+        return text;
     }
 
     private static string RemoveWhiteSpace(string text)
     {
-        return text.Replace("\n\n", "\n").Trim('\r', '\n', ' ');
+        return text.Replace("\n\n", "\n").Trim('\r', '\n').TrimEnd(' ');
     }
 }

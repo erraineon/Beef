@@ -29,7 +29,9 @@ public class InteractionHandler : IInteractionHandler
             var interactionTask = ExecuteInteractionAsync(context);
             var isLate = await DeferInteractionIfLateAsync(context, interactionTask);
             var result = await interactionTask;
-            await HandleResultAsync(context, result, isLate);
+
+            if (result.Error != InteractionCommandError.UnknownCommand)
+                await HandleResultAsync(context, result, isLate);
         }
         catch (Exception e)
         {
@@ -40,14 +42,10 @@ public class InteractionHandler : IInteractionHandler
     private async Task<IResult> ExecuteInteractionAsync(IInteractionContext context)
     {
         var scope = _serviceProvider.CreateScope();
-        IResult result;
-        try
+        var result = await _interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
+        if (!result.IsSuccess)
         {
-            result = await _interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
-        }
-        catch (ModuleException e)
-        {
-            result = CommandResult.Fail(e);
+            _logger.LogError($"Error while executing an interaction: {result.Error} {result.ErrorReason}");
         }
         return result;
     }
@@ -78,9 +76,13 @@ public class InteractionHandler : IInteractionHandler
     {
         try
         {
-            var contentToReplyWith = result is CommandResult commandResult ? commandResult.Result.ToString() :
-                !result.IsSuccess ? result.ErrorReason :
-                throw new Exception($"Unknown interaction result type: {result}");
+            var contentToReplyWith = result switch
+            {
+                ExecuteResult { Exception: ModuleException e } => e.Message,
+                SuccessResult { Result: null or "" } => "👌",
+                SuccessResult { Result: var r } => r.ToString(),
+                _ => "👎"
+            };
             await (isLate
                 ? context.Interaction.FollowupAsync(contentToReplyWith)
                 : context.Interaction.RespondAsync(contentToReplyWith));
