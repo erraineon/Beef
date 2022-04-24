@@ -49,7 +49,7 @@ public class Gpt3Client : IGpt3Client
             }
         );
         string result;
-        if (prompt.EndsWith("?"))
+        if (!prompt.EndsWith("?"))
         {
             var separator = completion.FirstOrDefault() is var c && (char.IsLetterOrDigit(c) || c == '"')
                 ? " "
