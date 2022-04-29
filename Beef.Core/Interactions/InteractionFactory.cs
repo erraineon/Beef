@@ -71,7 +71,7 @@ public class InteractionFactory : IInteractionFactory
 
         if (commandToRun == null || commandToRun.Parameters.Count(x => x.IsRequired) > tokensQueue.Count ||
             interactionData == null)
-            throw new Exception($"No command was found for {text}");
+            throw new Exception($"No command was found for: {text}");
 
         var parameterOptions = commandToRun.Parameters
             .Select(
@@ -83,6 +83,13 @@ public class InteractionFactory : IInteractionFactory
                         i == commandToRun.Parameters.Count - 1
                             ? string.Join(" ", tokensQueue.Skip(i))
                             : tokensQueue.ElementAt(i);
+
+                    if (parameter.ParameterType.IsEnum)
+                        token = Enum.TryParse(parameter.ParameterType, token, true, out var x) && x != null
+                            ? x.ToString()
+                            : throw new Exception(
+                                $"Failed to convert {token} to enum type {parameter.ParameterType.Name}."
+                            );
 
                     return new BotInteractionDataOption(
                         parameter.Name,
