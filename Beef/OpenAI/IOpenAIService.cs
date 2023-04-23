@@ -1,4 +1,4 @@
-﻿namespace Beef.OpenAI;
+﻿namespace Beef.OpenAi;
 
 public interface IOpenAiService{
     Task<string> GenerateCompletionAsync(string prompt);

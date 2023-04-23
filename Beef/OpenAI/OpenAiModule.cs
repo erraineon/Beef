@@ -4,7 +4,7 @@ using Discord.Commands;
 using Discord.Interactions;
 using RuntimeResult = Discord.Interactions.RuntimeResult;
 
-namespace Beef.OpenAI;
+namespace Beef.OpenAi;
 
 public class OpenAiModule : InteractionModuleBase<IInteractionContext>
 {

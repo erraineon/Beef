@@ -1,4 +1,4 @@
-﻿namespace Beef.OpenAI;
+﻿namespace Beef.OpenAi;
 
 public class OpenAiOptions
 {

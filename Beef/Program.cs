@@ -7,7 +7,7 @@ using Beef.Core.Discord;
 using Beef.Core.Interactions;
 using Beef.Core.Telegram;
 using Beef.Google;
-using Beef.OpenAI;
+using Beef.OpenAi;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -83,8 +83,8 @@ var host = Host.CreateDefaultBuilder(args)
                 .Configure<Gpt3Options>(context.Configuration.GetSection(nameof(Gpt3Options)))
                 .Configure<OpenAiOptions>(context.Configuration.GetSection(nameof(OpenAiOptions)))
                 .AddTransient<IOpenAiService, OpenAiService>()
-                .AddSingleton<OpenAI.GPT3.Interfaces.IOpenAIService>(
-                    s => new OpenAI.GPT3.Managers.OpenAIService(
+                .AddSingleton<IOpenAIService>(
+                    s => new OpenAIService(
                         new OpenAI.GPT3.OpenAiOptions
                         {
                             ApiKey = s.GetRequiredService<IOptions<OpenAiOptions>>().Value.ApiKey
