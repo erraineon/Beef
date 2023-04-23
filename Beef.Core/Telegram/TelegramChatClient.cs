@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+#pragma warning disable CS8625
 
 namespace Beef.Core.Telegram;
 
@@ -290,6 +291,6 @@ public class TelegramChatClient : IDiscordClient
     public async Task<string?> GetAvatarIdAsync(IUser user)
     {
         var userPhotos = (await Client.GetUserProfilePhotosAsync((int)user.Id, 0, 1)).Photos;
-        return userPhotos.FirstOrDefault()?.FirstOrDefault().FileId;
+        return userPhotos.FirstOrDefault()?.FirstOrDefault()?.FileId;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Telegram.Bot.Types;
+#pragma warning disable CS8625
 
 namespace Beef.Core.Telegram;
 
@@ -31,7 +32,7 @@ public class TelegramUserMessage : IUserMessage
     }
 
     public MessageType Type => MessageType.Default;
-    public MessageSource Source => ApiMessage.From.IsBot ? MessageSource.Bot : MessageSource.User;
+    public MessageSource Source => ApiMessage.From?.IsBot == true ? MessageSource.Bot : MessageSource.User;
     public bool IsTTS => false;
     public bool IsPinned => throw new NotImplementedException();
     public bool IsSuppressed => throw new NotImplementedException();

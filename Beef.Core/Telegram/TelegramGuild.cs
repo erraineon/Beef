@@ -7,6 +7,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+#pragma warning disable CS8625
 
 namespace Beef.Core.Telegram;
 
@@ -633,11 +634,11 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public string Name => _chat.Title;
+    public string Name => _chat.Title ?? String.Empty;
 
     public int AFKTimeout => throw new NotImplementedException();
 
-    public bool IsWidgetEnabled { get; }
+    public bool IsWidgetEnabled => throw new NotImplementedException();
 
     public DefaultMessageNotifications DefaultMessageNotifications => throw new NotImplementedException();
 
@@ -654,8 +655,8 @@ public class TelegramGuild : IGuild, ITextChannel
     public string SplashId => throw new NotImplementedException();
 
     public string SplashUrl => throw new NotImplementedException();
-    public string DiscoverySplashId { get; }
-    public string DiscoverySplashUrl { get; }
+    public string DiscoverySplashId => throw new NotImplementedException();
+    public string DiscoverySplashUrl => throw new NotImplementedException();
 
     public bool Available => throw new NotImplementedException();
 
@@ -678,9 +679,9 @@ public class TelegramGuild : IGuild, ITextChannel
     public IRole EveryoneRole => throw new NotImplementedException();
 
     public IReadOnlyCollection<GuildEmote> Emotes => throw new NotImplementedException();
-    public IReadOnlyCollection<ICustomSticker> Stickers { get; }
+    public IReadOnlyCollection<ICustomSticker> Stickers => throw new NotImplementedException();
 
-    GuildFeatures IGuild.Features { get; }
+    GuildFeatures IGuild.Features => throw new NotImplementedException();
 
     public IReadOnlyCollection<IRole> Roles => throw new NotImplementedException();
 
@@ -1165,7 +1166,7 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public IUserMessage CacheMessage(Message apiMessage)
     {
-        var telegramGuildUser = CreateGuildUser(apiMessage.From);
+        var telegramGuildUser = CreateGuildUser(apiMessage.From ?? throw new InvalidOperationException("Message sender can't be null."));
         var userMessage = CreateMessage(apiMessage, this, telegramGuildUser);
         _messageCache.Enqueue(userMessage);
         return userMessage;

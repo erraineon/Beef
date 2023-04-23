@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Telegram.Bot.Types;
+#pragma warning disable CS8625
 
 namespace Beef.Core.Telegram;
 
@@ -91,10 +92,10 @@ public class TelegramGuildUser : TelegramUser, IGuildUser
     }
 
     public DateTimeOffset? JoinedAt => throw new NotImplementedException();
-    public string DisplayName { get; }
+    public string DisplayName => throw new NotImplementedException();
     public string? Nickname => _user.FirstName;
-    public string DisplayAvatarId { get; }
-    public string GuildAvatarId { get; }
+    public string DisplayAvatarId => throw new NotImplementedException();
+    public string GuildAvatarId => throw new NotImplementedException();
 
     public GuildPermissions GuildPermissions => _isAdmin
         ? GuildPermissions.All

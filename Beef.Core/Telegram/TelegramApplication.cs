@@ -21,8 +21,8 @@ public class TelegramApplication : IApplication
     public bool BotRequiresCodeGrant => throw new NotImplementedException();
     public ITeam Team => throw new NotImplementedException();
     public IUser Owner { get; }
-    public string TermsOfService { get; }
-    public string PrivacyPolicy { get; }
+    public string TermsOfService => throw new NotImplementedException();
+    public string PrivacyPolicy => throw new NotImplementedException();
     public string CustomInstallUrl => throw new NotImplementedException();
     public string RoleConnectionsVerificationUrl => throw new NotImplementedException();
     public string VerifyKey => throw new NotImplementedException();
