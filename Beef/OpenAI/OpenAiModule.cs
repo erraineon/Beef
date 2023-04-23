@@ -15,7 +15,6 @@ public class OpenAiModule : InteractionModuleBase<IInteractionContext>
         _openAiService = openAiService;
     }
 
-    [DefaultMemberPermissions(GuildPermission.Administrator)]
     [SlashCommand("gen", "Complete a sentence.")]
     [RequireTrustedGuild]
     public async Task<RuntimeResult> GenerateThoughtAsync(string? prompt = default)
