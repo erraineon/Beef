@@ -23,6 +23,9 @@ namespace Beef.Core.Telegram
         public IUser Owner { get; }
         public string TermsOfService { get; }
         public string PrivacyPolicy { get; }
+        public string CustomInstallUrl => throw new NotImplementedException();
+        public string RoleConnectionsVerificationUrl => throw new NotImplementedException();
+        public string VerifyKey => throw new NotImplementedException();
         public ulong Id => throw new NotImplementedException();
         public DateTimeOffset CreatedAt => throw new NotImplementedException();
     }

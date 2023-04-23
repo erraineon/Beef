@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
+using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -35,9 +36,10 @@ public class TelegramChatClient : IDiscordClient
     {
         _telegramBotClient = new TelegramBotClient(_telegramOptions.Value.Token);
         Client.StartReceiving(
-            OnUpdateAsync,
-            OnErrorAsync,
-            cancellationToken: _cancellationTokenSource.Token
+            updateHandler: OnUpdateAsync,
+            errorHandler: OnErrorAsync,
+            cancellationToken: _cancellationTokenSource.Token,
+            receiverOptions: default
         );
         return Task.CompletedTask;
     }
@@ -95,6 +97,15 @@ public class TelegramChatClient : IDiscordClient
     }
 
     public Task<IApplicationCommand> GetGlobalApplicationCommandAsync(ulong id, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(
+        bool withLocalizations = false,
+        string locale = null,
+        RequestOptions options = null
+    )
     {
         throw new NotImplementedException();
     }

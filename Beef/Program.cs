@@ -8,7 +8,6 @@ using Beef.Core.Interactions;
 using Beef.Core.Telegram;
 using Beef.Google;
 using Beef.Gpt3;
-using Beef.Twitter;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -63,13 +62,6 @@ var host = Host.CreateDefaultBuilder(args)
             // Whitelisting
             services
                 .Configure<TrustedGuilds>(context.Configuration.GetSection(nameof(TrustedGuilds)));
-
-            // Twitter
-            services
-                .Configure<TwitterOptions>(context.Configuration.GetSection(nameof(TwitterOptions)))
-                .AddTransient<ITweetProvider, TweetProvider>()
-                .Decorate<ITweetProvider, CachedTweetProviderDecorator>()
-                .AddSingleton<ITwitterContextFactory, TwitterContextFactory>();
 
             // Google
             services

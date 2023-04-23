@@ -5,7 +5,7 @@ namespace Beef.Core.Modules;
 
 public class UtilityModule : InteractionModuleBase<IInteractionContext>
 {
-    [DefaultPermission(false)]
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
     [RequireOwner]
     [SlashCommand("ping", "Responds with pong.")]
     public Task<RuntimeResult> Ping()
@@ -22,13 +22,15 @@ public class UtilityModule : InteractionModuleBase<IInteractionContext>
     }
 
     [SlashCommand("roll", "Rolls a die with the specified number of sides.")]
-    public Task<RuntimeResult> Pick(int sides)
+    public Task<RuntimeResult> Roll(int sides)
     {
         var random = new Random();
         return Task.FromResult(SuccessResult.Ok(random.Next(sides) + 1));
     }
 
-    [SlashCommand("echo", "Repeats the message after evaluating any expressions.")]
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
+    [RequireOwner]
+    [SlashCommand("echo", "Repeats the message.")]
     public Task<RuntimeResult> Echo(string message)
     {
         return Task.FromResult(SuccessResult.Ok(message));

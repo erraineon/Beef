@@ -87,6 +87,7 @@ public class InteractionFactory : IInteractionFactory
                     if (parameter.ParameterType.IsEnum)
                         token = Enum.TryParse(parameter.ParameterType, token, true, out var x) && x != null
                             ? x.ToString()
+                            // TODO: convert to more specific type
                             : throw new Exception(
                                 $"Failed to convert {token} to enum type {parameter.ParameterType.Name}."
                             );

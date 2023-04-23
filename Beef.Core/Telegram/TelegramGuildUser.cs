@@ -109,6 +109,7 @@ namespace Beef.Core.Telegram
         public bool? IsPending => throw new NotImplementedException();
         public int Hierarchy => throw new NotImplementedException();
         public DateTimeOffset? TimedOutUntil { get; }
+        public GuildUserFlags Flags { get; }
 
         public bool IsDeafened => throw new NotImplementedException();
 

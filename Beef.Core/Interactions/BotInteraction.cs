@@ -142,6 +142,9 @@ public class BotInteraction : ISlashCommandInteraction
     public string UserLocale => "en-US";
     public string GuildLocale => "en-US";
     public bool IsDMInteraction => false;
+    public ulong? ChannelId => _textChannel.Id;
+    public ulong? GuildId => (_textChannel as IGuildChannel)?.GuildId;
+    public ulong ApplicationId => throw new NotImplementedException();
     ulong IEntity<ulong>.Id => throw new NotImplementedException();
     public DateTimeOffset CreatedAt { get; }
 }

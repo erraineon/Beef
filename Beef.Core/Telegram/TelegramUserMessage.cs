@@ -42,6 +42,7 @@ public class TelegramUserMessage : IUserMessage
     public DateTimeOffset? EditedTimestamp => ApiMessage.EditDate;
     public IMessageChannel Channel { get; init; }
     public IUser Author { get; init; }
+    public IThreadChannel Thread => throw new NotImplementedException();
     public IReadOnlyCollection<IAttachment> Attachments { get; init; }
     public IReadOnlyCollection<IEmbed> Embeds => new IEmbed[0];
     public IReadOnlyCollection<ITag> Tags => new ITag[0];
@@ -56,6 +57,7 @@ public class TelegramUserMessage : IUserMessage
     IReadOnlyCollection<IStickerItem> IMessage.Stickers => throw new NotImplementedException();
     public MessageFlags? Flags => throw new NotImplementedException();
     public IMessageInteraction Interaction => throw new NotImplementedException();
+    public MessageRoleSubscriptionData RoleSubscriptionData => throw new NotImplementedException();
 
     public Task ModifyAsync(Action<MessageProperties> func, RequestOptions? options = null)
     {

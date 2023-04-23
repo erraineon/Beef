@@ -28,4 +28,12 @@ public class GoogleSearchEngineModule : InteractionModuleBase<IInteractionContex
             throw new ModuleException("no results");
         return SuccessResult.Ok(imageLink);
     }
+
+    [SlashCommand("yt", "Searches on YouTube.")]
+    public async Task<RuntimeResult> FindVideoAsync(string query)
+    {
+        var videoLink = await _googleSearchEngine.FindWebpageLinkAsync($"{query} site:youtube.com") ??
+            throw new ModuleException("no results");
+        return SuccessResult.Ok(videoLink);
+    }
 }

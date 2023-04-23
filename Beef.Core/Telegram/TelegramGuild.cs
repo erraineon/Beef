@@ -291,6 +291,11 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<IForumChannel> CreateForumChannelAsync(string name, Action<ForumChannelProperties> func = null, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<IReadOnlyCollection<IVoiceRegion>> GetVoiceRegionsAsync(RequestOptions? options = null)
     {
         throw new NotImplementedException();
@@ -560,6 +565,11 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(bool withLocalizations = false, string locale = null, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(RequestOptions options = null)
     {
         throw new NotImplementedException();
@@ -586,6 +596,36 @@ public class TelegramGuild : IGuild, ITextChannel
         ApplicationCommandProperties[] properties,
         RequestOptions options = null
     )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<WelcomeScreen> GetWelcomeScreenAsync(RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<WelcomeScreen> ModifyWelcomeScreenAsync(
+        bool enabled,
+        WelcomeScreenChannelProperties[] channels,
+        string description = null,
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IAutoModRule[]> GetAutoModRulesAsync(RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IAutoModRule> GetAutoModRuleAsync(ulong ruleId, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IAutoModRule> CreateAutoModRuleAsync(Action<AutoModRuleProperties> props, RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -707,7 +747,13 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<IReadOnlyCollection<IThreadChannel>> GetActiveThreadsAsync(RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public int Position => throw new NotImplementedException();
+    public ChannelFlags Flags { get; }
 
     public Task<ICategoryChannel> GetCategoryAsync(
         CacheMode mode = CacheMode.AllowDownload,
@@ -838,6 +884,7 @@ public class TelegramGuild : IGuild, ITextChannel
     public string Topic => throw new NotImplementedException();
 
     public int SlowModeInterval => throw new NotImplementedException();
+    public ThreadArchiveDuration DefaultArchiveDuration { get; }
 
     public async Task<IUserMessage> SendMessageAsync(
         string text = null,

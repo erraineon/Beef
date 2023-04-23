@@ -42,43 +42,44 @@ public class InteractionRegistrar : IHostedService
             var botOwner = (await _discordClient.GetApplicationInfoAsync()).Owner;
             await _interactionService.RegisterCommandsToGuildAsync(guild.Id);
 
-            var giveOwnerPermissions = _interactionService.SlashCommands
-                .Where(x => !x.DefaultPermission && x.Preconditions.OfType<RequireOwnerAttribute>().Any())
-                .Select(
-                    ownerCommand => _interactionService.ModifySlashCommandPermissionsAsync(
-                        ownerCommand,
-                        guild,
-                        new ApplicationCommandPermission(botOwner, true)
-                    )
-                );
+            // TODO: remove
+            //var giveOwnerPermissions = _interactionService.SlashCommands
+            //    .Where(x => !x.DefaultPermission && x.Preconditions.OfType<RequireOwnerAttribute>().Any())
+            //    .Select(
+            //        ownerCommand => _interactionService.ModifySlashCommandPermissionsAsync(
+            //            ownerCommand,
+            //            guild,
+            //            new ApplicationCommandPermission(botOwner, true)
+            //        )
+            //    );
 
-            var giveRolePermissions = _interactionService.SlashCommands
-                .Where(x => !x.DefaultPermission)
-                .Select(
-                    ownerCommand =>
-                    {
-                        var roleAttribute = ownerCommand.Preconditions.OfType<RequireRoleAttribute>().FirstOrDefault();
-                        var role = roleAttribute == null
-                            ? null
-                            : roleAttribute.RoleId.HasValue
-                                ? guild.GetRole(roleAttribute.RoleId.Value)
-                                : guild.Roles.FirstOrDefault(x => x.Name == roleAttribute.RoleName);
-                        return (ownerCommand, role);
-                    }
-                )
-                .Where(t => t.role != null)
-                .Select(
-                    t =>
-                    {
-                        var (ownerCommand, role) = t;
-                        return _interactionService.ModifySlashCommandPermissionsAsync(
-                            ownerCommand,
-                            guild,
-                            new ApplicationCommandPermission(role, true)
-                        );
-                    }
-                );
-            await Task.WhenAll(giveOwnerPermissions.Concat(giveRolePermissions));
+            //var giveRolePermissions = _interactionService.SlashCommands
+            //    .Where(x => !x.DefaultPermission)
+            //    .Select(
+            //        ownerCommand =>
+            //        {
+            //            var roleAttribute = ownerCommand.Preconditions.OfType<RequireRoleAttribute>().FirstOrDefault();
+            //            var role = roleAttribute == null
+            //                ? null
+            //                : roleAttribute.RoleId.HasValue
+            //                    ? guild.GetRole(roleAttribute.RoleId.Value)
+            //                    : guild.Roles.FirstOrDefault(x => x.Name == roleAttribute.RoleName);
+            //            return (ownerCommand, role);
+            //        }
+            //    )
+            //    .Where(t => t.role != null)
+            //    .Select(
+            //        t =>
+            //        {
+            //            var (ownerCommand, role) = t;
+            //            return _interactionService.ModifySlashCommandPermissionsAsync(
+            //                ownerCommand,
+            //                guild,
+            //                new ApplicationCommandPermission(role, true)
+            //            );
+            //        }
+            //    );
+            //await Task.WhenAll(giveOwnerPermissions.Concat(giveRolePermissions));
         }
         catch (Exception e)
         {
