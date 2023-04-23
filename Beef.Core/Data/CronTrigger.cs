@@ -2,7 +2,7 @@
 
 public class CronTrigger : TimeTrigger
 {
-    public string CronSchedule { get; set; } = null!;
+    public required string CronSchedule { get; set; }
 
     public override void Advance(DateTime utcNow)
     {

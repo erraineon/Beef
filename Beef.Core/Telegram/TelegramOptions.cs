@@ -2,6 +2,6 @@
 
 public class TelegramOptions
 {
-    public string Token { get; set; } = null!;
-    public int BotOwnerId { get; set; }
+    public required string Token { get; set; }
+    public required int BotOwnerId { get; set; }
 }

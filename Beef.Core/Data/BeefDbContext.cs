@@ -4,7 +4,7 @@ namespace Beef.Core.Data;
 
 public class BeefDbContext : DbContext
 {
-    public DbSet<Trigger> Triggers { get; set; } = null!;
+    public required DbSet<Trigger> Triggers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

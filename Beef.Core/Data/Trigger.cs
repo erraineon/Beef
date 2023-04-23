@@ -8,5 +8,5 @@ public abstract class Trigger
     public ulong GuildId { get; set; }
     public ulong ChannelId { get; set; }
     public ulong UserId { get; set; }
-    public string CommandToRun { get; set; } = null!;
+    public required string CommandToRun { get; set; }
 }
