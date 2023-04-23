@@ -53,8 +53,8 @@ public class InteractionHandler : IInteractionHandler
         Task interactionTask
     )
     {
-        // The actual timeout is 3 seconds, but shave a second off to account for network delays.
-        var interactionTimeout = TimeSpan.FromSeconds(2);
+        // The actual timeout is 3 seconds.
+        var interactionTimeout = TimeSpan.FromSeconds(1);
 
         await Task.WhenAny(
             interactionTask,

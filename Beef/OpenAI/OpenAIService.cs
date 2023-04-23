@@ -1,0 +1,62 @@
+﻿using Microsoft.Extensions.Options;
+using OpenAI.GPT3.ObjectModels.RequestModels;
+
+namespace Beef.OpenAI;
+
+public class OpenAIService : IOpenAIService
+{
+    private const int MaxTokensToGenerate = 512;
+    private readonly IOptionsSnapshot<OpenAiOptions> _openAiOptions;
+    private readonly global::OpenAI.GPT3.Interfaces.IOpenAIService _openAiService;
+
+    public OpenAIService(
+        global::OpenAI.GPT3.Interfaces.IOpenAIService openAiService,
+        IOptionsSnapshot<OpenAiOptions> openAiOptions
+    )
+    {
+        _openAiService = openAiService;
+        _openAiOptions = openAiOptions;
+    }
+
+    public async Task<string> GenerateCompletionAsync(string prompt)
+    {
+        var completion = await _openAiService.Completions.CreateCompletion(
+            new CompletionCreateRequest
+            {
+                Prompt = prompt,
+                MaxTokens = MaxTokensToGenerate,
+                Temperature = _openAiOptions.Value.Temperature,
+                Stop = " END"
+            },
+            _openAiOptions.Value.CompletionModelName
+        );
+
+        var result = $"{prompt}{completion.Choices.First().Text}";
+        return result;
+    }
+
+
+    public async Task<string> GenerateChatCompletionAsync(string prompt)
+    {
+        var systemPrompt = _openAiOptions.Value.DefaultSystemPrompt;
+        var messages = new List<ChatMessage>
+        {
+            new("user", prompt)
+        };
+        if (!string.IsNullOrWhiteSpace(systemPrompt))
+            messages.Insert(0, new ChatMessage("system", systemPrompt));
+        var completion = await _openAiService.ChatCompletion.CreateCompletion(
+            new ChatCompletionCreateRequest
+            {
+                Messages = messages,
+                MaxTokens = MaxTokensToGenerate,
+                Temperature = _openAiOptions.Value.Temperature,
+                Stop = " END"
+            },
+            _openAiOptions.Value.ChatCompletionModelName
+        );
+
+        var result = completion.Choices.First().Message.Content;
+        return result;
+    }
+}

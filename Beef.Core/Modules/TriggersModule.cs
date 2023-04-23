@@ -45,18 +45,18 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
                 sb.AppendLine($"For {userName}");
             }
 
-            return SuccessResult.Ok(sb.ToString());
+            return new SuccessResult(sb.ToString());
         }
 
         [SlashCommand("remove", "Removes the trigger with the specified ID.")]
         public async Task<RuntimeResult> RemoveTrigger(int triggerId)
         {
             var trigger = await _beefDbContext.Triggers.FindAsync(triggerId);
-            if (trigger == null) return SuccessResult.Ok($"No trigger with ID {triggerId} was found.");
-            if (trigger.UserId != Context.User.Id) return SuccessResult.Ok("You can only remove your own triggers.");
+            if (trigger == null) return new SuccessResult($"No trigger with ID {triggerId} was found.");
+            if (trigger.UserId != Context.User.Id) return new SuccessResult("You can only remove your own triggers.");
             _beefDbContext.Triggers.Remove(trigger);
             await _beefDbContext.SaveChangesAsync();
-            return SuccessResult.Ok();
+            return new SuccessResult();
         }
     }
 
@@ -76,7 +76,7 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
             var now = DateTime.UtcNow;
             var dateTime = now + timeSpan;
             await SaveReminderForTime(dateTime, reminder);
-            return SuccessResult.Ok($"Will remind in {timeSpan.Humanize()} ({dateTime} UTC).");
+            return new SuccessResult($"Will remind in {timeSpan.Humanize()} ({dateTime} UTC).");
         }
 
         private async Task SaveReminderForTime(DateTime dateTime, string reminder)
@@ -99,7 +99,7 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
         public async Task<RuntimeResult> Remind(DateTime dateTime, string reminder)
         {
             await SaveReminderForTime(dateTime, reminder);
-            return SuccessResult.Ok($"Will remind at {dateTime} UTC.");
+            return new SuccessResult($"Will remind at {dateTime} UTC.");
         }
     }
 }

@@ -7,7 +7,7 @@ using Beef.Core.Discord;
 using Beef.Core.Interactions;
 using Beef.Core.Telegram;
 using Beef.Google;
-using Beef.Gpt3;
+using Beef.OpenAI;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -18,6 +18,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenAI.GPT3.Managers;
+using OpenAI.GPT3.Interfaces;
+using IOpenAIService = Beef.OpenAI.IOpenAIService;
+using OpenAIService = Beef.OpenAI.OpenAIService;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(configurationBuilder => configurationBuilder.AddUserSecrets<Program>())
@@ -76,10 +80,19 @@ var host = Host.CreateDefaultBuilder(args)
                 )
                 .AddTransient<IGoogleSearchEngine, GoogleSearchEngine>();
 
-            // Gpt 3
+            // OpenAi
             services
                 .Configure<Gpt3Options>(context.Configuration.GetSection(nameof(Gpt3Options)))
-                .AddTransient<IGpt3Client, Gpt3Client>();
+                .Configure<OpenAiOptions>(context.Configuration.GetSection(nameof(OpenAiOptions)))
+                .AddTransient<IOpenAIService, OpenAIService>()
+                .AddSingleton<OpenAI.GPT3.Interfaces.IOpenAIService>(
+                    s => new OpenAI.GPT3.Managers.OpenAIService(
+                        new OpenAI.GPT3.OpenAiOptions
+                        {
+                            ApiKey = s.GetRequiredService<IOptions<OpenAiOptions>>().Value.ApiKey
+                        }
+                    )
+                );
         }
     )
     .Build();

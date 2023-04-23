@@ -10,7 +10,7 @@ public class UtilityModule : InteractionModuleBase<IInteractionContext>
     [SlashCommand("ping", "Responds with pong.")]
     public Task<RuntimeResult> Ping()
     {
-        return Task.FromResult(SuccessResult.Ok("pong"));
+        return Task.FromResult<RuntimeResult>(new SuccessResult("pong"));
     }
 
     [SlashCommand("pick", "Randomly picks one of the specified values.")]
@@ -18,14 +18,14 @@ public class UtilityModule : InteractionModuleBase<IInteractionContext>
     {
         var tokens = options.SplitBySpaceAndQuotes().ToList();
         var random = new Random();
-        return Task.FromResult(SuccessResult.Ok(tokens[random.Next(tokens.Count)]));
+        return Task.FromResult<RuntimeResult>(new SuccessResult(tokens[random.Next(tokens.Count)]));
     }
 
     [SlashCommand("roll", "Rolls a die with the specified number of sides.")]
     public Task<RuntimeResult> Roll(int sides)
     {
         var random = new Random();
-        return Task.FromResult(SuccessResult.Ok(random.Next(sides) + 1));
+        return Task.FromResult<RuntimeResult>(new SuccessResult(random.Next(sides) + 1));
     }
 
     [DefaultMemberPermissions(GuildPermission.Administrator)]
@@ -33,6 +33,6 @@ public class UtilityModule : InteractionModuleBase<IInteractionContext>
     [SlashCommand("echo", "Repeats the message.")]
     public Task<RuntimeResult> Echo(string message)
     {
-        return Task.FromResult(SuccessResult.Ok(message));
+        return Task.FromResult<RuntimeResult>(new SuccessResult(message));
     }
 }

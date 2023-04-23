@@ -1,4 +1,4 @@
-﻿namespace Beef.Gpt3;
+﻿namespace Beef.OpenAI;
 
 public class Gpt3Options
 {

@@ -18,7 +18,7 @@ public class GoogleSearchEngineModule : InteractionModuleBase<IInteractionContex
     {
         var webpageLink = await _googleSearchEngine.FindWebpageLinkAsync(query) ??
             throw new ModuleException("no results");
-        return SuccessResult.Ok(webpageLink);
+        return new SuccessResult(webpageLink);
     }
 
     [SlashCommand("gi", "Searches on Google Images.")]
@@ -26,7 +26,7 @@ public class GoogleSearchEngineModule : InteractionModuleBase<IInteractionContex
     {
         var imageLink = await _googleSearchEngine.FindImageLinkAsync($"{query} -site:me.me") ??
             throw new ModuleException("no results");
-        return SuccessResult.Ok(imageLink);
+        return new SuccessResult(imageLink);
     }
 
     [SlashCommand("yt", "Searches on YouTube.")]
@@ -34,6 +34,6 @@ public class GoogleSearchEngineModule : InteractionModuleBase<IInteractionContex
     {
         var videoLink = await _googleSearchEngine.FindWebpageLinkAsync($"{query} site:youtube.com") ??
             throw new ModuleException("no results");
-        return SuccessResult.Ok(videoLink);
+        return new SuccessResult(videoLink);
     }
 }
