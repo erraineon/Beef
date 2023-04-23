@@ -108,7 +108,10 @@ public class BotInteraction : ISlashCommandInteraction
         throw new NotImplementedException();
     }
 
-    public Task<IUserMessage> ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions? options = null)
+    public Task<IUserMessage> ModifyOriginalResponseAsync(
+        Action<MessageProperties> func,
+        RequestOptions? options = null
+    )
     {
         throw new NotImplementedException();
     }

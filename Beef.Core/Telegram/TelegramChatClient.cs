@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
-using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -27,6 +26,9 @@ public class TelegramChatClient : IDiscordClient
         _logger = logger;
     }
 
+    public ITelegramBotClient Client =>
+        _telegramBotClient ?? throw new Exception("The Telegram client is not running.");
+
     public void Dispose()
     {
         StopAsync();
@@ -36,7 +38,7 @@ public class TelegramChatClient : IDiscordClient
     {
         _telegramBotClient = new TelegramBotClient(_telegramOptions.Value.Token);
         Client.StartReceiving(
-            updateHandler: OnUpdateAsync,
+            OnUpdateAsync,
             errorHandler: OnErrorAsync,
             cancellationToken: _cancellationTokenSource.Token,
             receiverOptions: default
@@ -104,13 +106,6 @@ public class TelegramChatClient : IDiscordClient
     public Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(
         bool withLocalizations = false,
         string locale = null,
-        RequestOptions options = null
-    )
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(
         RequestOptions options = null
     )
     {
@@ -214,12 +209,16 @@ public class TelegramChatClient : IDiscordClient
 
     public TokenType TokenType => TokenType.Bot;
 
-    public ITelegramBotClient Client =>
-        _telegramBotClient ?? throw new Exception("The Telegram client is not running.");
-
     public ValueTask DisposeAsync()
     {
         return ValueTask.CompletedTask;
+    }
+
+    public Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
     }
 
     private async Task<TelegramGuild> GetOrCreateTelegramGuildAsync(long chatId)

@@ -1,8 +1,7 @@
-﻿namespace Beef.Core.Telegram
+﻿namespace Beef.Core.Telegram;
+
+public interface ITelegramGuildCache
 {
-    public interface ITelegramGuildCache
-    {
-        Task<TelegramGuild> GetOrCreateAsync(long guildId, Func<Task<TelegramGuild>> factory);
-        ICollection<long> GetAllCachedChatIds();
-    }
+    Task<TelegramGuild> GetOrCreateAsync(long guildId, Func<Task<TelegramGuild>> factory);
+    ICollection<long> GetAllCachedChatIds();
 }

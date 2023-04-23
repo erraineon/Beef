@@ -8,8 +8,8 @@ namespace Beef.Core.Interactions;
 public class InteractionHandler : IInteractionHandler
 {
     private readonly InteractionService _interactionService;
-    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<InteractionHandler> _logger;
+    private readonly IServiceProvider _serviceProvider;
 
     public InteractionHandler(
         InteractionService interactionService,
@@ -44,9 +44,7 @@ public class InteractionHandler : IInteractionHandler
         var scope = _serviceProvider.CreateScope();
         var result = await _interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
         if (!result.IsSuccess)
-        {
             _logger.LogError($"Error while executing an interaction: {result.Error} {result.ErrorReason}");
-        }
         return result;
     }
 

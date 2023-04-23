@@ -12,8 +12,8 @@ namespace Beef.Core.Telegram;
 
 public class TelegramGuild : IGuild, ITextChannel
 {
-    private readonly ITelegramBotClient _client;
     private readonly Chat _chat;
+    private readonly ITelegramBotClient _client;
     private readonly FixedSizedQueue<IUserMessage> _messageCache = new(1000);
 
     public TelegramGuild(
@@ -291,7 +291,11 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<IForumChannel> CreateForumChannelAsync(string name, Action<ForumChannelProperties> func = null, RequestOptions options = null)
+    public Task<IForumChannel> CreateForumChannelAsync(
+        string name,
+        Action<ForumChannelProperties> func = null,
+        RequestOptions options = null
+    )
     {
         throw new NotImplementedException();
     }
@@ -565,12 +569,11 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(bool withLocalizations = false, string locale = null, RequestOptions options = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(RequestOptions options = null)
+    public Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(
+        bool withLocalizations = false,
+        string locale = null,
+        RequestOptions options = null
+    )
     {
         throw new NotImplementedException();
     }
@@ -1095,6 +1098,11 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public string Mention => _chat.Title ?? _chat.Id.ToString();
 
+    public Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public IGuildUser CreateGuildUser(ChatMember chatMember)
     {
         var isAdmin = chatMember.Status is ChatMemberStatus.Administrator or ChatMemberStatus.Creator;
@@ -1186,6 +1194,6 @@ public class TelegramGuild : IGuild, ITextChannel
             referencedMessage,
             apiMessage
         );
-            return message;
+        return message;
     }
 }

@@ -58,6 +58,7 @@ public class TelegramClientLauncher : IHostedService
         {
             _logger.LogError(e, "An error occurred while handling a telegram message.");
         }
+
         return Task.CompletedTask;
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Beef.Core.Discord;
-using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
@@ -13,15 +12,22 @@ public class InteractionRegistrar : IHostedService
     private readonly DiscordSocketClient _discordClient;
 
     private readonly InteractionService _interactionService;
-    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DiscordClientLauncher> _logger;
-    public InteractionRegistrar(DiscordSocketClient discordClient, InteractionService interactionService, IServiceProvider serviceProvider, ILogger<DiscordClientLauncher> logger)
+    private readonly IServiceProvider _serviceProvider;
+
+    public InteractionRegistrar(
+        DiscordSocketClient discordClient,
+        InteractionService interactionService,
+        IServiceProvider serviceProvider,
+        ILogger<DiscordClientLauncher> logger
+    )
     {
         _discordClient = discordClient;
         _interactionService = interactionService;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
@@ -35,6 +41,7 @@ public class InteractionRegistrar : IHostedService
     {
         return Task.CompletedTask;
     }
+
     private async Task RegisterCommandsToGuildAsync(SocketGuild guild)
     {
         try

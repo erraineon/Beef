@@ -16,8 +16,8 @@ public class TriggerListener : BackgroundService
     private readonly DiscordSocketClient _discordSocketClient;
     private readonly IInteractionFactory _interactionFactory;
     private readonly IInteractionHandler _interactionHandler;
-    private readonly TelegramChatClient _telegramChatClient;
     private readonly ILogger<TriggerListener> _logger;
+    private readonly TelegramChatClient _telegramChatClient;
 
     public TriggerListener(
         IDbContextFactory<BeefDbContext> dbContextFactory,
