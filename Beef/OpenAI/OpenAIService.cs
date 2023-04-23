@@ -3,13 +3,13 @@ using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace Beef.OpenAI;
 
-public class OpenAIService : IOpenAIService
+public class OpenAiService : IOpenAiService
 {
     private const int MaxTokensToGenerate = 512;
     private readonly IOptionsSnapshot<OpenAiOptions> _openAiOptions;
     private readonly global::OpenAI.GPT3.Interfaces.IOpenAIService _openAiService;
 
-    public OpenAIService(
+    public OpenAiService(
         global::OpenAI.GPT3.Interfaces.IOpenAIService openAiService,
         IOptionsSnapshot<OpenAiOptions> openAiOptions
     )

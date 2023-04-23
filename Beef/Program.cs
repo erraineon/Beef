@@ -20,8 +20,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.Interfaces;
-using IOpenAIService = Beef.OpenAI.IOpenAIService;
-using OpenAIService = Beef.OpenAI.OpenAIService;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(configurationBuilder => configurationBuilder.AddUserSecrets<Program>())
@@ -84,7 +82,7 @@ var host = Host.CreateDefaultBuilder(args)
             services
                 .Configure<Gpt3Options>(context.Configuration.GetSection(nameof(Gpt3Options)))
                 .Configure<OpenAiOptions>(context.Configuration.GetSection(nameof(OpenAiOptions)))
-                .AddTransient<IOpenAIService, OpenAIService>()
+                .AddTransient<IOpenAiService, OpenAiService>()
                 .AddSingleton<OpenAI.GPT3.Interfaces.IOpenAIService>(
                     s => new OpenAI.GPT3.Managers.OpenAIService(
                         new OpenAI.GPT3.OpenAiOptions

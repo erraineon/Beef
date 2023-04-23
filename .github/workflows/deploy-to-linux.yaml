@@ -34,12 +34,8 @@ jobs:
           TelegramOptions.Token: ${{ secrets.TELEGRAM_TOKEN }}
           GoogleOptions.SearchEngineId: ${{ secrets.GOOGLE_SEARCH_ENGINE_ID }}
           GoogleOptions.ApiKey: ${{ secrets.GOOGLE_API_KEY }}
-          Gpt3Options.ApiKey: ${{ secrets.OPENAI_APIKEY }}
-          Gpt3Options.ModelName: ${{ secrets.OPENAI_MODELNAME }}
-          TwitterOptions.ConsumerKey: ${{ secrets.TWITTER_CONSUMER_KEY }}
-          TwitterOptions.ConsumerSecret: ${{ secrets.TWITTER_CONSUMER_SECRET }}
-          TwitterOptions.OAuthToken: ${{ secrets.TWITTER_OAUTH_TOKEN }}
-          TwitterOptions.OAuthTokenSecret: ${{ secrets.TWITTER_OAUTH_TOKEN_SECRET }}
+          OpenAiOptions.ApiKey: ${{ secrets.OPENAI_APIKEY }}
+          OpenAiOptions.CompletionModelName: ${{ secrets.OPENAI_MODELNAME }}
 
       - name: terminate remote process
         uses: appleboy/ssh-action@master

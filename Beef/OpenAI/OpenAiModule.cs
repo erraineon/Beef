@@ -8,9 +8,9 @@ namespace Beef.OpenAI;
 
 public class OpenAiModule : InteractionModuleBase<IInteractionContext>
 {
-    private readonly IOpenAIService _openAiService;
+    private readonly IOpenAiService _openAiService;
 
-    public OpenAiModule(IOpenAIService openAiService)
+    public OpenAiModule(IOpenAiService openAiService)
     {
         _openAiService = openAiService;
     }
