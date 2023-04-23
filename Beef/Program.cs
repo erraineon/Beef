@@ -80,7 +80,6 @@ var host = Host.CreateDefaultBuilder(args)
 
             // OpenAi
             services
-                .Configure<Gpt3Options>(context.Configuration.GetSection(nameof(Gpt3Options)))
                 .Configure<OpenAiOptions>(context.Configuration.GetSection(nameof(OpenAiOptions)))
                 .AddTransient<IOpenAiService, OpenAiService>()
                 .AddSingleton<IOpenAIService>(
