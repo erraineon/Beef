@@ -70,11 +70,17 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
             _beefDbContext = beefDbContext;
         }
 
-        [SlashCommand("in", "Posts a reminder at the given time.")]
+        [SlashCommand("in", "Posts a reminder after the given time span is up.")]
         public async Task<RuntimeResult> Remind(TimeSpan timeSpan, string reminder)
         {
             var now = DateTime.UtcNow;
             var dateTime = now + timeSpan;
+            await SaveReminderForTime(dateTime, reminder);
+            return SuccessResult.Ok($"Will remind in {timeSpan.Humanize()} ({dateTime} UTC).");
+        }
+
+        private async Task SaveReminderForTime(DateTime dateTime, string reminder)
+        {
             var trigger = new OneTimeTrigger
             {
                 ChannelId = Context.Channel.Id,
@@ -87,7 +93,13 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
             };
             await _beefDbContext.Triggers.AddAsync(trigger);
             await _beefDbContext.SaveChangesAsync();
-            return SuccessResult.Ok($"Will remind in {timeSpan.Humanize()} ({dateTime} UTC).");
+        }
+
+        [SlashCommand("on", "Posts a reminder at the given time.")]
+        public async Task<RuntimeResult> Remind(DateTime dateTime, string reminder)
+        {
+            await SaveReminderForTime(dateTime, reminder);
+            return SuccessResult.Ok($"Will remind at {dateTime} UTC.");
         }
     }
 }
