@@ -11,10 +11,12 @@
 
 	<ItemGroup>
 		<PackageReference Include="Betalgo.OpenAI" Version="6.8.5" />
+		<PackageReference Include="E621Client" Version="0.0.3" />
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="Google.Apis.Customsearch.v1" Version="1.49.0.2084" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+		<PackageReference Include="NeoSmart.Caching.Sqlite" Version="6.0.1" />
 		<PackageReference Include="Scrutor" Version="4.2.2" />
 	</ItemGroup>
 
@@ -26,6 +28,10 @@
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Furry\" />
 	</ItemGroup>
 
 </Project>

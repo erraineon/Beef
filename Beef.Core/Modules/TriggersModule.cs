@@ -9,13 +9,6 @@ namespace Beef.Core.Modules;
 
 public class TriggersModule : InteractionModuleBase<IInteractionContext>
 {
-    private readonly BeefDbContext _beefDbContext;
-
-    public TriggersModule(BeefDbContext beefDbContext)
-    {
-        _beefDbContext = beefDbContext;
-    }
-
     [Group("triggers", "Manages existing triggers.")]
     public class ManageTriggersModule : InteractionModuleBase<IInteractionContext>
     {

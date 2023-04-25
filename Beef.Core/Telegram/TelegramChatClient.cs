@@ -32,6 +32,7 @@ public class TelegramChatClient : IDiscordClient
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         StopAsync();
     }
 
@@ -212,14 +213,8 @@ public class TelegramChatClient : IDiscordClient
 
     public ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
         return ValueTask.CompletedTask;
-    }
-
-    public Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(
-        RequestOptions options = null
-    )
-    {
-        throw new NotImplementedException();
     }
 
     private async Task<TelegramGuild> GetOrCreateTelegramGuildAsync(long chatId)

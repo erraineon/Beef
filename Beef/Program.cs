@@ -6,6 +6,7 @@ using Beef.Core.Data;
 using Beef.Core.Discord;
 using Beef.Core.Interactions;
 using Beef.Core.Telegram;
+using Beef.Furry;
 using Beef.Google;
 using Beef.OpenAi;
 using Discord;
@@ -20,12 +21,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.Interfaces;
+using NeoSmart.Caching.Sqlite;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(configurationBuilder => configurationBuilder.AddUserSecrets<Program>())
     .ConfigureServices(
         (context, services) =>
         {
+            // Distributed cache
+            services.AddSqliteCache(options => {
+                options.CachePath = @"cache.db";
+            });
+
             // Interactions
             services
                 .AddSingleton(
@@ -90,6 +97,11 @@ var host = Host.CreateDefaultBuilder(args)
                         }
                     )
                 );
+
+            // E621
+            services
+                .AddTransient<IE621Client, E621ClientWrapper>()
+                .AddTransient<IE621SearchEngine, E621SearchEngine>();
         }
     )
     .Build();

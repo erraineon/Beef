@@ -7,12 +7,14 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+
 #pragma warning disable CS8625
 
 namespace Beef.Core.Telegram;
 
 public class TelegramGuild : IGuild, ITextChannel
 {
+    private readonly IDictionary<ulong, TelegramGuildUser> _cachedUsers = new Dictionary<ulong, TelegramGuildUser>();
     private readonly Chat _chat;
     private readonly ITelegramBotClient _client;
     private readonly FixedSizedQueue<IUserMessage> _messageCache = new(1000);
@@ -25,8 +27,6 @@ public class TelegramGuild : IGuild, ITextChannel
         _client = client;
         _chat = chat;
     }
-
-    private IDictionary<ulong, TelegramGuildUser> _cachedUsers { get; } = new Dictionary<ulong, TelegramGuildUser>();
 
     public Task DeleteAsync(RequestOptions? options = null)
     {
@@ -634,7 +634,7 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public string Name => _chat.Title ?? String.Empty;
+    public string Name => _chat.Title ?? string.Empty;
 
     public int AFKTimeout => throw new NotImplementedException();
 
@@ -1099,11 +1099,6 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public string Mention => _chat.Title ?? _chat.Id.ToString();
 
-    public Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(RequestOptions options = null)
-    {
-        throw new NotImplementedException();
-    }
-
     public IGuildUser CreateGuildUser(ChatMember chatMember)
     {
         var isAdmin = chatMember.Status is ChatMemberStatus.Administrator or ChatMemberStatus.Creator;
@@ -1166,7 +1161,9 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public IUserMessage CacheMessage(Message apiMessage)
     {
-        var telegramGuildUser = CreateGuildUser(apiMessage.From ?? throw new InvalidOperationException("Message sender can't be null."));
+        var telegramGuildUser = CreateGuildUser(
+            apiMessage.From ?? throw new InvalidOperationException("Message sender can't be null.")
+        );
         var userMessage = CreateMessage(apiMessage, this, telegramGuildUser);
         _messageCache.Enqueue(userMessage);
         return userMessage;

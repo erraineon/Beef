@@ -30,7 +30,7 @@ public class TelegramUser : IUser
         throw new NotImplementedException();
     }
 
-    public Task<IDMChannel> CreateDMChannelAsync(RequestOptions options = null)
+    public Task<IDMChannel> CreateDMChannelAsync(RequestOptions? options = null)
     {
         throw new NotImplementedException();
     }
@@ -40,7 +40,7 @@ public class TelegramUser : IUser
     public ushort DiscriminatorValue => default;
     public bool IsBot => _user.IsBot;
     public bool IsWebhook => false;
-    public string Username => _user.Username;
+    public string Username => _user.Username ?? string.Empty;
     public UserProperties? PublicFlags => throw new NotImplementedException();
     public DateTimeOffset CreatedAt => throw new NotImplementedException();
 }

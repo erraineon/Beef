@@ -44,7 +44,12 @@ public class InteractionHandler : IInteractionHandler
         var scope = _serviceProvider.CreateScope();
         var result = await _interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
         if (!result.IsSuccess)
-            _logger.LogError($"Error while executing an interaction: {result.Error} {result.ErrorReason}");
+        {
+            var exception = (result is ExecuteResult executeResult)
+                ? executeResult.Exception
+                : new Exception($"{result.Error}: {result.ErrorReason}");
+            _logger.LogError(exception, "Error while executing an interaction.");
+        }
         return result;
     }
 
@@ -77,13 +82,23 @@ public class InteractionHandler : IInteractionHandler
             var contentToReplyWith = result switch
             {
                 ExecuteResult { Exception: ModuleException e } => e.Message,
-                SuccessResult { Result: null or "" } => "👌",
-                SuccessResult { Result: var r } => r.ToString(),
+                SuccessResult { Result: IEnumerable<object> r } => string.Join('\n', r),
+                SuccessResult { Result: var r and not (null or "") } => r.ToString(),
+                ExecuteResult { IsSuccess: true } or SuccessResult => "👌",
                 _ => "👎"
             };
-            await (isLate
-                ? context.Interaction.FollowupAsync(contentToReplyWith)
-                : context.Interaction.RespondAsync(contentToReplyWith));
+
+            var suppressResponse = context.Interaction is BotInteraction && string.IsNullOrWhiteSpace(contentToReplyWith);
+
+            if (!suppressResponse)
+            {
+                if (string.IsNullOrWhiteSpace(contentToReplyWith))
+                    contentToReplyWith = "👌";
+
+                await (isLate
+                    ? context.Interaction.FollowupAsync(contentToReplyWith)
+                    : context.Interaction.RespondAsync(contentToReplyWith));
+            }
         }
         catch (Exception e)
         {
