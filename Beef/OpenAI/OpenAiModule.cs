@@ -28,10 +28,10 @@ public class OpenAiModule : InteractionModuleBase<IInteractionContext>
     [DefaultMemberPermissions(GuildPermission.Administrator)]
     [SlashCommand("chat", "Respond to a prompt.")]
     [RequireTrustedGuild]
-    public async Task<RuntimeResult> GenerateChatCompletionAsync([Remainder] string prompt)
+    public async Task<RuntimeResult> GenerateChatCompletionAsync([Remainder] string prompt, IAttachment? attachment = null)
     {
         if (prompt.Length >= 512) throw new ModuleException("the prompt can be up to 512 characters long");
-        var generatedText = await _openAiService.GenerateChatCompletionAsync(prompt);
+        var generatedText = await _openAiService.GenerateChatCompletionAsync(prompt, attachment?.ProxyUrl);
         return new SuccessResult(generatedText);
     }
 }

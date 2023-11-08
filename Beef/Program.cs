@@ -19,8 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using OpenAI.GPT3.Managers;
-using OpenAI.GPT3.Interfaces;
 using NeoSmart.Caching.Sqlite;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -89,12 +87,12 @@ var host = Host.CreateDefaultBuilder(args)
             services
                 .Configure<OpenAiOptions>(context.Configuration.GetSection(nameof(OpenAiOptions)))
                 .AddTransient<IOpenAiService, OpenAiService>()
-                .AddSingleton<IOpenAIService>(
-                    s => new OpenAIService(
-                        new OpenAI.GPT3.OpenAiOptions
+                .AddSingleton<IVisionEnabledOpenAIService>(
+                    s => new VisionEnabledOpenAIService(
+                        new OpenAI.OpenAiOptions
                         {
                             ApiKey = s.GetRequiredService<IOptions<OpenAiOptions>>().Value.ApiKey
-                        }
+                        }, new HttpClient()
                     )
                 );
 

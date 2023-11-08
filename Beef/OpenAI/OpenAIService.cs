@@ -1,16 +1,61 @@
 ﻿using Microsoft.Extensions.Options;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.RequestModels;
+using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace Beef.OpenAi;
+
+public class VisionChatMessage
+{
+    private readonly string _content;
+    private readonly string? _url;
+
+    [JsonPropertyName("role")]
+    public string Role { get; set; }
+    public VisionChatMessage(string role, string content, string? url)
+    {
+        Role = role;
+        _content = content;
+        _url = url;
+    }
+
+    [JsonPropertyName("content")]
+    public List<VisionChatMessageContent> Content
+    {
+        get
+        {
+            var list = new List<VisionChatMessageContent>();
+            if (_url != null) list.Add(new("image_url", _url));
+            list.Add(new("text", _content));
+            return list;
+        }
+    }
+}
+public class VisionChatMessageContent
+{
+    [JsonPropertyName("type")]
+    public string Type { get; }
+    [JsonPropertyName("text")]
+    public string? Text { get; }
+    [JsonPropertyName("image_url")]
+    public string? ImageUrl { get; }
+
+    public VisionChatMessageContent(string type, string value)
+    {
+        Type = type;
+        if (type == "image_url") ImageUrl = value;
+        else Text = value;
+    }
+}
 
 public class OpenAiService : IOpenAiService
 {
     private const int MaxTokensToGenerate = 512;
     private readonly IOptionsSnapshot<OpenAiOptions> _openAiOptions;
-    private readonly OpenAI.GPT3.Interfaces.IOpenAIService _openAiService;
+    private readonly IVisionEnabledOpenAIService _openAiService;
 
     public OpenAiService(
-        OpenAI.GPT3.Interfaces.IOpenAIService openAiService,
+        IVisionEnabledOpenAIService openAiService,
         IOptionsSnapshot<OpenAiOptions> openAiOptions
     )
     {
@@ -35,18 +80,17 @@ public class OpenAiService : IOpenAiService
         return result;
     }
 
-
-    public async Task<string> GenerateChatCompletionAsync(string prompt)
+    public async Task<string> GenerateChatCompletionAsync(string prompt, string? imageUrl)
     {
         var systemPrompt = _openAiOptions.Value.DefaultSystemPrompt;
-        var messages = new List<ChatMessage>
+        var messages = new List<VisionChatMessage>
         {
-            new("user", prompt)
+            new VisionChatMessage("user", prompt, imageUrl)
         };
         if (!string.IsNullOrWhiteSpace(systemPrompt))
-            messages.Insert(0, new ChatMessage("system", systemPrompt));
-        var completion = await _openAiService.ChatCompletion.CreateCompletion(
-            new ChatCompletionCreateRequest
+            messages.Insert(0, new VisionChatMessage("system", systemPrompt, null));
+        var completion = await _openAiService.CreateVisionCompletion(
+            new VisionChatCompletionCreateRequest()
             {
                 Messages = messages,
                 MaxTokens = MaxTokensToGenerate,
@@ -55,7 +99,7 @@ public class OpenAiService : IOpenAiService
             },
             _openAiOptions.Value.ChatCompletionModelName
         );
-
+        
         var result = completion.Choices.First().Message.Content;
         return result;
     }
