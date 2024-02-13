@@ -41,6 +41,6 @@ public class AutopostModule : InteractionModuleBase<IInteractionContext>
     public async Task<RuntimeResult> SearchLatestAsync(string tags)
     {
         var posts = await _e621SearchEngine.SearchLatestAsync(Context.Channel.Id.ToString(), tags);
-        return new SuccessResult(posts.Select(x => x.File.Url));
+        return new SuccessResult(posts.Select(x => $"https://e621.net/posts/{x.Id}"));
     }
 }
