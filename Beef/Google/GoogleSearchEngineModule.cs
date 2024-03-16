@@ -24,7 +24,7 @@ public class GoogleSearchEngineModule : InteractionModuleBase<IInteractionContex
     [SlashCommand("gi", "Searches on Google Images.")]
     public async Task<RuntimeResult> FindImageAsync(string query)
     {
-        var imageLink = await _googleSearchEngine.FindImageLinkAsync($"{query} -site:me.me") ??
+        var imageLink = await _googleSearchEngine.FindImageLinkAsync($"{query} -site:me.me -site:fbsbx.com") ??
             throw new ModuleException("no results");
         return new SuccessResult(imageLink);
     }
