@@ -6,7 +6,8 @@ using Discord.Audio;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
+using Color = Discord.Color;
+using Emoji = Discord.Emoji;
 
 #pragma warning disable CS8625
 
@@ -256,11 +257,36 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<IForumChannel> GetForumChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IReadOnlyCollection<IForumChannel>> GetForumChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IMediaChannel> GetMediaChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IReadOnlyCollection<IMediaChannel>> GetMediaChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<ITextChannel> CreateTextChannelAsync(
         string name,
         Action<TextChannelProperties>? func = null,
         RequestOptions? options = null
     )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<INewsChannel> CreateNewsChannelAsync(string name, Action<TextChannelProperties> func = null, RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -301,6 +327,11 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<IMediaChannel> CreateMediaChannelAsync(string name, Action<ForumChannelProperties> func = null, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<IReadOnlyCollection<IVoiceRegion>> GetVoiceRegionsAsync(RequestOptions? options = null)
     {
         throw new NotImplementedException();
@@ -327,6 +358,12 @@ public class TelegramGuild : IGuild, ITextChannel
     }
 
     public IRole GetRole(ulong id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IRole> CreateRoleAsync(string name, GuildPermissions? permissions = null, Color? color = null, bool isHoisted = false,
+        bool isMentionable = false, RequestOptions options = null, Image? icon = null, Emoji emoji = null)
     {
         throw new NotImplementedException();
     }
@@ -427,6 +464,12 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<IReadOnlyCollection<IAuditLogEntry>> GetAuditLogsAsync(int limit = 100, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null,
+        ulong? beforeId = null, ulong? userId = null, ActionType? actionType = null, ulong? afterId = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<IReadOnlyCollection<IAuditLogEntry>> GetAuditLogsAsync(
         int limit = 100,
         CacheMode mode = CacheMode.AllowDownload,
@@ -488,6 +531,12 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<ICustomSticker> CreateStickerAsync(string name, Image image, IEnumerable<string> tags, string description = null,
+        RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<ICustomSticker> CreateStickerAsync(
         string name,
         string description,
@@ -506,6 +555,12 @@ public class TelegramGuild : IGuild, ITextChannel
         string path,
         RequestOptions options = null
     )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ICustomSticker> CreateStickerAsync(string name, Stream stream, string filename, IEnumerable<string> tags, string description = null,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -634,6 +689,26 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<IGuildOnboarding> GetOnboardingAsync(RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IGuildOnboarding> ModifyOnboardingAsync(Action<GuildOnboardingProperties> props, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<GuildIncidentsData> ModifyIncidentActionsAsync(Action<GuildIncidentsDataProperties> props, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<BulkBanResult> BulkBanAsync(IEnumerable<ulong> userIds, int? deleteMessageSeconds = null, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public string Name => _chat.Title ?? string.Empty;
 
     public int AFKTimeout => throw new NotImplementedException();
@@ -663,6 +738,7 @@ public class TelegramGuild : IGuild, ITextChannel
     public ulong? AFKChannelId => throw new NotImplementedException();
 
     public ulong? WidgetChannelId { get; }
+    public ulong? SafetyAlertsChannelId { get; }
 
     public ulong? SystemChannelId => throw new NotImplementedException();
     public ulong? RulesChannelId { get; }
@@ -701,6 +777,7 @@ public class TelegramGuild : IGuild, ITextChannel
     public int? MaxPresences { get; }
     public int? MaxMembers { get; }
     public int? MaxVideoChannelUsers { get; }
+    public int? MaxStageVideoChannelUsers { get; }
     public int? ApproximateMemberCount { get; }
     public int? ApproximatePresenceCount { get; }
     public int MaxBitrate { get; }
@@ -711,6 +788,8 @@ public class TelegramGuild : IGuild, ITextChannel
     public CultureInfo PreferredCulture => throw new NotImplementedException();
     public bool IsBoostProgressBarEnabled { get; }
     public ulong MaxUploadLimit { get; }
+    public GuildInventorySettings? InventorySettings { get; }
+    public GuildIncidentsData IncidentsData { get; }
 
     public DateTimeOffset CreatedAt => throw new NotImplementedException();
 
@@ -888,6 +967,7 @@ public class TelegramGuild : IGuild, ITextChannel
     public string Topic => throw new NotImplementedException();
 
     public int SlowModeInterval => throw new NotImplementedException();
+    public int DefaultSlowModeInterval { get; }
     public ThreadArchiveDuration DefaultArchiveDuration { get; }
 
     public async Task<IUserMessage> SendMessageAsync(
@@ -914,6 +994,7 @@ public class TelegramGuild : IGuild, ITextChannel
         var apiMessage = await _client.SendTextMessageAsync(
             _chat.Id,
             htmlText,
+            null,
             ParseMode.Html,
             replyToMessageId: replyToMessageId
         );
@@ -961,13 +1042,14 @@ public class TelegramGuild : IGuild, ITextChannel
         var apiMessage = videoExtensions.Any(filename.EndsWith)
             ? await _client.SendAnimationAsync(
                 _chat.Id,
-                new InputOnlineFile(stream, filename),
+                InputFile.FromStream(stream, filename),
                 caption: htmlText,
                 replyToMessageId: replyToMessageId
             )
             : await _client.SendPhotoAsync(
                 _chat.Id,
-                new InputOnlineFile(stream),
+                InputFile.FromStream(stream),
+                null,
                 htmlText,
                 replyToMessageId: replyToMessageId
             );

@@ -131,6 +131,11 @@ public class BotInteraction : ISlashCommandInteraction
         throw new NotImplementedException();
     }
 
+    public Task RespondWithPremiumRequiredAsync(RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     ulong IDiscordInteraction.Id => throw new NotImplementedException();
 
     public InteractionType Type => InteractionType.ApplicationCommand;
@@ -148,6 +153,10 @@ public class BotInteraction : ISlashCommandInteraction
     public ulong? ChannelId => _textChannel.Id;
     public ulong? GuildId => (_textChannel as IGuildChannel)?.GuildId;
     public ulong ApplicationId => throw new NotImplementedException();
+    public IReadOnlyCollection<IEntitlement> Entitlements { get; }
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> IntegrationOwners { get; }
+    public InteractionContextType? ContextType { get; }
+    public GuildPermissions Permissions { get; }
     ulong IEntity<ulong>.Id => throw new NotImplementedException();
     public DateTimeOffset CreatedAt { get; }
 }

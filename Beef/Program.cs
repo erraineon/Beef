@@ -19,8 +19,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using OpenAI.GPT3.Managers;
-using OpenAI.GPT3.Interfaces;
+using OpenAI.Managers;
+using OpenAI.Interfaces;
 using NeoSmart.Caching.Sqlite;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -29,9 +29,7 @@ var host = Host.CreateDefaultBuilder(args)
         (context, services) =>
         {
             // Distributed cache
-            services.AddSqliteCache(options => {
-                options.CachePath = @"cache.db";
-            });
+            services.AddSqliteCache("cache.db");
 
             // Interactions
             services
@@ -91,7 +89,7 @@ var host = Host.CreateDefaultBuilder(args)
                 .AddTransient<IOpenAiService, OpenAiService>()
                 .AddSingleton<IOpenAIService>(
                     s => new OpenAIService(
-                        new OpenAI.GPT3.OpenAiOptions
+                        new OpenAI.OpenAiOptions
                         {
                             ApiKey = s.GetRequiredService<IOptions<OpenAiOptions>>().Value.ApiKey
                         }

@@ -31,6 +31,12 @@ public class TelegramUserMessage : IUserMessage
         throw new NotImplementedException();
     }
 
+    public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emoji, int limit, RequestOptions options = null,
+        ReactionType type = ReactionType.Normal)
+    {
+        throw new NotImplementedException();
+    }
+
     public MessageType Type => MessageType.Default;
     public MessageSource Source => ApiMessage.From?.IsBot == true ? MessageSource.Bot : MessageSource.User;
     public bool IsTTS => false;
@@ -125,5 +131,8 @@ public class TelegramUserMessage : IUserMessage
         return Content;
     }
 
+    public MessageResolvedData ResolvedData { get; }
+
     public IUserMessage? ReferencedMessage { get; init; }
+    public IMessageInteractionMetadata InteractionMetadata { get; }
 }
