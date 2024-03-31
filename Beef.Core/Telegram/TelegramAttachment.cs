@@ -14,4 +14,11 @@ public class TelegramAttachment : IAttachment
     public bool Ephemeral => false;
     public string Description => throw new NotImplementedException();
     public string ContentType => throw new NotImplementedException();
+    public double? Duration { get; }
+    public string Waveform { get; }
+    public AttachmentFlags Flags { get; }
+    public IReadOnlyCollection<IUser> ClipParticipants { get; }
+    public string Title { get; }
+    public DateTimeOffset? ClipCreatedAt { get; }
+    public DateTimeOffset CreatedAt { get; }
 }

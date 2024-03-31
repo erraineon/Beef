@@ -30,7 +30,17 @@ public class TelegramUser : IUser
         throw new NotImplementedException();
     }
 
+    public string GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<IDMChannel> CreateDMChannelAsync(RequestOptions? options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string GetAvatarDecorationUrl()
     {
         throw new NotImplementedException();
     }
@@ -42,5 +52,8 @@ public class TelegramUser : IUser
     public bool IsWebhook => false;
     public string Username => _user.Username ?? string.Empty;
     public UserProperties? PublicFlags => throw new NotImplementedException();
+    public string GlobalName { get; }
+    public string AvatarDecorationHash { get; }
+    public ulong? AvatarDecorationSkuId { get; }
     public DateTimeOffset CreatedAt => throw new NotImplementedException();
 }

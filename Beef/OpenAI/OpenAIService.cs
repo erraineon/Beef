@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.RequestModels;
 
 namespace Beef.OpenAi;
 
@@ -7,10 +7,10 @@ public class OpenAiService : IOpenAiService
 {
     private const int MaxTokensToGenerate = 512;
     private readonly IOptionsSnapshot<OpenAiOptions> _openAiOptions;
-    private readonly OpenAI.GPT3.Interfaces.IOpenAIService _openAiService;
+    private readonly OpenAI.Interfaces.IOpenAIService _openAiService;
 
     public OpenAiService(
-        OpenAI.GPT3.Interfaces.IOpenAIService openAiService,
+        OpenAI.Interfaces.IOpenAIService openAiService,
         IOptionsSnapshot<OpenAiOptions> openAiOptions
     )
     {

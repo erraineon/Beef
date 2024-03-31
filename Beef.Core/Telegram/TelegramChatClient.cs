@@ -203,6 +203,29 @@ public class TelegramChatClient : IDiscordClient
         throw new NotImplementedException();
     }
 
+    public Task<IEntitlement> CreateTestEntitlementAsync(ulong skuId, ulong ownerId, SubscriptionOwnerType ownerType,
+        RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteTestEntitlementAsync(ulong entitlementId, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(int? limit, ulong? afterId = null, ulong? beforeId = null,
+        bool excludeEnded = false, ulong? guildId = null, ulong? userId = null, ulong[] skuIds = null,
+        RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IReadOnlyCollection<SKU>> GetSKUsAsync(RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public ConnectionState ConnectionState => throw new NotImplementedException();
 
     public ISelfUser CurrentUser => new TelegramSelfUser(
