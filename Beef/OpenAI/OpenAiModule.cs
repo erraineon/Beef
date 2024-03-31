@@ -15,16 +15,6 @@ public class OpenAiModule : InteractionModuleBase<IInteractionContext>
         _openAiService = openAiService;
     }
 
-    [SlashCommand("gen", "Complete a sentence.")]
-    [RequireTrustedGuild]
-    public async Task<RuntimeResult> GenerateThoughtAsync(string? prompt = default)
-    {
-        prompt ??= string.Empty;
-        if (prompt.Length >= 512) throw new ModuleException("the prompt can be up to 512 characters long");
-        var generatedText = await _openAiService.GenerateCompletionAsync(prompt);
-        return new SuccessResult(generatedText);
-    }
-
     [DefaultMemberPermissions(GuildPermission.Administrator)]
     [SlashCommand("chat", "Respond to a prompt.")]
     [RequireTrustedGuild]

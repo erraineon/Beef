@@ -18,23 +18,6 @@ public class OpenAiService : IOpenAiService
         _openAiOptions = openAiOptions;
     }
 
-    public async Task<string> GenerateCompletionAsync(string prompt)
-    {
-        var completion = await _openAiService.Completions.CreateCompletion(
-            new CompletionCreateRequest
-            {
-                Prompt = prompt,
-                MaxTokens = MaxTokensToGenerate,
-                Temperature = _openAiOptions.Value.Temperature,
-                Stop = " END"
-            },
-            _openAiOptions.Value.CompletionModelName
-        );
-
-        var result = $"{prompt}{completion.Choices.First().Text}";
-        return result;
-    }
-
 
     public async Task<string> GenerateChatCompletionAsync(string prompt)
     {
