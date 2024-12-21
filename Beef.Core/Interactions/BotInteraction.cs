@@ -14,7 +14,23 @@ public class BotInteraction : ISlashCommandInteraction
         CreatedAt = DateTimeOffset.Now;
     }
 
-    public Task<IUserMessage> FollowupAsync(
+    private static IEnumerable<string?> SplitLongText(string? contentToReplyWith)
+    {
+        // splits the string based off the last found line break, if any, to fit the character limit
+        var index = 0;
+        const int maxMessageLength = 2000;
+        while (contentToReplyWith?.Length > maxMessageLength + index)
+        {
+            var lastLineBreakIndex = contentToReplyWith.LastIndexOf('\n', index + maxMessageLength);
+            if (lastLineBreakIndex == -1) lastLineBreakIndex = maxMessageLength;
+            yield return contentToReplyWith.Substring(index, lastLineBreakIndex);
+            index += lastLineBreakIndex;
+        }
+
+        yield return contentToReplyWith?[index..];
+    }
+
+    public async Task<IUserMessage> FollowupAsync(
         string? text = null,
         Embed[]? embeds = null,
         bool isTts = false,
@@ -25,17 +41,23 @@ public class BotInteraction : ISlashCommandInteraction
         RequestOptions? options = null
     )
     {
-        return _textChannel.SendMessageAsync(
-            text,
-            isTts,
-            embed,
-            options,
-            allowedMentions,
-            null,
-            components,
-            null,
-            embeds
-        );
+        var textComponents = SplitLongText(text);
+        IUserMessage? lastMessage = null;
+        foreach (var textComponent in textComponents)
+        {
+            lastMessage = await _textChannel.SendMessageAsync(
+                textComponent,
+                isTts,
+                embed,
+                options,
+                allowedMentions,
+                null,
+                components,
+                null,
+                embeds
+            );
+        }
+        return lastMessage ?? throw new InvalidOperationException($"No messages were sent for text: {text}");
     }
 
     public Task RespondAsync(
@@ -81,7 +103,7 @@ public class BotInteraction : ISlashCommandInteraction
         PollProperties poll = null
     )
     {
-        throw new NotImplementedException();
+        return FollowupAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
     }
 
     public Task<IUserMessage> FollowupWithFilesAsync(

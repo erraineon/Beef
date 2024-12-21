@@ -102,6 +102,7 @@ public class InteractionHandler : IInteractionHandler
         bool isLate
     )
     {
+        const string errorMessage = "👎";
         try
         {
             var contentToReplyWith = result switch
@@ -110,7 +111,7 @@ public class InteractionHandler : IInteractionHandler
                 SuccessResult { Result: IEnumerable<object> r } => string.Join('\n', r),
                 SuccessResult { Result: var r and not (null or "") } => r.ToString(),
                 ExecuteResult { IsSuccess: true } or SuccessResult => "👌",
-                _ => "👎"
+                _ => errorMessage
             };
 
             var suppressResponse = context.Interaction is BotInteraction && string.IsNullOrWhiteSpace(contentToReplyWith);
@@ -128,6 +129,16 @@ public class InteractionHandler : IInteractionHandler
         catch (Exception e)
         {
             _logger.LogError(e, "Error while handling an interaction's result.");
+            try
+            {
+                // Handle cases like an interaction response being too long by at least giving some kind of response.
+                await (isLate
+                    ? context.Interaction.FollowupAsync(errorMessage)
+                    : context.Interaction.RespondAsync(errorMessage));
+            }
+            catch
+            {
+            }
         }
     }
 }
