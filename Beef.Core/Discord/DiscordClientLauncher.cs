@@ -38,10 +38,18 @@ public class DiscordClientLauncher : IHostedService
         }
 
         _discordClient.Ready += OnReady;
+        _discordClient.MessageReceived += OnMessageReceivedAsync;
 
         await _discordClient.LoginAsync(TokenType.Bot, _discordOptions.Value.Token);
         await _discordClient.StartAsync();
         await discordReady.Task;
+    }
+
+    private Task OnMessageReceivedAsync(SocketMessage message)
+    {
+        if (message is IUserMessage { Channel: IGuildChannel } userMessage)
+            _interactionHandler.HandleMessage(_discordClient, userMessage);
+        return Task.CompletedTask;
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)

@@ -8,18 +8,43 @@ namespace Beef.Core.Interactions;
 public class InteractionHandler : IInteractionHandler
 {
     private readonly InteractionService _interactionService;
+    private readonly IInteractionFactory _interactionFactory;
     private readonly ILogger<InteractionHandler> _logger;
     private readonly IServiceProvider _serviceProvider;
 
     public InteractionHandler(
         InteractionService interactionService,
+        IInteractionFactory interactionFactory,
         IServiceProvider serviceProvider,
         ILogger<InteractionHandler> logger
     )
     {
         _interactionService = interactionService;
+        _interactionFactory = interactionFactory;
         _serviceProvider = serviceProvider;
         _logger = logger;
+    }
+
+    public void HandleMessage(IDiscordClient client, IUserMessage message)
+    {
+        try
+        {
+            const string commandPrefix = ".";
+            if (message.Content.StartsWith(commandPrefix) && message.Content.Length > 1 && !message.Author.IsBot)
+            {
+                var interaction = _interactionFactory.CreateInteraction(
+                    message.Author,
+                    message.Channel,
+                    message.Content.Substring(commandPrefix.Length)
+                );
+                var interactionContext = new InteractionContext(client, interaction, message.Channel);
+                HandleInteractionContext(interactionContext);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occurred while handling a telegram message.");
+        }
     }
 
     public async void HandleInteractionContext(IInteractionContext context)
