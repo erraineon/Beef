@@ -14,45 +14,6 @@ public class BotInteraction : ISlashCommandInteraction
         CreatedAt = DateTimeOffset.Now;
     }
 
-    public Task RespondAsync(
-        string? text = null,
-        Embed[]? embeds = null,
-        bool isTts = false,
-        bool ephemeral = false,
-        AllowedMentions? allowedMentions = null,
-        MessageComponent? components = null,
-        Embed? embed = null,
-        RequestOptions? options = null
-    )
-    {
-        return FollowupAsync(text, embeds, isTts, ephemeral, allowedMentions, components, embed, options);
-    }
-
-    public Task RespondWithFilesAsync(
-        IEnumerable<FileAttachment> attachments,
-        string? text = null,
-        Embed[]? embeds = null,
-        bool isTts = false,
-        bool ephemeral = false,
-        AllowedMentions? allowedMentions = null,
-        MessageComponent? components = null,
-        Embed? embed = null,
-        RequestOptions? options = null
-    )
-    {
-        return FollowupWithFilesAsync(
-            attachments,
-            text,
-            embeds,
-            isTts,
-            ephemeral,
-            allowedMentions,
-            components,
-            embed,
-            options
-        );
-    }
-
     public Task<IUserMessage> FollowupAsync(
         string? text = null,
         Embed[]? embeds = null,
@@ -77,30 +38,66 @@ public class BotInteraction : ISlashCommandInteraction
         );
     }
 
-    public Task<IUserMessage> FollowupWithFilesAsync(
-        IEnumerable<FileAttachment> attachments,
-        string? text = null,
-        Embed[]? embeds = null,
-        bool isTts = false,
+    public Task RespondAsync(
+        string text = null,
+        Embed[] embeds = null,
+        bool isTTS = false,
         bool ephemeral = false,
-        AllowedMentions? allowedMentions = null,
-        MessageComponent? components = null,
-        Embed? embed = null,
-        RequestOptions? options = null
+        AllowedMentions allowedMentions = null,
+        MessageComponent components = null,
+        Embed embed = null,
+        RequestOptions options = null,
+        PollProperties poll = null
     )
     {
-        return _textChannel.SendFilesAsync(
-            attachments,
-            text,
-            isTts,
-            embed,
-            options,
-            allowedMentions,
-            null,
-            components,
-            null,
-            embeds
-        );
+        return FollowupAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
+    }
+
+    public Task RespondWithFilesAsync(
+        IEnumerable<FileAttachment> attachments,
+        string text = null,
+        Embed[] embeds = null,
+        bool isTTS = false,
+        bool ephemeral = false,
+        AllowedMentions allowedMentions = null,
+        MessageComponent components = null,
+        Embed embed = null,
+        RequestOptions options = null,
+        PollProperties poll = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IUserMessage> FollowupAsync(
+        string text = null,
+        Embed[] embeds = null,
+        bool isTTS = false,
+        bool ephemeral = false,
+        AllowedMentions allowedMentions = null,
+        MessageComponent components = null,
+        Embed embed = null,
+        RequestOptions options = null,
+        PollProperties poll = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IUserMessage> FollowupWithFilesAsync(
+        IEnumerable<FileAttachment> attachments,
+        string text = null,
+        Embed[] embeds = null,
+        bool isTTS = false,
+        bool ephemeral = false,
+        AllowedMentions allowedMentions = null,
+        MessageComponent components = null,
+        Embed embed = null,
+        RequestOptions options = null,
+        PollProperties poll = null
+    )
+    {
+        throw new NotImplementedException();
     }
 
     public Task<IUserMessage> GetOriginalResponseAsync(RequestOptions? options = null)

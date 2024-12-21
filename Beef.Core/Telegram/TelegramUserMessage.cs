@@ -1,5 +1,8 @@
 ﻿using Discord;
 using Telegram.Bot.Types;
+using Poll = Discord.Poll;
+using ReactionType = Discord.ReactionType;
+
 #pragma warning disable CS8625
 
 namespace Beef.Core.Telegram;
@@ -65,6 +68,8 @@ public class TelegramUserMessage : IUserMessage
     public MessageFlags? Flags => throw new NotImplementedException();
     public IMessageInteraction Interaction => throw new NotImplementedException();
     public MessageRoleSubscriptionData RoleSubscriptionData => throw new NotImplementedException();
+    public PurchaseNotification PurchaseNotification { get; }
+    public MessageCallData? CallData { get; }
 
     public Task ModifyAsync(Action<MessageProperties> func, RequestOptions? options = null)
     {
@@ -131,8 +136,25 @@ public class TelegramUserMessage : IUserMessage
         return Content;
     }
 
+    public Task EndPollAsync(RequestOptions options)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetPollAnswerVotersAsync(
+        uint answerId,
+        int? limit = null,
+        ulong? afterId = null,
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
     public MessageResolvedData ResolvedData { get; }
 
     public IUserMessage? ReferencedMessage { get; init; }
     public IMessageInteractionMetadata InteractionMetadata { get; }
+    public IReadOnlyCollection<MessageSnapshot> ForwardedMessages { get; }
+    public Poll? Poll { get; }
 }

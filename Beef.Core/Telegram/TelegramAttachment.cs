@@ -16,6 +16,7 @@ public class TelegramAttachment : IAttachment
     public string ContentType => throw new NotImplementedException();
     public double? Duration { get; }
     public string Waveform { get; }
+    public byte[] WaveformBytes { get; }
     public AttachmentFlags Flags { get; }
     public IReadOnlyCollection<IUser> ClipParticipants { get; }
     public string Title { get; }

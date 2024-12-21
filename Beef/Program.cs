@@ -22,6 +22,7 @@ using Microsoft.Extensions.Options;
 using OpenAI.Managers;
 using OpenAI.Interfaces;
 using NeoSmart.Caching.Sqlite;
+using SQLitePCL;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(configurationBuilder => configurationBuilder.AddUserSecrets<Program>())
@@ -29,7 +30,7 @@ var host = Host.CreateDefaultBuilder(args)
         (context, services) =>
         {
             // Distributed cache
-            services.AddSqliteCache("cache.db");
+            services.AddSqliteCache("cache.db", new SQLite3Provider_e_sqlite3());
 
             // Interactions
             services

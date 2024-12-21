@@ -106,6 +106,16 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task BanUserAsync(IUser user, uint pruneSeconds = 0, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task BanUserAsync(ulong userId, uint pruneSeconds = 0, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task RemoveBanAsync(IUser user, RequestOptions? options = null)
     {
         throw new NotImplementedException();
@@ -362,6 +372,11 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
+    public Task<IRole> GetRoleAsync(ulong id, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<IRole> CreateRoleAsync(string name, GuildPermissions? permissions = null, Color? color = null, bool isHoisted = false,
         bool isMentionable = false, RequestOptions options = null, Image? icon = null, Emoji emoji = null)
     {
@@ -424,6 +439,8 @@ public class TelegramGuild : IGuild, ITextChannel
         return user;
     }
 
+    public ChannelType ChannelType { get; }
+
     public async Task<IGuildUser> GetCurrentUserAsync(
         CacheMode mode = CacheMode.AllowDownload,
         RequestOptions? options = null
@@ -460,6 +477,11 @@ public class TelegramGuild : IGuild, ITextChannel
         CacheMode mode = CacheMode.AllowDownload,
         RequestOptions options = null
     )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<MemberSearchResult> SearchUsersAsyncV2(int limit = 1000, MemberSearchPropertiesV2 args = null, RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -980,7 +1002,8 @@ public class TelegramGuild : IGuild, ITextChannel
         MessageComponent components = null,
         ISticker[] stickers = null,
         Embed[] embeds = null,
-        MessageFlags flags = MessageFlags.None
+        MessageFlags flags = MessageFlags.None,
+        PollProperties poll = null
     )
     {
         if (string.IsNullOrEmpty(text))
@@ -991,12 +1014,11 @@ public class TelegramGuild : IGuild, ITextChannel
 
         var htmlText = TelegramMarkdownConverter.ConvertToHtml(text);
         var replyToMessageId = (int)(messageReference?.MessageId.Value ?? 0);
-        var apiMessage = await _client.SendTextMessageAsync(
+        var apiMessage = await _client.SendMessage(
             _chat.Id,
             htmlText,
-            null,
             ParseMode.Html,
-            replyToMessageId: replyToMessageId
+            replyParameters: new ReplyParameters { MessageId = replyToMessageId }
         );
         var userMessage = CacheMessage(apiMessage);
         return userMessage;
@@ -1014,7 +1036,8 @@ public class TelegramGuild : IGuild, ITextChannel
         MessageComponent components = null,
         ISticker[] stickers = null,
         Embed[] embeds = null,
-        MessageFlags flags = MessageFlags.None
+        MessageFlags flags = MessageFlags.None,
+        PollProperties poll = null
     )
     {
         throw new NotImplementedException();
@@ -1033,25 +1056,25 @@ public class TelegramGuild : IGuild, ITextChannel
         MessageComponent components = null,
         ISticker[] stickers = null,
         Embed[] embeds = null,
-        MessageFlags flags = MessageFlags.None
+        MessageFlags flags = MessageFlags.None,
+        PollProperties poll = null
     )
     {
         var htmlText = TelegramMarkdownConverter.ConvertToHtml(text);
         var videoExtensions = new[] { ".gif" };
         var replyToMessageId = (int)(messageReference?.MessageId.Value ?? 0);
         var apiMessage = videoExtensions.Any(filename.EndsWith)
-            ? await _client.SendAnimationAsync(
+            ? await _client.SendAnimation(
                 _chat.Id,
                 InputFile.FromStream(stream, filename),
                 caption: htmlText,
-                replyToMessageId: replyToMessageId
+                replyParameters: new ReplyParameters { MessageId = replyToMessageId }
             )
-            : await _client.SendPhotoAsync(
+            : await _client.SendPhoto(
                 _chat.Id,
                 InputFile.FromStream(stream),
-                null,
                 htmlText,
-                replyToMessageId: replyToMessageId
+                replyParameters: new ReplyParameters { MessageId = replyToMessageId }
             );
         var userMessage = CacheMessage(apiMessage);
         return userMessage;
@@ -1068,7 +1091,8 @@ public class TelegramGuild : IGuild, ITextChannel
         MessageComponent components = null,
         ISticker[] stickers = null,
         Embed[] embeds = null,
-        MessageFlags flags = MessageFlags.None
+        MessageFlags flags = MessageFlags.None,
+        PollProperties poll = null
     )
     {
         throw new NotImplementedException();
@@ -1085,7 +1109,8 @@ public class TelegramGuild : IGuild, ITextChannel
         MessageComponent components = null,
         ISticker[] stickers = null,
         Embed[] embeds = null,
-        MessageFlags flags = MessageFlags.None
+        MessageFlags flags = MessageFlags.None,
+        PollProperties poll = null
     )
     {
         throw new NotImplementedException();

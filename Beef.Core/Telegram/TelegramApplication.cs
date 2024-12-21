@@ -34,6 +34,7 @@ public class TelegramApplication : IApplication
     public IReadOnlyCollection<string> RedirectUris { get; }
     public string InteractionsEndpointUrl { get; }
     public int? ApproximateGuildCount { get; }
+    public int? ApproximateUserInstallCount { get; }
     public ApplicationDiscoverabilityState DiscoverabilityState { get; }
     public DiscoveryEligibilityFlags DiscoveryEligibilityFlags { get; }
     public ApplicationExplicitContentFilterLevel ExplicitContentFilterLevel { get; }

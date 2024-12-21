@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
+using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 #pragma warning disable CS8625
@@ -38,13 +39,13 @@ public class TelegramChatClient : IDiscordClient
 
     public Task StartAsync()
     {
-        _telegramBotClient = new TelegramBotClient(_telegramOptions.Value.Token);
-        Client.StartReceiving(
-            OnUpdateAsync,
-            errorHandler: OnErrorAsync,
-            cancellationToken: _cancellationTokenSource.Token,
-            receiverOptions: default
+        var client = new TelegramBotClient(
+            _telegramOptions.Value.Token,
+            cancellationToken: _cancellationTokenSource.Token
         );
+        client.OnError += OnErrorAsync;
+        client.OnMessage += OnUpdateAsync;
+        _telegramBotClient = client;
         return Task.CompletedTask;
     }
 
@@ -214,6 +215,20 @@ public class TelegramChatClient : IDiscordClient
         throw new NotImplementedException();
     }
 
+    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(
+        int limit = 100,
+        ulong? afterId = null,
+        ulong? beforeId = null,
+        bool excludeEnded = false,
+        ulong? guildId = null,
+        ulong? userId = null,
+        ulong[] skuIds = null,
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
     public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(int? limit, ulong? afterId = null, ulong? beforeId = null,
         bool excludeEnded = false, ulong? guildId = null, ulong? userId = null, ulong[] skuIds = null,
         RequestOptions options = null)
@@ -226,11 +241,56 @@ public class TelegramChatClient : IDiscordClient
         throw new NotImplementedException();
     }
 
+    public Task ConsumeEntitlementAsync(ulong entitlementId, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<IReadOnlyCollection<ISubscription>> GetSKUSubscriptionsAsync(
+        ulong skuId,
+        int limit = 100,
+        ulong? afterId = null,
+        ulong? beforeId = null,
+        ulong? userId = null,
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ISubscription> GetSKUSubscriptionAsync(ulong skuId, ulong subscriptionId, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Emote> GetApplicationEmoteAsync(ulong emoteId, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IReadOnlyCollection<Emote>> GetApplicationEmotesAsync(RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Emote> ModifyApplicationEmoteAsync(ulong emoteId, Action<ApplicationEmoteProperties> args, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Emote> CreateApplicationEmoteAsync(string name, Image image, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteApplicationEmoteAsync(ulong emoteId, RequestOptions options = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public ConnectionState ConnectionState => throw new NotImplementedException();
 
-    public ISelfUser CurrentUser => new TelegramSelfUser(
-        Client.BotId ?? throw new Exception("Could not retrieve the Telegram bot ID.")
-    );
+    public ISelfUser CurrentUser => new TelegramSelfUser(Client.BotId);
 
     public TokenType TokenType => TokenType.Bot;
 
@@ -275,22 +335,22 @@ public class TelegramChatClient : IDiscordClient
         return telegramGuild;
     }
 
-    private Task OnErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken cancellationToken)
+    private Task OnErrorAsync(Exception exception, HandleErrorSource source)
     {
         return Task.CompletedTask;
     }
 
     public event Func<IUserMessage, Task> MessageReceived = _ => Task.CompletedTask;
 
-    private async Task OnUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
+    private async Task OnUpdateAsync(Message message, UpdateType type)
     {
         try
         {
-            if (update.Message is { Chat.Type: not ChatType.Private } telegramMessage)
+            if (message is { Chat.Type: not ChatType.Private } telegramMessage)
             {
                 var telegramGuild = await GetOrCreateTelegramGuildAsync(telegramMessage.Chat);
-                var message = telegramGuild.CacheMessage(telegramMessage);
-                await MessageReceived(message);
+                var cachedMessage = telegramGuild.CacheMessage(telegramMessage);
+                await MessageReceived(cachedMessage);
             }
         }
         catch (Exception e)
@@ -302,7 +362,7 @@ public class TelegramChatClient : IDiscordClient
     public async Task<byte[]> DownloadFileAsync(string fileId)
     {
         var memoryStream = new MemoryStream();
-        await Client.GetInfoAndDownloadFileAsync(fileId, memoryStream);
+        await Client.GetInfoAndDownloadFile(fileId, memoryStream);
         return memoryStream.ToArray();
     }
 

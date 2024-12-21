@@ -26,6 +26,11 @@ public class TelegramGuildUser : TelegramUser, IGuildUser
         return GetAvatarUrl(format, size);
     }
 
+    public string GetGuildBannerUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+    {
+        throw new NotImplementedException();
+    }
+
     public string GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
     {
         throw new NotImplementedException();
@@ -96,6 +101,7 @@ public class TelegramGuildUser : TelegramUser, IGuildUser
     public string? Nickname => _user.FirstName;
     public string DisplayAvatarId => throw new NotImplementedException();
     public string GuildAvatarId => throw new NotImplementedException();
+    public string GuildBannerHash { get; }
 
     public GuildPermissions GuildPermissions => _isAdmin
         ? GuildPermissions.All
