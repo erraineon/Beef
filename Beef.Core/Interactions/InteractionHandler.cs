@@ -51,7 +51,8 @@ public class InteractionHandler(
             var isLate = await DeferInteractionIfLateAsync(context, interactionTask);
             var result = await interactionTask;
 
-            if (result.Error != InteractionCommandError.UnknownCommand)
+            if (result.Error is not (InteractionCommandError.UnknownCommand
+                or InteractionCommandError.UnmetPrecondition))
                 await HandleResultAsync(context, result, isLate);
         }
         catch (Exception e)
