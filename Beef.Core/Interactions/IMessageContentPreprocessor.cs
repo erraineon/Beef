@@ -1,6 +1,8 @@
-﻿namespace Beef.Core.Interactions;
+﻿using Discord;
+
+namespace Beef.Core.Interactions;
 
 public interface IMessageContentPreprocessor
 {
-    string? GetProcessedInputOrNull(string value);
+    string? GetProcessedInputOrNull(IUserMessage value);
 }

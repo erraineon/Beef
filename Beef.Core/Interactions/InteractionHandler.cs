@@ -22,7 +22,7 @@ public class InteractionHandler(
             if (content.Length > 1 && !message.Author.IsBot)
             {
                 content = messageContentPreprocessors
-                    .Select(x => x.GetProcessedInputOrNull(content))
+                    .Select(x => x.GetProcessedInputOrNull(message))
                     .FirstOrDefault(x => x != default) ?? content;
 
                 if (content.StartsWith(commandPrefix))
