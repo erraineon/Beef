@@ -8,9 +8,6 @@ public class OpenAiService(
     IOptionsSnapshot<OpenAiOptions> openAiOptions)
     : IOpenAiService
 {
-    private const int MaxTokensToGenerate = 512;
-
-
     public async Task<string> GenerateChatCompletionAsync(string prompt)
     {
         var systemPrompt = openAiOptions.Value.DefaultSystemPrompt;
@@ -24,7 +21,7 @@ public class OpenAiService(
             new ChatCompletionCreateRequest
             {
                 Messages = messages,
-                MaxTokens = MaxTokensToGenerate,
+                MaxTokens = openAiOptions.Value.MaxTokensToGenerate,
                 Temperature = openAiOptions.Value.Temperature,
                 Stop = " END"
             },

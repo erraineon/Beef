@@ -6,4 +6,5 @@ public class OpenAiOptions
     public float Temperature { get; set; } = 0.75f;
     public string ChatCompletionModelName { get; set; } = "gpt-4";
     public string? DefaultSystemPrompt { get; set; }
+    public int MaxTokensToGenerate { get; set; } = 1024;
 }
