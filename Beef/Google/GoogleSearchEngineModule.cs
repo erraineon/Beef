@@ -4,19 +4,13 @@ using Discord.Interactions;
 
 namespace Beef.Google;
 
-public class GoogleSearchEngineModule : InteractionModuleBase<IInteractionContext>
+public class GoogleSearchEngineModule(IGoogleSearchEngine googleSearchEngine)
+    : InteractionModuleBase<IInteractionContext>
 {
-    private readonly IGoogleSearchEngine _googleSearchEngine;
-
-    public GoogleSearchEngineModule(IGoogleSearchEngine googleSearchEngine)
-    {
-        _googleSearchEngine = googleSearchEngine;
-    }
-
     [SlashCommand("g", "Searches on Google.")]
     public async Task<RuntimeResult> FindWebpageAsync(string query)
     {
-        var webpageLink = await _googleSearchEngine.FindWebpageLinkAsync(query) ??
+        var webpageLink = await googleSearchEngine.FindWebpageLinkAsync(query) ??
             throw new ModuleException("no results");
         return new SuccessResult(webpageLink);
     }
@@ -24,7 +18,7 @@ public class GoogleSearchEngineModule : InteractionModuleBase<IInteractionContex
     [SlashCommand("gi", "Searches on Google Images.")]
     public async Task<RuntimeResult> FindImageAsync(string query)
     {
-        var imageLink = await _googleSearchEngine.FindImageLinkAsync($"{query} -site:me.me -site:fbsbx.com") ??
+        var imageLink = await googleSearchEngine.FindImageLinkAsync($"{query} -site:me.me -site:fbsbx.com") ??
             throw new ModuleException("no results");
         return new SuccessResult(imageLink);
     }
@@ -32,7 +26,7 @@ public class GoogleSearchEngineModule : InteractionModuleBase<IInteractionContex
     [SlashCommand("yt", "Searches on YouTube.")]
     public async Task<RuntimeResult> FindVideoAsync(string query)
     {
-        var videoLink = await _googleSearchEngine.FindWebpageLinkAsync($"{query} site:youtube.com") ??
+        var videoLink = await googleSearchEngine.FindWebpageLinkAsync($"{query} site:youtube.com") ??
             throw new ModuleException("no results");
         return new SuccessResult(videoLink);
     }

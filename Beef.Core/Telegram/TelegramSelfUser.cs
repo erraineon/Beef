@@ -3,12 +3,8 @@ using Telegram.Bot.Types;
 
 namespace Beef.Core.Telegram;
 
-public class TelegramSelfUser : TelegramUser, ISelfUser
+public class TelegramSelfUser(long botId) : TelegramUser(new User { Id = botId }), ISelfUser
 {
-    public TelegramSelfUser(long botId) : base(new User { Id = botId })
-    {
-    }
-
     public Task ModifyAsync(Action<SelfUserProperties> func, RequestOptions? options = null)
     {
         throw new NotImplementedException();

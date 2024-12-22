@@ -2,12 +2,7 @@
 
 namespace Beef.Core;
 
-public class SuccessResult : RuntimeResult
+public class SuccessResult(object? result = default) : RuntimeResult(null, string.Empty)
 {
-    public SuccessResult(object? result = default) : base(null, string.Empty)
-    {
-        Result = result;
-    }
-
-    public object? Result { get; }
+    public object? Result { get; } = result;
 }

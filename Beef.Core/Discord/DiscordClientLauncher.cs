@@ -7,63 +7,52 @@ using Microsoft.Extensions.Options;
 
 namespace Beef.Core.Discord;
 
-public class DiscordClientLauncher : IHostedService
+public class DiscordClientLauncher(
+    IOptions<DiscordOptions> discordOptions,
+    DiscordSocketClient discordClient,
+    IInteractionHandler interactionHandler)
+    : IHostedService
 {
-    private readonly DiscordSocketClient _discordClient;
-    private readonly IOptions<DiscordOptions> _discordOptions;
-    private readonly IInteractionHandler _interactionHandler;
-
-    public DiscordClientLauncher(
-        IOptions<DiscordOptions> discordOptions,
-        DiscordSocketClient discordClient,
-        IInteractionHandler interactionHandler
-    )
-    {
-        _discordOptions = discordOptions;
-        _discordClient = discordClient;
-        _interactionHandler = interactionHandler;
-    }
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _discordClient.InteractionCreated += OnInteractionCreatedAsync;
+        discordClient.InteractionCreated += OnInteractionCreatedAsync;
 
         var discordReady = new TaskCompletionSource();
 
         Task OnReady()
         {
-            _discordClient.Ready -= OnReady;
+            discordClient.Ready -= OnReady;
             discordReady.SetResult();
             return Task.CompletedTask;
         }
 
-        _discordClient.Ready += OnReady;
-        _discordClient.MessageReceived += OnMessageReceivedAsync;
+        discordClient.Ready += OnReady;
+        discordClient.MessageReceived += OnMessageReceivedAsync;
 
-        await _discordClient.LoginAsync(TokenType.Bot, _discordOptions.Value.Token);
-        await _discordClient.StartAsync();
+        await discordClient.LoginAsync(TokenType.Bot, discordOptions.Value.Token);
+        await discordClient.StartAsync();
         await discordReady.Task;
     }
 
     private Task OnMessageReceivedAsync(SocketMessage message)
     {
         if (message is IUserMessage { Channel: IGuildChannel } userMessage)
-            _interactionHandler.HandleMessage(_discordClient, userMessage);
+            interactionHandler.HandleMessage(discordClient, userMessage);
         return Task.CompletedTask;
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        await _discordClient.StopAsync();
+        await discordClient.StopAsync();
     }
 
     private Task OnInteractionCreatedAsync(SocketInteraction interaction)
     {
         var context = new SocketInteractionContext(
-            _discordClient,
+            discordClient,
             interaction
         );
-        _interactionHandler.HandleInteractionContext(context);
+        interactionHandler.HandleInteractionContext(context);
         return Task.CompletedTask;
     }
 }

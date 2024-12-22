@@ -3,15 +3,8 @@ using Discord.Interactions;
 
 namespace Beef.Core.Interactions;
 
-public class InteractionFactory : IInteractionFactory
+public class InteractionFactory(InteractionService interactionService) : IInteractionFactory
 {
-    private readonly InteractionService _interactionService;
-
-    public InteractionFactory(InteractionService interactionService)
-    {
-        _interactionService = interactionService;
-    }
-
     public IDiscordInteraction CreateInteraction(IUser user, IMessageChannel channel, string command)
     {
         var interactionData = CreateInteractionData(command);
@@ -25,7 +18,7 @@ public class InteractionFactory : IInteractionFactory
         SlashCommandInfo? commandToRun = default;
         BotInteractionData? interactionData = default;
         var currentOptionsList = new List<IApplicationCommandInteractionDataOption>();
-        var modulesToScan = _interactionService.Modules;
+        var modulesToScan = interactionService.Modules;
         while (tokensQueue.Any() && commandToRun == default && modulesToScan.Any())
         {
             var token = tokensQueue.Dequeue();

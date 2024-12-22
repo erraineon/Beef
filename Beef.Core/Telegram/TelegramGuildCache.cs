@@ -2,18 +2,11 @@
 
 namespace Beef.Core.Telegram;
 
-public class TelegramGuildCache : ITelegramGuildCache
+public class TelegramGuildCache(IMemoryCache memoryCache) : ITelegramGuildCache
 {
-    private readonly IMemoryCache _memoryCache;
-
-    public TelegramGuildCache(IMemoryCache memoryCache)
-    {
-        _memoryCache = memoryCache;
-    }
-
     public async Task<TelegramGuild> GetOrCreateAsync(long guildId, Func<Task<TelegramGuild>> factory)
     {
-        var guild = await _memoryCache.GetOrCreateAsyncLock(
+        var guild = await memoryCache.GetOrCreateAsyncLock(
             $"telegram-chats-{guildId}",
             async e =>
             {
@@ -29,7 +22,7 @@ public class TelegramGuildCache : ITelegramGuildCache
 
     public ICollection<long> GetAllCachedChatIds()
     {
-        var chatIds = _memoryCache.GetOrCreate("telegram-chats-list", _ => new HashSet<long>());
+        var chatIds = memoryCache.GetOrCreate("telegram-chats-list", _ => new HashSet<long>());
         return chatIds;
     }
 }

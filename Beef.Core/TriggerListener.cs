@@ -10,32 +10,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Beef.Core;
 
-public class TriggerListener : BackgroundService
+public class TriggerListener(
+    IDbContextFactory<BeefDbContext> dbContextFactory,
+    IInteractionFactory interactionFactory,
+    IInteractionHandler interactionHandler,
+    DiscordSocketClient discordSocketClient,
+    TelegramChatClient telegramChatClient,
+    ILogger<TriggerListener> logger)
+    : BackgroundService
 {
-    private readonly IDbContextFactory<BeefDbContext> _dbContextFactory;
-    private readonly DiscordSocketClient _discordSocketClient;
-    private readonly IInteractionFactory _interactionFactory;
-    private readonly IInteractionHandler _interactionHandler;
-    private readonly ILogger<TriggerListener> _logger;
-    private readonly TelegramChatClient _telegramChatClient;
-
-    public TriggerListener(
-        IDbContextFactory<BeefDbContext> dbContextFactory,
-        IInteractionFactory interactionFactory,
-        IInteractionHandler interactionHandler,
-        DiscordSocketClient discordSocketClient,
-        TelegramChatClient telegramChatClient,
-        ILogger<TriggerListener> logger
-    )
-    {
-        _dbContextFactory = dbContextFactory;
-        _interactionFactory = interactionFactory;
-        _interactionHandler = interactionHandler;
-        _discordSocketClient = discordSocketClient;
-        _telegramChatClient = telegramChatClient;
-        _logger = logger;
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -49,7 +32,7 @@ public class TriggerListener : BackgroundService
     {
         try
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
             var utcNow = DateTime.UtcNow;
             var dueTriggers = dbContext.Triggers
                 .OfType<TimeTrigger>()
@@ -67,7 +50,7 @@ public class TriggerListener : BackgroundService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while processing all the time triggers.");
+            logger.LogError(e, "An error occurred while processing all the time triggers.");
         }
     }
 
@@ -76,8 +59,8 @@ public class TriggerListener : BackgroundService
         try
         {
             IDiscordClient chatClient = trigger.ChatType == ChatType.Discord
-                ? _discordSocketClient
-                : _telegramChatClient;
+                ? discordSocketClient
+                : telegramChatClient;
             var guild = await chatClient.GetGuildAsync(trigger.GuildId) ??
                 throw new Exception($"Guild {trigger.GuildId} was not found.");
             var channel = await guild.GetTextChannelAsync(trigger.ChannelId) ??
@@ -85,14 +68,14 @@ public class TriggerListener : BackgroundService
             var user = await guild.GetUserAsync(trigger.UserId) ??
                 throw new Exception($"User {trigger.UserId} was not found.");
 
-            var interaction = _interactionFactory.CreateInteraction(user, channel, trigger.CommandToRun);
-            _interactionHandler.HandleInteractionContext(
+            var interaction = interactionFactory.CreateInteraction(user, channel, trigger.CommandToRun);
+            interactionHandler.HandleInteractionContext(
                 new InteractionContext(chatClient, interaction, channel)
             );
         }
         catch (Exception e)
         {
-            _logger.LogWarning(e, "An error occurred while processing a time trigger.");
+            logger.LogWarning(e, "An error occurred while processing a time trigger.");
         }
     }
 }

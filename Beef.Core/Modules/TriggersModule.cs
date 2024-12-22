@@ -10,19 +10,12 @@ namespace Beef.Core.Modules;
 public class TriggersModule : InteractionModuleBase<IInteractionContext>
 {
     [Group("triggers", "Manages existing triggers.")]
-    public class ManageTriggersModule : InteractionModuleBase<IInteractionContext>
+    public class ManageTriggersModule(BeefDbContext beefDbContext) : InteractionModuleBase<IInteractionContext>
     {
-        private readonly BeefDbContext _beefDbContext;
-
-        public ManageTriggersModule(BeefDbContext beefDbContext)
-        {
-            _beefDbContext = beefDbContext;
-        }
-
         [SlashCommand("list", "Lists all registered triggers for this server.")]
         public async Task<RuntimeResult> ListTriggers()
         {
-            var triggers = _beefDbContext.Triggers.Where(x => x.GuildId == Context.Guild.Id).ToAsyncEnumerable();
+            var triggers = beefDbContext.Triggers.Where(x => x.GuildId == Context.Guild.Id).ToAsyncEnumerable();
             var sb = new StringBuilder();
             await foreach (var trigger in triggers)
             {
@@ -44,25 +37,18 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
         [SlashCommand("remove", "Removes the trigger with the specified ID.")]
         public async Task<RuntimeResult> RemoveTrigger(int triggerId)
         {
-            var trigger = await _beefDbContext.Triggers.FindAsync(triggerId);
+            var trigger = await beefDbContext.Triggers.FindAsync(triggerId);
             if (trigger == null) return new SuccessResult($"No trigger with ID {triggerId} was found.");
             if (trigger.UserId != Context.User.Id) return new SuccessResult("You can only remove your own triggers.");
-            _beefDbContext.Triggers.Remove(trigger);
-            await _beefDbContext.SaveChangesAsync();
+            beefDbContext.Triggers.Remove(trigger);
+            await beefDbContext.SaveChangesAsync();
             return new SuccessResult();
         }
     }
 
     [Group("remind", "Reminds users about stuff.")]
-    public class RemindModule : InteractionModuleBase<IInteractionContext>
+    public class RemindModule(BeefDbContext beefDbContext) : InteractionModuleBase<IInteractionContext>
     {
-        private readonly BeefDbContext _beefDbContext;
-
-        public RemindModule(BeefDbContext beefDbContext)
-        {
-            _beefDbContext = beefDbContext;
-        }
-
         [SlashCommand("in", "Posts a reminder after the given time span is up.")]
         public async Task<RuntimeResult> Remind(TimeSpan timeSpan, string reminder)
         {
@@ -84,8 +70,8 @@ public class TriggersModule : InteractionModuleBase<IInteractionContext>
                 TriggerAtUtc = dateTime,
                 CommandToRun = $"echo {Context.User.Mention}: {reminder}"
             };
-            await _beefDbContext.Triggers.AddAsync(trigger);
-            await _beefDbContext.SaveChangesAsync();
+            await beefDbContext.Triggers.AddAsync(trigger);
+            await beefDbContext.SaveChangesAsync();
         }
 
         [SlashCommand("on", "Posts a reminder at the given time.")]

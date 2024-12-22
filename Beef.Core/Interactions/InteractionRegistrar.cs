@@ -7,34 +7,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Beef.Core.Interactions;
 
-public class InteractionRegistrar : IHostedService
+public class InteractionRegistrar(
+    DiscordSocketClient discordClient,
+    InteractionService interactionService,
+    IServiceProvider serviceProvider,
+    ILogger<DiscordClientLauncher> logger)
+    : IHostedService
 {
-    private readonly DiscordSocketClient _discordClient;
-
-    private readonly InteractionService _interactionService;
-    private readonly ILogger<DiscordClientLauncher> _logger;
-    private readonly IServiceProvider _serviceProvider;
-
-    public InteractionRegistrar(
-        DiscordSocketClient discordClient,
-        InteractionService interactionService,
-        IServiceProvider serviceProvider,
-        ILogger<DiscordClientLauncher> logger
-    )
-    {
-        _discordClient = discordClient;
-        _interactionService = interactionService;
-        _serviceProvider = serviceProvider;
-        _logger = logger;
-    }
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
-        await _interactionService.AddModulesAsync(GetType().Assembly, _serviceProvider);
+        await interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), serviceProvider);
+        await interactionService.AddModulesAsync(GetType().Assembly, serviceProvider);
 
-        _discordClient.GuildAvailable += RegisterCommandsToGuildAsync;
-        _discordClient.JoinedGuild += RegisterCommandsToGuildAsync;
+        discordClient.GuildAvailable += RegisterCommandsToGuildAsync;
+        discordClient.JoinedGuild += RegisterCommandsToGuildAsync;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -46,11 +32,11 @@ public class InteractionRegistrar : IHostedService
     {
         try
         {
-            await _interactionService.RegisterCommandsToGuildAsync(guild.Id);
+            await interactionService.RegisterCommandsToGuildAsync(guild.Id);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error while registering commands against a guild.");
+            logger.LogError(e, "Error while registering commands against a guild.");
         }
     }
 }

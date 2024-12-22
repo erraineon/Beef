@@ -5,29 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Beef.Core.Interactions;
 
-public class InteractionHandler : IInteractionHandler
+public class InteractionHandler(
+    InteractionService interactionService,
+    IInteractionFactory interactionFactory,
+    IServiceProvider serviceProvider,
+    IEnumerable<IMessageContentPreprocessor> messageContentPreprocessors,
+    ILogger<InteractionHandler> logger)
+    : IInteractionHandler
 {
-    private readonly InteractionService _interactionService;
-    private readonly IInteractionFactory _interactionFactory;
-    private readonly ILogger<InteractionHandler> _logger;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly IEnumerable<IMessageContentPreprocessor> _messageContentPreprocessors;
-
-    public InteractionHandler(
-        InteractionService interactionService,
-        IInteractionFactory interactionFactory,
-        IServiceProvider serviceProvider,
-        IEnumerable<IMessageContentPreprocessor> messageContentPreprocessors,
-        ILogger<InteractionHandler> logger
-    )
-    {
-        _interactionService = interactionService;
-        _interactionFactory = interactionFactory;
-        _serviceProvider = serviceProvider;
-        _messageContentPreprocessors = messageContentPreprocessors;
-        _logger = logger;
-    }
-
     public void HandleMessage(IDiscordClient client, IUserMessage message)
     {
         try
@@ -36,13 +21,13 @@ public class InteractionHandler : IInteractionHandler
             var content = message.Content;
             if (content.Length > 1 && !message.Author.IsBot)
             {
-                content = _messageContentPreprocessors
+                content = messageContentPreprocessors
                     .Select(x => x.GetProcessedInputOrNull(content))
                     .FirstOrDefault(x => x != default) ?? content;
 
                 if (content.StartsWith(commandPrefix))
                 {
-                    var interaction = _interactionFactory.CreateInteraction(
+                    var interaction = interactionFactory.CreateInteraction(
                         message.Author,
                         message.Channel,
                         content.Substring(commandPrefix.Length)
@@ -54,7 +39,7 @@ public class InteractionHandler : IInteractionHandler
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while handling a message-based interaction.");
+            logger.LogError(e, "An error occurred while handling a message-based interaction.");
         }
     }
 
@@ -71,20 +56,20 @@ public class InteractionHandler : IInteractionHandler
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error while handling an interaction.");
+            logger.LogError(e, "Error while handling an interaction.");
         }
     }
 
     private async Task<IResult> ExecuteInteractionAsync(IInteractionContext context)
     {
-        var scope = _serviceProvider.CreateScope();
-        var result = await _interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
+        var scope = serviceProvider.CreateScope();
+        var result = await interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
         if (!result.IsSuccess)
         {
             var exception = (result is ExecuteResult executeResult)
                 ? executeResult.Exception
                 : new Exception($"{result.Error}: {result.ErrorReason}");
-            _logger.LogError(exception, "Error while executing an interaction.");
+            logger.LogError(exception, "Error while executing an interaction.");
         }
         return result;
     }
@@ -139,7 +124,7 @@ public class InteractionHandler : IInteractionHandler
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error while handling an interaction's result.");
+            logger.LogError(e, "Error while handling an interaction's result.");
             try
             {
                 // Handle cases like an interaction response being too long by at least giving some kind of response.

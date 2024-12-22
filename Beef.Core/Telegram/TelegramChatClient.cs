@@ -9,24 +9,14 @@ using Telegram.Bot.Types.Enums;
 
 namespace Beef.Core.Telegram;
 
-public class TelegramChatClient : IDiscordClient
+public class TelegramChatClient(
+    IOptions<TelegramOptions> telegramOptions,
+    ITelegramGuildCache telegramGuildCache,
+    ILogger<TelegramChatClient> logger)
+    : IDiscordClient
 {
-    private readonly ILogger<TelegramChatClient> _logger;
-    private readonly ITelegramGuildCache _telegramGuildCache;
-    private readonly IOptions<TelegramOptions> _telegramOptions;
     private CancellationTokenSource _cancellationTokenSource = new();
     private ITelegramBotClient? _telegramBotClient;
-
-    public TelegramChatClient(
-        IOptions<TelegramOptions> telegramOptions,
-        ITelegramGuildCache telegramGuildCache,
-        ILogger<TelegramChatClient> logger
-    )
-    {
-        _telegramOptions = telegramOptions;
-        _telegramGuildCache = telegramGuildCache;
-        _logger = logger;
-    }
 
     public ITelegramBotClient Client =>
         _telegramBotClient ?? throw new Exception("The Telegram client is not running.");
@@ -40,7 +30,7 @@ public class TelegramChatClient : IDiscordClient
     public Task StartAsync()
     {
         var client = new TelegramBotClient(
-            _telegramOptions.Value.Token,
+            telegramOptions.Value.Token,
             cancellationToken: _cancellationTokenSource.Token
         );
         client.OnError += OnErrorAsync;
@@ -59,7 +49,7 @@ public class TelegramChatClient : IDiscordClient
 
     public Task<IApplication?> GetApplicationInfoAsync(RequestOptions? options = null)
     {
-        return Task.FromResult((IApplication?)new TelegramApplication(_telegramOptions.Value.BotOwnerId));
+        return Task.FromResult((IApplication?)new TelegramApplication(telegramOptions.Value.BotOwnerId));
     }
 
     public async Task<IChannel?> GetChannelAsync(
@@ -146,7 +136,7 @@ public class TelegramChatClient : IDiscordClient
         RequestOptions? options = null
     )
     {
-        var guilds = Task.WhenAll(_telegramGuildCache.GetAllCachedChatIds().Select(GetOrCreateTelegramGuildAsync));
+        var guilds = Task.WhenAll(telegramGuildCache.GetAllCachedChatIds().Select(GetOrCreateTelegramGuildAsync));
         return await guilds;
     }
 
@@ -302,7 +292,7 @@ public class TelegramChatClient : IDiscordClient
 
     private async Task<TelegramGuild> GetOrCreateTelegramGuildAsync(long chatId)
     {
-        var guild = await _telegramGuildCache.GetOrCreateAsync(
+        var guild = await telegramGuildCache.GetOrCreateAsync(
             chatId,
             () => CreateTelegramGuildAsync(chatId)
         );
@@ -311,7 +301,7 @@ public class TelegramChatClient : IDiscordClient
 
     private async Task<TelegramGuild> GetOrCreateTelegramGuildAsync(Chat chat)
     {
-        var guild = await _telegramGuildCache.GetOrCreateAsync(
+        var guild = await telegramGuildCache.GetOrCreateAsync(
             chat.Id,
             () => CreateTelegramGuildAsync(chat)
         );
@@ -355,7 +345,7 @@ public class TelegramChatClient : IDiscordClient
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while handling a telegram update.");
+            logger.LogError(e, "An error occurred while handling a telegram update.");
         }
     }
 

@@ -2,23 +2,15 @@
 
 namespace Beef.Core.Interactions;
 
-public class BotInteractionDataOption : IApplicationCommandInteractionDataOption
+public class BotInteractionDataOption(
+    string name,
+    string? value,
+    ApplicationCommandOptionType type,
+    IReadOnlyCollection<IApplicationCommandInteractionDataOption>? options)
+    : IApplicationCommandInteractionDataOption
 {
-    public BotInteractionDataOption(
-        string name,
-        string? value,
-        ApplicationCommandOptionType type,
-        IReadOnlyCollection<IApplicationCommandInteractionDataOption>? options
-    )
-    {
-        Name = name;
-        Value = value;
-        Type = type;
-        Options = options;
-    }
-
-    public string Name { get; }
-    public object? Value { get; }
-    public ApplicationCommandOptionType Type { get; }
-    public IReadOnlyCollection<IApplicationCommandInteractionDataOption>? Options { get; }
+    public string Name { get; } = name;
+    public object? Value { get; } = value;
+    public ApplicationCommandOptionType Type { get; } = type;
+    public IReadOnlyCollection<IApplicationCommandInteractionDataOption>? Options { get; } = options;
 }
