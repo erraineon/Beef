@@ -9,6 +9,7 @@ using Beef.Core.Telegram;
 using Beef.Furry;
 using Beef.Google;
 using Beef.OpenAi;
+using Beef.TadmorMind;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -101,6 +102,15 @@ var host = Host.CreateDefaultBuilder(args)
             services
                 .AddTransient<IE621Client, E621ClientWrapper>()
                 .AddTransient<IE621SearchEngine, E621SearchEngine>();
+
+            // TadmorMind
+            services
+                .AddHttpClient()
+                .Configure<TadmorMindOptions>(context.Configuration.GetSection(nameof(TadmorMindOptions)))
+                .AddTransient<ITadmorMindClient, TadmorMindClient>()
+                .AddTransient<IMessageContentPreprocessor, TadmorMindPreprocessor>()
+                .AddSingleton<ITadmorMindThoughtsRepository, TadmorMindThoughtsRepository>()
+                .AddHostedService<TadmorMindThoughtProducer>();
         }
     )
     .Build();

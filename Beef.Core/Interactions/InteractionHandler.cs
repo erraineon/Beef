@@ -11,17 +11,20 @@ public class InteractionHandler : IInteractionHandler
     private readonly IInteractionFactory _interactionFactory;
     private readonly ILogger<InteractionHandler> _logger;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IEnumerable<IMessageContentPreprocessor> _messageContentPreprocessors;
 
     public InteractionHandler(
         InteractionService interactionService,
         IInteractionFactory interactionFactory,
         IServiceProvider serviceProvider,
+        IEnumerable<IMessageContentPreprocessor> messageContentPreprocessors,
         ILogger<InteractionHandler> logger
     )
     {
         _interactionService = interactionService;
         _interactionFactory = interactionFactory;
         _serviceProvider = serviceProvider;
+        _messageContentPreprocessors = messageContentPreprocessors;
         _logger = logger;
     }
 
@@ -30,20 +33,28 @@ public class InteractionHandler : IInteractionHandler
         try
         {
             const string commandPrefix = ".";
-            if (message.Content.StartsWith(commandPrefix) && message.Content.Length > 1 && !message.Author.IsBot)
+            var content = message.Content;
+            if (content.Length > 1 && !message.Author.IsBot)
             {
-                var interaction = _interactionFactory.CreateInteraction(
-                    message.Author,
-                    message.Channel,
-                    message.Content.Substring(commandPrefix.Length)
-                );
-                var interactionContext = new InteractionContext(client, interaction, message.Channel);
-                HandleInteractionContext(interactionContext);
+                content = _messageContentPreprocessors
+                    .Select(x => x.GetProcessedInputOrNull(content))
+                    .FirstOrDefault(x => x != default) ?? content;
+
+                if (content.StartsWith(commandPrefix))
+                {
+                    var interaction = _interactionFactory.CreateInteraction(
+                        message.Author,
+                        message.Channel,
+                        content.Substring(commandPrefix.Length)
+                    );
+                    var interactionContext = new InteractionContext(client, interaction, message.Channel);
+                    HandleInteractionContext(interactionContext);
+                }
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while handling a telegram message.");
+            _logger.LogError(e, "An error occurred while handling a message-based interaction.");
         }
     }
 

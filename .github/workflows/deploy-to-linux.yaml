@@ -34,6 +34,7 @@ jobs:
           GoogleOptions.ApiKey: ${{ secrets.GOOGLE_API_KEY }}
           OpenAiOptions.ApiKey: ${{ secrets.OPENAI_APIKEY }}
           OpenAiOptions.CompletionModelName: ${{ secrets.OPENAI_MODELNAME }}
+          TadmorMindOptions.ServiceAddress: ${{ secrets.TADMORMIND_SERVICEADDRESS }}
 
       - name: terminate remote process
         uses: appleboy/ssh-action@master
