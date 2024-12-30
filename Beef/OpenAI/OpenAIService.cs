@@ -1,16 +1,20 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
+using OpenAI.Interfaces;
 using OpenAI.ObjectModels.RequestModels;
 
 namespace Beef.OpenAi;
 
 public class OpenAiService(
-    OpenAI.Interfaces.IOpenAIService openAiService,
-    IOptionsSnapshot<OpenAiOptions> openAiOptions)
+    IOpenAIService openAiService,
+    IOptionsSnapshot<OpenAiOptions> openAiOptions,
+    IDistributedCache distributedCache)
     : IOpenAiService
 {
-    public async Task<string> GenerateChatCompletionAsync(string prompt)
+    public async Task<string> GenerateChatCompletionAsync(string contextKey, string prompt)
     {
-        var systemPrompt = openAiOptions.Value.DefaultSystemPrompt;
+        var systemPrompt = await distributedCache.GetStringAsync(GetKey(contextKey)) ??
+                           openAiOptions.Value.DefaultSystemPrompt;
         var messages = new List<ChatMessage>
         {
             new("user", prompt)
@@ -31,4 +35,11 @@ public class OpenAiService(
         var result = completion.Choices.First().Message.Content;
         return result;
     }
+
+    public async Task SetSystemPromptAsync(string contextKey, string? systemPrompt)
+    {
+        await distributedCache.SetStringAsync(GetKey(contextKey), systemPrompt);
+    }
+
+    private static string GetKey(string contextKey) => $"openai-system-{contextKey}";
 }
