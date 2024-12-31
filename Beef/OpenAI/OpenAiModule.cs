@@ -14,7 +14,7 @@ public class OpenAiModule(IOpenAiService openAiService) : InteractionModuleBase<
     public async Task<RuntimeResult> GenerateChatCompletionAsync([Remainder] string prompt)
     {
         if (prompt.Length >= 512) throw new ModuleException("the prompt can be up to 512 characters long");
-        var generatedText = await openAiService.GenerateChatCompletionAsync(Context.Channel.Id.ToString(), prompt);
+        var generatedText = await openAiService.GenerateChatCompletionAsync(Context.Guild.Id.ToString(), prompt);
         return new SuccessResult(generatedText);
     }
     
@@ -23,7 +23,7 @@ public class OpenAiModule(IOpenAiService openAiService) : InteractionModuleBase<
     public async Task<RuntimeResult> SetSystemAsync([Remainder] string systemPrompt = "")
     {
         if (systemPrompt.Length >= 512) throw new ModuleException("the prompt can be up to 512 characters long");
-        await openAiService.SetSystemPromptAsync(Context.Channel.Id.ToString(), systemPrompt);
+        await openAiService.SetSystemPromptAsync(Context.Guild.Id.ToString(), systemPrompt);
         return new SuccessResult();
     }
 }
