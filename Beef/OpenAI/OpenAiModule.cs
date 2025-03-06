@@ -22,7 +22,7 @@ public class OpenAiModule(IOpenAiService openAiService) : InteractionModuleBase<
     [SlashCommand("system", "Set the system prompt.")]
     public async Task<RuntimeResult> SetSystemAsync([Remainder] string systemPrompt = "")
     {
-        if (systemPrompt.Length >= 512) throw new ModuleException("the prompt can be up to 512 characters long");
+        if (systemPrompt.Length >= 2048) throw new ModuleException("the prompt can be up to 2048 characters long");
         await openAiService.SetSystemPromptAsync(Context.Guild.Id.ToString(), systemPrompt);
         return new SuccessResult();
     }
