@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using Betalgo.Ranul.OpenAI.Interfaces;
+using Betalgo.Ranul.OpenAI.ObjectModels.RequestModels;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels.RequestModels;
 
 namespace Beef.OpenAi;
 

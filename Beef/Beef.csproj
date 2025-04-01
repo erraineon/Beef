@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Betalgo.OpenAI" Version="8.7.2" />
+		<PackageReference Include="Betalgo.Ranul.OpenAI" Version="9.0.2" />
 		<PackageReference Include="E621Client" Version="0.0.3" />
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="Google.Apis.Customsearch.v1" Version="1.49.0.2084" />

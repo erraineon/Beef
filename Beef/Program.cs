@@ -10,6 +10,9 @@ using Beef.Furry;
 using Beef.Google;
 using Beef.OpenAi;
 using Beef.TadmorMind;
+using Betalgo.Ranul.OpenAI;
+using Betalgo.Ranul.OpenAI.Interfaces;
+using Betalgo.Ranul.OpenAI.Managers;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -20,8 +23,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using OpenAI.Managers;
-using OpenAI.Interfaces;
 using NeoSmart.Caching.Sqlite;
 using SQLitePCL;
 
@@ -91,7 +92,7 @@ var host = Host.CreateDefaultBuilder(args)
                 .AddTransient<IOpenAiService, OpenAiService>()
                 .AddSingleton<IOpenAIService>(
                     s => new OpenAIService(
-                        new OpenAI.OpenAiOptions
+                        new OpenAIOptions
                         {
                             ApiKey = s.GetRequiredService<IOptions<OpenAiOptions>>().Value.ApiKey
                         }
