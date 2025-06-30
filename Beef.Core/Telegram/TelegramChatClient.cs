@@ -205,6 +205,13 @@ public class TelegramChatClient(
         throw new NotImplementedException();
     }
 
+    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(int limit = 100, ulong? afterId = null, ulong? beforeId = null,
+        bool excludeEnded = false, ulong? guildId = null, ulong? userId = null, ulong[] skuIds = null,
+        RequestOptions options = null, bool? excludeDeleted = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(
         int limit = 100,
         ulong? afterId = null,
@@ -310,7 +317,7 @@ public class TelegramChatClient(
 
     private async Task<TelegramGuild> CreateTelegramGuildAsync(long chatId)
     {
-        var chat = await Client.GetChatAsync(new ChatId(chatId), CancellationToken.None);
+        var chat = await Client.GetChat(new ChatId(chatId), CancellationToken.None);
         return await CreateTelegramGuildAsync(chat);
     }
 
@@ -320,7 +327,7 @@ public class TelegramChatClient(
             chat,
             Client
         );
-        var chatAdministrators = await Client.GetChatAdministratorsAsync(chat.Id);
+        var chatAdministrators = await Client.GetChatAdministrators(chat.Id);
         foreach (var chatAdministrator in chatAdministrators) telegramGuild.CreateGuildUser(chatAdministrator);
         return telegramGuild;
     }
@@ -358,7 +365,7 @@ public class TelegramChatClient(
 
     public async Task<string?> GetAvatarIdAsync(IUser user)
     {
-        var userPhotos = (await Client.GetUserProfilePhotosAsync((int)user.Id, 0, 1)).Photos;
+        var userPhotos = (await Client.GetUserProfilePhotos((int)user.Id, 0, 1)).Photos;
         return userPhotos.FirstOrDefault()?.FirstOrDefault()?.FileId;
     }
 }

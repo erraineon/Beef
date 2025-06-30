@@ -58,7 +58,7 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public async Task LeaveAsync(RequestOptions? options = null)
     {
-        await _client.LeaveChatAsync(_chat.Id, options?.CancelToken ?? default);
+        await _client.LeaveChat(_chat.Id, options?.CancelToken ?? default);
     }
 
     public IAsyncEnumerable<IReadOnlyCollection<IBan>> GetBansAsync(int limit = 1000, RequestOptions options = null)
@@ -446,7 +446,7 @@ public class TelegramGuild : IGuild, ITextChannel
         RequestOptions? options = null
     )
     {
-        var currentApiUser = await _client.GetMeAsync(options?.CancelToken ?? default);
+        var currentApiUser = await _client.GetMe(options?.CancelToken ?? default);
         var currentUser = CreateGuildUser(currentApiUser);
         return currentUser;
     }
@@ -1177,7 +1177,7 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public Task DeleteMessageAsync(ulong messageId, RequestOptions? options = null)
     {
-        return _client.DeleteMessageAsync(_chat.Id, (int)messageId, options?.CancelToken ?? default);
+        return _client.DeleteMessage(_chat.Id, (int)messageId, options?.CancelToken ?? default);
     }
 
     public Task DeleteMessageAsync(IMessage message, RequestOptions? options = null)
@@ -1225,7 +1225,7 @@ public class TelegramGuild : IGuild, ITextChannel
 
     private async Task<IGuildUser?> GetTelegramGuildUserAsync(int id)
     {
-        var chatMember = await _client.GetChatMemberAsync(_chat.Id, id);
+        var chatMember = await _client.GetChatMember(_chat.Id, id);
         var currentUser = CreateGuildUser(chatMember);
         return currentUser;
     }

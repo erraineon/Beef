@@ -176,6 +176,7 @@ public class BotInteraction : ISlashCommandInteraction
     public IReadOnlyDictionary<ApplicationIntegrationType, ulong> IntegrationOwners { get; }
     public InteractionContextType? ContextType { get; }
     public GuildPermissions Permissions { get; }
+    public ulong AttachmentSizeLimit { get; }
     ulong IEntity<ulong>.Id => throw new NotImplementedException();
     public DateTimeOffset CreatedAt { get; }
 }
