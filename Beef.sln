@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployment", "Deployment", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BabyGame", "BabyGame\BabyGame.csproj", "{0FB22FF4-312A-4841-A576-D6C13CC7E348}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BabyGame.Tests", "BabyGame.Tests\BabyGame.Tests.csproj", "{0D569FF7-7885-4C37-9715-1314E3011BD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{0FB22FF4-312A-4841-A576-D6C13CC7E348}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FB22FF4-312A-4841-A576-D6C13CC7E348}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FB22FF4-312A-4841-A576-D6C13CC7E348}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D569FF7-7885-4C37-9715-1314E3011BD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D569FF7-7885-4C37-9715-1314E3011BD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D569FF7-7885-4C37-9715-1314E3011BD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D569FF7-7885-4C37-9715-1314E3011BD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
