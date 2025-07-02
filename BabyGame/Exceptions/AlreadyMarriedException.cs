@@ -1,5 +1,8 @@
-﻿namespace BabyGame.Exceptions;
+﻿using BabyGame.Data;
 
-public class AlreadyMarriedException : Exception
+namespace BabyGame.Exceptions;
+
+public class AlreadyMarriedException(Spouse spouse) : Exception
 {
+    public Spouse Spouse { get; } = spouse;
 }

@@ -4,8 +4,9 @@ namespace BabyGame;
 
 public interface IBabyGameRepository
 {
-    Task AddMarriageAsync(Marriage marriage);
-    Task<Marriage> GetMarriageAsync(ulong userId);
-    Task<bool> GetIsMarriedAsync(ulong userId);
+    Task SaveMarriageAsync(Marriage marriage);
+    Task<Marriage> GetMarriageAsync(Spouse spouse);
+    Task<bool> GetIsMarriedAsync(Spouse spouse);
     Task SaveBabyAsync(Baby baby);
+    Task CreateOrUpdateSpouse(Spouse spouse);
 }

@@ -17,7 +17,7 @@ namespace BabyGame.Tests
                 Marriage = null,
                 Name = null,
                 TotalExperience = 0,
-                MotherId = 0
+                MotherId = new Spouse()
             };
             var y = x.GetChu(Enumerable.Repeat(x, 1).OfType<Baby>().ToList());
             Debug.WriteLine(y);

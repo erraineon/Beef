@@ -14,6 +14,7 @@ public abstract class Baby
     /// </summary>
     public required int Level { get; set; } = 1;
     public required DateTimeOffset BirthDate { get; set; }
-    public required ulong MotherId { get; set; }
+    public Spouse? MotherId { get; set; }
+    public Spouse? FatherId { get; set; }
     public DateTimeOffset? GraduationDate { get; set; }
 }

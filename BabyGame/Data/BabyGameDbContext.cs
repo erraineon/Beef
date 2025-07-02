@@ -7,16 +7,17 @@ public class BabyGameDbContext : DbContext, IBabyGameRepository
 {
     public DbSet<Marriage> Marriages { get; set; }
     public DbSet<Baby> Babies { get; set; }
+    public DbSet<Spouse> Spouses { get; set; }
 
-    private Task<Marriage?> GetMarriageOrNullAsync(ulong userId)
+    private Task<Marriage?> GetMarriageOrNullAsync(Spouse spouse)
     {
         return Marriages
-            .FirstOrDefaultAsync(x => x.User1Id == userId || x.User2Id == userId);
+            .FirstOrDefaultAsync(x => x.Spouse1.Id == spouse.Id || x.Spouse2.Id == spouse.Id);
     }
 
-    public async Task<bool> GetIsMarriedAsync(ulong userId)
+    public async Task<bool> GetIsMarriedAsync(Spouse spouse)
     {
-        return await GetMarriageOrNullAsync(userId) != null;
+        return await GetMarriageOrNullAsync(spouse) != null;
     }
 
     public Task SaveBabyAsync(Baby baby)
@@ -25,23 +26,20 @@ public class BabyGameDbContext : DbContext, IBabyGameRepository
         return SaveChangesAsync();
     }
 
-    public async Task<Marriage> GetMarriageAsync(ulong userId)
+    public Task CreateOrUpdateSpouse(Spouse spouse)
     {
-        return await GetMarriageOrNullAsync(userId) ?? throw new NotMarriedException(userId);
+        Spouses.Attach(spouse);
+        return SaveChangesAsync();
     }
 
-    public async Task AddMarriageAsync(Marriage marriage)
+    public async Task<Marriage> GetMarriageAsync(Spouse spouse)
     {
-        await Marriages.AddAsync(marriage);
+        return await GetMarriageOrNullAsync(spouse) ?? throw new NotMarriedException(spouse);
+    }
+
+    public async Task SaveMarriageAsync(Marriage marriage)
+    {
+        Marriages.Attach(marriage);
         await SaveChangesAsync();
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Marriage>()
-            .HasIndex(x => new { x.User1Id, x.User2Id })
-            .IsUnique();
-
-        base.OnModelCreating(modelBuilder);
     }
 }

@@ -14,9 +14,9 @@ public class LoveService(
     IBabyGameLogger logger,
     ITimeProvider timeProvider)
 {
-    public async Task LoveAsync(ulong userId, string babyName)
+    public async Task LoveAsync(Spouse spouse, string babyName)
     {
-        var marriage = await babyGameRepository.GetMarriageAsync(userId);
+        var marriage = await babyGameRepository.GetMarriageAsync(spouse);
         EnsureEnoughSpace(marriage);
         var today = timeProvider.Today;
         var loveCost = GetLoveCost(marriage, today, out var timesLovedToday);
@@ -38,7 +38,9 @@ public class LoveService(
 
     private decimal GetLoveCost(Marriage marriage, DateTime today, out int timesLovedToday)
     {
-        timesLovedToday = marriage.LastLovedOn.Date <= today ? marriage.TimesLovedOnLastDate : 0;
+        timesLovedToday = marriage.LastLovedOn != null && marriage.LastLovedOn.Value.Date <= today
+            ? marriage.TimesLovedOnLastDate
+            : 0;
         var loveCost = (decimal)(marriage.SkipNextLoveCost
             ? 0
             : Math.Pow(configuration.Value.BaseLoveCost, ++timesLovedToday));

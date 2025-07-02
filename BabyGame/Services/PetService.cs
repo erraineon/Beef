@@ -12,10 +12,10 @@ public class PetService(
     IBabyGameLogger logger,
     ITimeProvider timeProvider)
 {
-    public async Task PetAsync(ulong userId, int chu, string babyName)
+    public async Task PetAsync(Spouse spouse, int chu, string babyName)
     {
         EnsureChuValid(chu);
-        var marriage = await babyGameRepository.GetMarriageAsync(userId);
+        var marriage = await babyGameRepository.GetMarriageAsync(spouse);
         var baby = marriage.GetBaby(babyName);
         EnsureEnoughChu(marriage, chu);
         // TODO: experience modifiers

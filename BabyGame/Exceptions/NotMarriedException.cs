@@ -1,6 +1,8 @@
-﻿namespace BabyGame.Exceptions;
+﻿using BabyGame.Data;
 
-public class NotMarriedException(ulong userId) : Exception
+namespace BabyGame.Exceptions;
+
+public class NotMarriedException(Spouse spouse) : Exception
 {
-    public ulong UserId { get; } = userId;
+    public Spouse Spouse { get; } = spouse;
 }

@@ -11,15 +11,17 @@ public class KissService(
     IBabyGameLogger logger,
     ITimeProvider timeProvider)
 {
-    public async Task KissAsync(ulong userId)
+    public async Task KissAsync(Spouse spouse)
     {
-        var marriage = await babyGameRepository.GetMarriageAsync(userId);
+        // TODO: implement multi-kiss
+        var marriage = await babyGameRepository.GetMarriageAsync(spouse);
         EnsureKissCooldownExpired(marriage);
         var chu = GetChu(marriage);
         marriage.Chu += chu;
         logger.Log($"You have earned {chu} Chu");
         var now = timeProvider.Now;
-        if (now - marriage.LastKissedAt >= TimeSpan.FromDays(1)) marriage.Affinity++;
+        var firstKiss = marriage.LastKissedAt == null;
+        if (firstKiss || now - marriage.LastKissedAt >= TimeSpan.FromDays(1)) marriage.Affinity++;
         marriage.LastKissedAt = now;
     }
 

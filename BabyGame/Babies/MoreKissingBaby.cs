@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using BabyGame.Data;
-using MathNet.Symbolics;
 
 namespace BabyGame.Babies;
 
