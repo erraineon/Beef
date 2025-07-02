@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using BabyGame.Data;
 
-namespace BabyGame;
+namespace BabyGame.Services;
 
 public class BabyGachaService(IRandomProvider randomProvider, ITimeProvider timeProvider) : IBabyGachaService
 {
@@ -37,7 +37,7 @@ public class BabyGachaService(IRandomProvider randomProvider, ITimeProvider time
     {
         // TODO: rarity modifiers here
         resetPity = false;
-        var pityTargetRarity = BabyRarities.Epic;
+        var pityTargetRarity = BabyRarities.SuperRare;
         var roll = randomProvider.NextDouble(marriage);
         if (roll < pityTargetRarity) roll = Math.Min(1, roll + marriage.Pity);
         if (roll >= pityTargetRarity)
@@ -45,10 +45,7 @@ public class BabyGachaService(IRandomProvider randomProvider, ITimeProvider time
             resetPity = true;
         }
 
-        var rarities = new[]
-        {
-            BabyRarities.Common, BabyRarities.Uncommon, BabyRarities.Rare, BabyRarities.Epic, BabyRarities.Legendary
-        };
+        var rarities = new[] { BabyRarities.Common, BabyRarities.Rare, BabyRarities.SuperRare, BabyRarities.Legendary };
         var accumulatedRarities = rarities
             .Select((x, i) => x + rarities.Take(i).Sum());
 

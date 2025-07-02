@@ -2,7 +2,7 @@
 using BabyGame.Exceptions;
 using Microsoft.Extensions.Options;
 
-namespace BabyGame;
+namespace BabyGame.Services;
 
 public class PetService(
     IOptionsSnapshot<IBabyGameConfiguration> configuration,

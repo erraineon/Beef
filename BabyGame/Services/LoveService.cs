@@ -5,7 +5,7 @@ using BabyGame.Exceptions;
 using Humanizer;
 using Microsoft.Extensions.Options;
 
-namespace BabyGame;
+namespace BabyGame.Services;
 
 public class LoveService(
     IOptionsSnapshot<IBabyGameConfiguration> configuration,

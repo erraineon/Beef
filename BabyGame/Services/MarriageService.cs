@@ -1,7 +1,7 @@
 ﻿using BabyGame.Data;
 using BabyGame.Exceptions;
 
-namespace BabyGame;
+namespace BabyGame.Services;
 
 public class MarriageService(IBabyGameRepository babyGameRepository, ITimeProvider timeProvider)
 {

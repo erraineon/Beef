@@ -1,6 +1,6 @@
 ﻿using BabyGame.Data;
 
-namespace BabyGame;
+namespace BabyGame.Services;
 
 public class BabyGraduationService(IBabyGameLogger logger)
 {
@@ -13,6 +13,7 @@ public class BabyGraduationService(IBabyGameLogger logger)
         var reward = x * z + (x / 10 + Math.Pow(x / 50, 2) * (1 - z));
         // TODO: if fully ranked up, trigger bonuses
         // TODO: chance of not leaving based off Affinity
+        marriage.Chu += (decimal)reward;
         logger.Log($"{baby.Name} has graduated, leaving {reward} Chu behind. Goodbye, {baby.Name}!");
     }
 }
