@@ -1,16 +1,33 @@
-﻿using BabyGame.Data;
+﻿using BabyGame.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
-namespace BabyGame;
+namespace BabyGame.Data;
 
 public class BabyGameDbContext : DbContext, IBabyGameRepository
 {
     public DbSet<Marriage> Marriages { get; set; }
+    public DbSet<Baby> Babies { get; set; }
 
-    public Task<Marriage?> GetMarriageAsync(ulong userId)
+    private Task<Marriage?> GetMarriageOrNullAsync(ulong userId)
     {
         return Marriages
             .FirstOrDefaultAsync(x => x.User1Id == userId || x.User2Id == userId);
+    }
+
+    public async Task<bool> GetIsMarriedAsync(ulong userId)
+    {
+        return await GetMarriageOrNullAsync(userId) != null;
+    }
+
+    public Task SaveBabyAsync(Baby baby)
+    {
+        Babies.Attach(baby);
+        return SaveChangesAsync();
+    }
+
+    public async Task<Marriage> GetMarriageAsync(ulong userId)
+    {
+        return await GetMarriageOrNullAsync(userId) ?? throw new NotMarriedException(userId);
     }
 
     public async Task AddMarriageAsync(Marriage marriage)

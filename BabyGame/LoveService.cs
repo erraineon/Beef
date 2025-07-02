@@ -16,7 +16,7 @@ public class LoveService(
 {
     public async Task LoveAsync(ulong userId, string babyName)
     {
-        var marriage = await GetMarriageOrThrowAsync(userId);
+        var marriage = await babyGameRepository.GetMarriageAsync(userId);
         EnsureEnoughSpace(marriage);
         var today = timeProvider.Today;
         var loveCost = GetLoveCost(marriage, today, out var timesLovedToday);
@@ -32,12 +32,13 @@ public class LoveService(
                            baby.GetType().Name.Humanize();
         logger.Log($"Mr. Stork delivered {baby.Name}, the {babyTypeName} ({baby.GetRank()})");
         var nextCost = GetLoveCost(marriage, today, out _);
-        logger.Log($"The next baby will cost {nextCost} until {timeProvider.Today.AddDays(1).Humanize()}");
+        var tomorrow = timeProvider.Today.AddDays(1);
+        logger.Log($"The next baby will cost {nextCost} until {tomorrow.Humanize()}");
     }
 
     private decimal GetLoveCost(Marriage marriage, DateTime today, out int timesLovedToday)
     {
-        timesLovedToday = marriage.LastLovedOn.Date == today ? marriage.TimesLovedOnLastDate : 0;
+        timesLovedToday = marriage.LastLovedOn.Date <= today ? marriage.TimesLovedOnLastDate : 0;
         var loveCost = (decimal)(marriage.SkipNextLoveCost
             ? 0
             : Math.Pow(configuration.Value.BaseLoveCost, ++timesLovedToday));
@@ -53,12 +54,7 @@ public class LoveService(
     private void EnsureEnoughChu(Marriage marriage, decimal loveCost)
     {
         var chu = marriage.Chu;
-        if (!marriage.SkipNextLoveCost && chu >= loveCost)
-            throw new NotEnoughChuToLoveException(chu);
-    }
-
-    private async Task<Marriage> GetMarriageOrThrowAsync(ulong userId)
-    {
-        return await babyGameRepository.GetMarriageAsync(userId) ?? throw new NotMarriedException(userId);
+        if (!marriage.SkipNextLoveCost && chu < loveCost)
+            throw new NotEnoughChuException(chu);
     }
 }

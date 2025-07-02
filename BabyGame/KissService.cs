@@ -13,7 +13,7 @@ public class KissService(
 {
     public async Task KissAsync(ulong userId)
     {
-        var marriage = await GetMarriageOrThrowAsync(userId);
+        var marriage = await babyGameRepository.GetMarriageAsync(userId);
         EnsureKissCooldownExpired(marriage);
         var chu = GetChu(marriage);
         marriage.Chu += chu;
@@ -112,10 +112,5 @@ public class KissService(
         var b = configuration.Value.AffinityKissCooldownMultiplierRate;
         var x = marriage.Affinity;
         return 1 - a + a / (1 + b * (x / 1000.0));
-    }
-
-    private async Task<Marriage> GetMarriageOrThrowAsync(ulong userId)
-    {
-        return await babyGameRepository.GetMarriageAsync(userId) ?? throw new NotMarriedException(userId);
     }
 }

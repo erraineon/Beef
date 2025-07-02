@@ -23,8 +23,8 @@ public class MarriageService(IBabyGameRepository babyGameRepository, ITimeProvid
 
     private async Task EnsureNotAlreadyMarriedAsync(ulong userId)
     {
-        if (await babyGameRepository.GetMarriageAsync(userId) is { } existingMarriage)
-            throw new AlreadyMarriedException(existingMarriage);
+        if (await babyGameRepository.GetIsMarriedAsync(userId))
+            throw new AlreadyMarriedException();
     }
 
     private static void EnsureNoSelfMarriage(ulong user1Id, ulong user2Id)

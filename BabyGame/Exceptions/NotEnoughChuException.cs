@@ -1,6 +1,6 @@
 ﻿namespace BabyGame.Exceptions;
 
-internal class NotEnoughChuToLoveException(decimal chu) : Exception
+internal class NotEnoughChuException(decimal chu) : Exception
 {
     public decimal Chu { get; } = chu;
 }
