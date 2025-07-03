@@ -28,7 +28,7 @@ public class MarriageService(
         };
         marriage.Affinity = randomProvider.NextInt(marriage, 1, configuration.MaxInitialAffinity);
         await babyGameRepository.CreateMarriageAsync(marriage);
-        await modifierService.AddModifierAsync(marriage, new SkipLoveCostModifier { ChargesLeft = 1 }, false);
+        await modifierService.AddModifierAsync(marriage, new SkipLoveCostBuff { ChargesLeft = 1 }, false);
 
         // TODO: stretch between 1 and 1000
         var compatibility = marriage.Affinity switch

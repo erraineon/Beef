@@ -2,7 +2,7 @@
 
 namespace BabyGame.Tests;
 
-public static class PlayerTestUtils
+public static class PlayerUtils
 {
     public static Player GetBob()
     {

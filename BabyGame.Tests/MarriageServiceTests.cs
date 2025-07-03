@@ -9,15 +9,15 @@ using NSubstitute;
 namespace BabyGame.Tests;
 
 [TestClass]
-public class MarriageTests
+public class MarriageServiceTests
 {
     private IBabyGameConfiguration _babyGameConfiguration;
     private IBabyGameLogger _babyGameLogger;
     private IBabyGameRepository _babyGameRepository;
-    private MarriageService _marriageService;
     private IModifierService _modifierService;
     private IRandomProvider _randomProvider;
     private ITimeProvider _timeProvider;
+    private MarriageService _marriageService;
 
     [TestInitialize]
     public void Initialize()
@@ -38,7 +38,7 @@ public class MarriageTests
             .Returns(x => x.ArgAt<int>(2));
 
         _timeProvider = Substitute.For<ITimeProvider>();
-        _timeProvider.Now.Returns(new DateTimeOffset(2025, 6, 1, 12, 30, 0, TimeZoneInfo.Local.BaseUtcOffset));
+        _timeProvider.Now.Returns(TimeUtils.MarriageDay);
 
         _marriageService = new MarriageService(
             _babyGameConfiguration,
@@ -51,10 +51,41 @@ public class MarriageTests
     }
 
     [TestMethod]
+    public async Task Marriage_Works()
+    {
+        var spouse1 = PlayerUtils.GetAlice();
+        var spouse2 = PlayerUtils.GetBob();
+        var marriage = await _marriageService.MarryAsync(spouse1, spouse2);
+        Assert.AreEqual(_timeProvider.Now, marriage.MarriedAt);
+        Assert.IsNull(marriage.LastKissedAt);
+        Assert.IsNull(marriage.LastLovedOn);
+    }
+    [TestMethod]
+    public async Task Marriage_SetsAffinity()
+    {
+        _randomProvider
+            .NextInt(Arg.Is<Marriage?>(x => x != null), Arg.Any<int>(), Arg.Any<int>())
+            .Returns(3);
+        var spouse1 = PlayerUtils.GetAlice();
+        var spouse2 = PlayerUtils.GetBob();
+        var marriage = await _marriageService.MarryAsync(spouse1, spouse2);
+        Assert.AreEqual(3, marriage.Affinity);
+    }
+
+    [TestMethod]
+    public async Task Marriage_SetsChu()
+    {
+        var spouse1 = PlayerUtils.GetAlice();
+        var spouse2 = PlayerUtils.GetBob();
+        var marriage = await _marriageService.MarryAsync(spouse1, spouse2);
+        Assert.AreEqual(3, marriage.Chu);
+    }
+
+    [TestMethod]
     public async Task Marriage_GetsSaved()
     {
-        var spouse1 = PlayerTestUtils.GetAlice();
-        var spouse2 = PlayerTestUtils.GetBob();
+        var spouse1 = PlayerUtils.GetAlice();
+        var spouse2 = PlayerUtils.GetBob();
         var marriage = await _marriageService.MarryAsync(spouse1, spouse2);
         await _babyGameRepository.Received().CreateMarriageAsync(marriage);
     }
@@ -62,28 +93,28 @@ public class MarriageTests
     [TestMethod]
     public async Task Marriage_Adds_SkipLoveCostModifier()
     {
-        var spouse1 = PlayerTestUtils.GetAlice();
-        var spouse2 = PlayerTestUtils.GetBob();
+        var spouse1 = PlayerUtils.GetAlice();
+        var spouse2 = PlayerUtils.GetBob();
         var marriage = await _marriageService.MarryAsync(spouse1, spouse2);
         await _modifierService
             .Received()
-            .AddModifierAsync(marriage, Arg.Is<SkipLoveCostModifier>(m => m.ChargesLeft == 1), false);
+            .AddModifierAsync(marriage, Arg.Is<SkipLoveCostBuff>(m => m.ChargesLeft == 1), false);
     }
 
     [TestMethod]
     public async Task Marriage_Throws_AlreadyMarried()
     {
         _babyGameRepository.GetIsMarriedAsync(Arg.Any<Player>()).Returns(true);
-        var spouse1 = PlayerTestUtils.GetAlice();
-        var spouse2 = PlayerTestUtils.GetBob();
+        var spouse1 = PlayerUtils.GetAlice();
+        var spouse2 = PlayerUtils.GetBob();
         await Assert.ThrowsExceptionAsync<AlreadyMarriedException>(() => _marriageService.MarryAsync(spouse1, spouse2));
     }
 
     [TestMethod]
     public async Task Marriage_Throws_NoSelfMarriage()
     {
-        var spouse1 = PlayerTestUtils.GetAlice();
-        var spouse2 = PlayerTestUtils.GetAlice();
+        var spouse1 = PlayerUtils.GetAlice();
+        var spouse2 = PlayerUtils.GetAlice();
         await Assert.ThrowsExceptionAsync<NoSelfMarriage>(() => _marriageService.MarryAsync(spouse1, spouse2));
     }
 }

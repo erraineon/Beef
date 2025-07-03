@@ -33,9 +33,9 @@ public class ModifierService(ITimeProvider timeProvider, IBabyGameLogger logger,
             var displayName = modifierType.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
                               modifierType.Name.Humanize();
             var description = modifierType.GetCustomAttribute<DescriptionAttribute>()?.Description ??
-                              "A strange effect";
+                              "A mysterious effect";
             var expiration = modifier.ChargesLeft != null
-                ? $" for the next ${"time".ToQuantity(modifier.ChargesLeft.Value, ShowQuantityAs.Words)}"
+                ? $" for the next {"time".ToQuantity(modifier.ChargesLeft.Value, ShowQuantityAs.Words)}"
                 : modifier.EndsAt != null
                     ? $" for {(modifier.EndsAt - modifier.CreatedAt).Value.Humanize(3)}"
                     : string.Empty;

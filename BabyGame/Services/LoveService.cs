@@ -27,7 +27,7 @@ public class LoveService(
         marriage.Chu -= loveCost;
         marriage.LastLovedOn = today;
         marriage.TimesLovedOnLastDate = timesLovedToday;
-        await modifierService.TryUseModifierAsync<SkipLoveCostModifier>(marriage);
+        await modifierService.TryUseModifierAsync<SkipLoveCostBuff>(marriage);
         var baby = await babyGachaService.CreateBabyAsync(marriage, babyName);
 
         var babyTypeName = baby.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
@@ -43,7 +43,7 @@ public class LoveService(
         timesLovedToday = marriage.LastLovedOn != null && marriage.LastLovedOn.Value.Date <= today
             ? marriage.TimesLovedOnLastDate
             : 0;
-        var loveCost = (decimal)(modifierService.GetModifierOrNull<SkipLoveCostModifier>(marriage) != null
+        var loveCost = (decimal)(modifierService.GetModifierOrNull<SkipLoveCostBuff>(marriage) != null
             ? 0
             : Math.Pow(configuration.Value.BaseLoveCost, ++timesLovedToday));
         return loveCost;

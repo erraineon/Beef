@@ -53,7 +53,7 @@ public class KissService(
     {
         var now = timeProvider.Now;
         var cooldown = GetKissCooldown(marriage);
-        if (!await modifierService.TryUseModifierAsync<SkipKissCooldownModifier>(marriage) && now - marriage.LastKissedAt < cooldown)
+        if (!await modifierService.TryUseModifierAsync<SkipKissCooldownBuff>(marriage) && now - marriage.LastKissedAt < cooldown)
             throw new KissOnCooldownException(cooldown);
     }
 

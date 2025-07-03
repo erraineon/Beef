@@ -2,4 +2,4 @@
 
 namespace BabyGame.Modifiers;
 
-public class SkipKissCooldownModifier : Modifier;
+public class SkipKissCooldownBuff : Modifier;

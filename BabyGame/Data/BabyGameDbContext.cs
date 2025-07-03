@@ -23,12 +23,6 @@ public class BabyGameDbContext : DbContext, IBabyGameRepository
         return await GetMarriageOrNullAsync(player) != null;
     }
 
-    public async Task CreateBabyAsync(Baby baby)
-    {
-        await Babies.AddAsync(baby);
-        await SaveChangesAsync();
-    }
-
     public async Task CreateSpouseAsync(Player player)
     {
         await Spouses.AddAsync(player);
@@ -53,11 +47,6 @@ public class BabyGameDbContext : DbContext, IBabyGameRepository
 
     private class BabyGameTransaction(IDbContextTransaction transaction) : IAsyncDisposable
     {
-        public Task CommitAsync()
-        {
-            return transaction.CommitAsync();
-        }
-
         public async ValueTask DisposeAsync()
         {
             await transaction.CommitAsync();

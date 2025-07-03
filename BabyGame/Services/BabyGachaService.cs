@@ -10,7 +10,8 @@ public class BabyGachaService(IRandomProvider randomProvider, IBabyGameRepositor
         var baby = InstantiateRandomBaby(marriage);
         baby.BirthDate = timeProvider.Now;
         baby.Name = babyName ?? $"Baby{marriage.Babies.Count + 1}";
-        await babyGameRepository.CreateBabyAsync(baby);
+        marriage.Babies.Add(baby);
+        await babyGameRepository.SaveChangesAsync();
         return baby;
     }
 
