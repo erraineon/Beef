@@ -1,21 +1,24 @@
 ﻿using BabyGame.Data;
+using BabyGame.Events;
 using BabyGame.Exceptions;
-using Humanizer;
+using BabyGame.Modifiers;
 using Microsoft.Extensions.Options;
 
 namespace BabyGame.Services;
 
 public class KissService(
     IOptionsSnapshot<IBabyGameConfiguration> configuration,
+    IModifierService modifierService,
     IBabyGameRepository babyGameRepository,
     IBabyGameLogger logger,
     ITimeProvider timeProvider)
 {
-    public async Task KissAsync(Spouse spouse)
+    public async Task KissAsync(Player player)
     {
+        await using var transaction = await babyGameRepository.BeginTransactionAsync();
         // TODO: implement multi-kiss
-        var marriage = await babyGameRepository.GetMarriageAsync(spouse);
-        EnsureKissCooldownExpired(marriage);
+        var marriage = await babyGameRepository.GetMarriageAsync(player);
+        await EnsureKissCooldownExpiredAsync(marriage);
         var chu = GetChu(marriage);
         marriage.Chu += chu;
         logger.Log($"You have earned {chu} Chu");
@@ -23,31 +26,22 @@ public class KissService(
         var firstKiss = marriage.LastKissedAt == null;
         if (firstKiss || now - marriage.LastKissedAt >= TimeSpan.FromDays(1)) marriage.Affinity++;
         marriage.LastKissedAt = now;
+        await babyGameRepository.SaveChangesAsync();
     }
 
     private decimal GetChu(Marriage marriage)
     {
         var chu = 0.0;
-        var chuAdders = GetUndergraduateBabies<IChuAdder>(marriage);
-        foreach (var babyGroup in chuAdders)
-        {
-            var firstBaby = babyGroup.First();
-            var collection = babyGroup.Cast<Baby>().ToList();
-            var kissesByGroup = firstBaby.GetChu(collection);
-            chu += kissesByGroup;
-            logger.Log($"{GetBabyNames(collection)} earned you {kissesByGroup} Chu");
-        }
+        chu += marriage
+            .Aggregate<IChuOnKiss, double>()
+            .LogByType(logger, "{0} earned you {1} Chu")
+            .Sum();
 
         var chuMultiplier = 1.0;
-        var chuMultipliers = GetUndergraduateBabies<IKissMultiplier>(marriage);
-        foreach (var babyGroup in chuMultipliers)
-        {
-            var firstBaby = babyGroup.First();
-            var collection = babyGroup.Cast<Baby>().ToList();
-            var multiplierByGroup = firstBaby.GetKissMultiplier(collection);
-            chuMultiplier += multiplierByGroup;
-            logger.Log($"{GetBabyNames(collection)} earned you {chu * multiplierByGroup} extra Chu");
-        }
+        chuMultiplier += marriage
+            .Aggregate<IChuMultiplierOnKiss, double>()
+            .LogByType(logger, (x,y) => $"{x} earned you {chu * y} extra Chu")
+            .Sum();
 
         var affinityBonus = marriage.Affinity / 100.0;
         chuMultiplier += affinityBonus;
@@ -55,26 +49,11 @@ public class KissService(
         return (decimal)Math.Max(0, chu * chuMultiplier);
     }
 
-    private static string GetBabyNames(List<Baby> collection)
-    {
-        return collection.Select(x => x.Name).Humanize();
-    }
-
-    private static List<IGrouping<Type, TBaby>> GetUndergraduateBabies<TBaby>(Marriage marriage)
-    {
-        var kissEffectors = marriage.Babies
-            .Where(x => x.GraduationDate == null)
-            .OfType<TBaby>()
-            .GroupBy(x => x!.GetType())
-            .ToList();
-        return kissEffectors;
-    }
-
-    private void EnsureKissCooldownExpired(Marriage marriage)
+    private async Task EnsureKissCooldownExpiredAsync(Marriage marriage)
     {
         var now = timeProvider.Now;
         var cooldown = GetKissCooldown(marriage);
-        if (!marriage.SkipNextCooldown && now - marriage.LastKissedAt < cooldown)
+        if (!await modifierService.TryUseModifierAsync<SkipKissCooldownModifier>(marriage) && now - marriage.LastKissedAt < cooldown)
             throw new KissOnCooldownException(cooldown);
     }
 
@@ -91,17 +70,9 @@ public class KissService(
 
     private double GetBabiesKissCooldownMultiplier(Marriage marriage)
     {
-        var kissCooldownEffectors = marriage.Babies
-            .Where(x => x.GraduationDate == null)
-            .OfType<IKissCooldownEffector>()
-            .GroupBy(x => x.GetType())
-            .ToList();
-        var multiplier = 1.0;
-        foreach (var babyGroup in kissCooldownEffectors)
-        {
-            var firstBaby = babyGroup.First();
-            multiplier -= firstBaby.GetCooldownMultiplierDeduction(babyGroup.Cast<Baby>().ToList());
-        }
+        var multiplier = marriage
+            .Aggregate<IKissCooldownMultiplierOnKiss, double>()
+            .Sum();
 
         return multiplier;
     }

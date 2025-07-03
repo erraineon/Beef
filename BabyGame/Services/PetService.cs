@@ -12,10 +12,10 @@ public class PetService(
     IBabyGameLogger logger,
     ITimeProvider timeProvider)
 {
-    public async Task PetAsync(Spouse spouse, int chu, string babyName)
+    public async Task PetAsync(Player player, int chu, string babyName)
     {
         EnsureChuValid(chu);
-        var marriage = await babyGameRepository.GetMarriageAsync(spouse);
+        var marriage = await babyGameRepository.GetMarriageAsync(player);
         var baby = marriage.GetBaby(babyName);
         EnsureEnoughChu(marriage, chu);
         // TODO: experience modifiers
@@ -29,7 +29,7 @@ public class PetService(
 
     private void EnsureEnoughChu(Marriage marriage, int petCost)
     {
-        if (!marriage.SkipNextLoveCost && marriage.Chu < petCost)
+        if (marriage.Chu < petCost)
             throw new NotEnoughChuException(marriage.Chu);
     }
 }

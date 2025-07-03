@@ -8,4 +8,5 @@ public interface IBabyGameConfiguration
     double AffinityKissCooldownMultiplierRate { get; set; }
     double BaseLoveCost { get; set; }
     int MaxBabies { get; set; }
+    int MaxInitialAffinity { get; set; }
 }

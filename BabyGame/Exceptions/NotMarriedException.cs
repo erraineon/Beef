@@ -2,7 +2,7 @@
 
 namespace BabyGame.Exceptions;
 
-public class NotMarriedException(Spouse spouse) : Exception
+public class NotMarriedException(Player player) : Exception
 {
-    public Spouse Spouse { get; } = spouse;
+    public Player Player { get; } = player;
 }

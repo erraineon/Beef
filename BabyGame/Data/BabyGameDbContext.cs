@@ -1,5 +1,7 @@
 ﻿using BabyGame.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace BabyGame.Data;
 
@@ -7,39 +9,64 @@ public class BabyGameDbContext : DbContext, IBabyGameRepository
 {
     public DbSet<Marriage> Marriages { get; set; }
     public DbSet<Baby> Babies { get; set; }
-    public DbSet<Spouse> Spouses { get; set; }
+    public DbSet<Player> Spouses { get; set; }
+    public DbSet<Modifier> Modifiers { get; set; }
 
-    private Task<Marriage?> GetMarriageOrNullAsync(Spouse spouse)
+    private Task<Marriage?> GetMarriageOrNullAsync(Player player)
     {
         return Marriages
-            .FirstOrDefaultAsync(x => x.Spouse1.Id == spouse.Id || x.Spouse2.Id == spouse.Id);
+            .FirstOrDefaultAsync(x => x.Spouse1.Id == player.Id || x.Spouse2.Id == player.Id);
     }
 
-    public async Task<bool> GetIsMarriedAsync(Spouse spouse)
+    public async Task<bool> GetIsMarriedAsync(Player player)
     {
-        return await GetMarriageOrNullAsync(spouse) != null;
+        return await GetMarriageOrNullAsync(player) != null;
     }
 
-    public Task SaveBabyAsync(Baby baby)
+    public async Task CreateBabyAsync(Baby baby)
     {
-        Babies.Attach(baby);
-        return SaveChangesAsync();
-    }
-
-    public Task CreateOrUpdateSpouse(Spouse spouse)
-    {
-        Spouses.Attach(spouse);
-        return SaveChangesAsync();
-    }
-
-    public async Task<Marriage> GetMarriageAsync(Spouse spouse)
-    {
-        return await GetMarriageOrNullAsync(spouse) ?? throw new NotMarriedException(spouse);
-    }
-
-    public async Task SaveMarriageAsync(Marriage marriage)
-    {
-        Marriages.Attach(marriage);
+        await Babies.AddAsync(baby);
         await SaveChangesAsync();
+    }
+
+    public async Task CreateSpouseAsync(Player player)
+    {
+        await Spouses.AddAsync(player);
+        await SaveChangesAsync();
+    }
+
+    public async Task<Marriage> GetMarriageAsync(Player player)
+    {
+        return await GetMarriageOrNullAsync(player) ?? throw new NotMarriedException(player);
+    }
+
+    public async Task CreateMarriageAsync(Marriage marriage)
+    {
+        await Marriages.AddAsync(marriage);
+        await SaveChangesAsync();
+    }
+
+    public async Task<IAsyncDisposable> BeginTransactionAsync()
+    {
+        return new BabyGameTransaction(await Database.BeginTransactionAsync());
+    }
+
+    private class BabyGameTransaction(IDbContextTransaction transaction) : IAsyncDisposable
+    {
+        public Task CommitAsync()
+        {
+            return transaction.CommitAsync();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await transaction.CommitAsync();
+            await transaction.DisposeAsync();
+        }
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await base.SaveChangesAsync();
     }
 }

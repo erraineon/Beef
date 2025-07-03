@@ -3,14 +3,21 @@ using BabyGame.Data;
 
 namespace BabyGame.Services;
 
-public class BabyGachaService(IRandomProvider randomProvider, ITimeProvider timeProvider) : IBabyGachaService
+public class BabyGachaService(IRandomProvider randomProvider, IBabyGameRepository babyGameRepository, ITimeProvider timeProvider) : IBabyGachaService
 {
-    public Baby CreateBaby(Marriage marriage, string? babyName = null)
+    public async Task<Baby> CreateBabyAsync(Marriage marriage, string? babyName = null)
+    {
+        var baby = InstantiateRandomBaby(marriage);
+        baby.BirthDate = timeProvider.Now;
+        baby.Name = babyName ?? $"Baby{marriage.Babies.Count + 1}";
+        await babyGameRepository.CreateBabyAsync(baby);
+        return baby;
+    }
+
+    private Baby InstantiateRandomBaby(Marriage marriage)
     {
         var babyType = GetRandomBabyType(marriage);
         var baby = InstantiateBaby(babyType);
-        baby.BirthDate = timeProvider.Now;
-        baby.Name = babyName ?? $"Baby{marriage.Babies.Count + 1}";
         return baby;
     }
 
@@ -37,7 +44,7 @@ public class BabyGachaService(IRandomProvider randomProvider, ITimeProvider time
     {
         // TODO: rarity modifiers here
         resetPity = false;
-        var pityTargetRarity = BabyRarities.SuperRare;
+        var pityTargetRarity = BabyRarities.Legendary;
         var roll = randomProvider.NextDouble(marriage);
         if (roll < pityTargetRarity) roll = Math.Min(1, roll + marriage.Pity);
         if (roll >= pityTargetRarity)

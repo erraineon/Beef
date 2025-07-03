@@ -1,0 +1,35 @@
+﻿using System.Numerics;
+using BabyGame.Data;
+using Humanizer;
+
+namespace BabyGame.Events;
+
+public class EventAggregate<TResult> where TResult : IAdditionOperators<TResult, TResult, TResult>
+{
+    public Dictionary<Baby, ICollection<TResult>> Contributions { get; set; } = new();
+
+    public TResult Sum()
+    {
+        return Contributions.SelectMany(x => x.Value)
+            .Aggregate((acc, curr) => acc + curr);
+    }
+
+    public IEnumerable<(string, TResult)> ContributionsByType => Contributions
+        .GroupBy(x => x.Key.GetType())
+        .Select(x => (
+                x.Select(y => y.Key.Name).Humanize(),
+                x.SelectMany(y => y.Value).Aggregate((acc, curr) => acc + curr)
+            )
+        );
+
+    public EventAggregate<TResult> LogByType(IBabyGameLogger logger, string format)
+    {
+        return LogByType(logger, (x, y) => string.Format(format, x, y));
+    }
+    public EventAggregate<TResult> LogByType(IBabyGameLogger logger, Func<string, TResult, string> format)
+    {
+        foreach (var (contributorNames, contribution) in ContributionsByType)
+            logger.Log(format(contributorNames, contribution));
+        return this;
+    }
+}

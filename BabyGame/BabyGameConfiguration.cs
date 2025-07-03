@@ -8,4 +8,5 @@ public class BabyGameConfiguration : IBabyGameConfiguration
     public double AffinityKissCooldownMultiplierRate { get; set; } = 4.5;
     public double BaseLoveCost { get; set; } = 10;
     public int MaxBabies { get; set; } = 20;
+    public int MaxInitialAffinity { get; set; } = 15;
 }

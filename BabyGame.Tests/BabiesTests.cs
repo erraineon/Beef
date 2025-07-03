@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using BabyGame.Babies;
 using BabyGame.Data;
+using BabyGame.Events;
 
 namespace BabyGame.Tests
 {
@@ -16,10 +17,9 @@ namespace BabyGame.Tests
                 Level = 10,
                 Marriage = null,
                 Name = null,
-                TotalExperience = 0,
-                MotherId = new Spouse()
+                TotalExperience = 0
             };
-            var y = x.GetChu(Enumerable.Repeat(x, 1).OfType<Baby>().ToList());
+            var y = x.Handle(new BabyEventArgs<IChuOnKiss, double>());
             Debug.WriteLine(y);
         }
     }

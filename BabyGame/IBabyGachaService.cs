@@ -4,5 +4,5 @@ namespace BabyGame;
 
 public interface IBabyGachaService
 {
-    Baby CreateBaby(Marriage marriage, string? babyName = null);
+    Task<Baby> CreateBabyAsync(Marriage marriage, string? babyName = null);
 }

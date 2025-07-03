@@ -1,18 +1,18 @@
-﻿using System.ComponentModel;
-using BabyGame.Data;
+﻿using BabyGame.Data;
+using System.ComponentModel;
+using BabyGame.Events;
 
 namespace BabyGame.Babies;
 
 [Description("Earn more Chu")]
-public class BetterKissesBaby : Baby, IChuAdder
+public class BetterKissesBaby : Baby, IChuOnKiss
 {
-    // TODO: for random babies, store a current seed on the marriage so it yields consistent results for each kiss
-    public double GetChu(ICollection<Baby> babyGroup)
+    public IEnumerable<double> Handle(BabyEventArgs<IChuOnKiss, double> eventArgs)
     {
-        // https://www.desmos.com/calculator/ctrhg7idl5
-        var l = Level;
-        var x = babyGroup.Count;
-        var result = MathF.Pow(2, l) + MathF.PI * MathF.Log2(x);
-        return result;
+        // https://www.desmos.com/calculator/wbzc7cqhlf
+        var x = Level;
+        var phi = 0.5 * (1 + Math.Sqrt(5)) / 2;
+        var result = Math.Pow(x, phi) + Math.Pow(Math.PI, x - 10);
+        yield return result;
     }
 }

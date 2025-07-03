@@ -13,7 +13,7 @@ public class BabyLevelService(
         var currentLevel = baby.Level;
         baby.TotalExperience += chu;
         baby.Level = RecalculateLevel(baby);
-        await babyGameRepository.SaveBabyAsync(baby);
+        await babyGameRepository.SaveChangesAsync();
         if (currentLevel != baby.Level) logger.Log($"{baby.Name} has become rank {baby.GetRank()}!");
         logger.Log($"{baby.Name} needs {GetExperiencePointsUntilNextLevel(baby)} EXP to rank up.");
     }
@@ -28,7 +28,7 @@ public class BabyLevelService(
     {
         //https://www.desmos.com/calculator/0rc80gouni
         var x = baby.TotalExperience;
-        return (int)Math.Floor(x <= 1000 ? Math.Cbrt(x) : 10 + (int)Math.Log2(x / 1000));
+        return (int)Math.Floor(!baby.IsStarRank() ? Math.Cbrt(x) : 10 + (int)Math.Log2(x / 1000));
     }
 
     public double GetExperiencePointsUntilNextLevel(Baby baby)

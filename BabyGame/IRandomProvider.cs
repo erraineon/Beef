@@ -6,5 +6,5 @@ public interface IRandomProvider
 {
     double NextDouble(Marriage marriage);
     T NextItem<T>(Marriage marriage, T[] values);
-    int NextInt(Marriage marriage, int min, int max);
+    int NextInt(Marriage? marriage, int min, int max);
 }

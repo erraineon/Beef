@@ -2,6 +2,7 @@
 using System.Reflection;
 using BabyGame.Data;
 using BabyGame.Exceptions;
+using BabyGame.Modifiers;
 using Humanizer;
 using Microsoft.Extensions.Options;
 
@@ -11,22 +12,23 @@ public class LoveService(
     IOptionsSnapshot<IBabyGameConfiguration> configuration,
     IBabyGameRepository babyGameRepository,
     IBabyGachaService babyGachaService,
+    IModifierService modifierService,
     IBabyGameLogger logger,
     ITimeProvider timeProvider)
 {
-    public async Task LoveAsync(Spouse spouse, string babyName)
+    public async Task LoveAsync(Player player, string babyName)
     {
-        var marriage = await babyGameRepository.GetMarriageAsync(spouse);
+        var marriage = await babyGameRepository.GetMarriageAsync(player);
         EnsureEnoughSpace(marriage);
         var today = timeProvider.Today;
         var loveCost = GetLoveCost(marriage, today, out var timesLovedToday);
         EnsureEnoughChu(marriage, loveCost);
+
         marriage.Chu -= loveCost;
         marriage.LastLovedOn = today;
         marriage.TimesLovedOnLastDate = timesLovedToday;
-
-        var baby = babyGachaService.CreateBaby(marriage, babyName);
-        marriage.Babies.Add(baby);
+        await modifierService.TryUseModifierAsync<SkipLoveCostModifier>(marriage);
+        var baby = await babyGachaService.CreateBabyAsync(marriage, babyName);
 
         var babyTypeName = baby.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
                            baby.GetType().Name.Humanize();
@@ -41,7 +43,7 @@ public class LoveService(
         timesLovedToday = marriage.LastLovedOn != null && marriage.LastLovedOn.Value.Date <= today
             ? marriage.TimesLovedOnLastDate
             : 0;
-        var loveCost = (decimal)(marriage.SkipNextLoveCost
+        var loveCost = (decimal)(modifierService.GetModifierOrNull<SkipLoveCostModifier>(marriage) != null
             ? 0
             : Math.Pow(configuration.Value.BaseLoveCost, ++timesLovedToday));
         return loveCost;
@@ -56,7 +58,7 @@ public class LoveService(
     private void EnsureEnoughChu(Marriage marriage, decimal loveCost)
     {
         var chu = marriage.Chu;
-        if (!marriage.SkipNextLoveCost && chu < loveCost)
+        if (chu < loveCost)
             throw new NotEnoughChuException(chu);
     }
 }

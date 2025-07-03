@@ -1,12 +1,15 @@
 ﻿using BabyGame.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BabyGame;
 
 public interface IBabyGameRepository
 {
-    Task SaveMarriageAsync(Marriage marriage);
-    Task<Marriage> GetMarriageAsync(Spouse spouse);
-    Task<bool> GetIsMarriedAsync(Spouse spouse);
-    Task SaveBabyAsync(Baby baby);
-    Task CreateOrUpdateSpouse(Spouse spouse);
+    Task SaveChangesAsync();
+    Task<Marriage> GetMarriageAsync(Player player);
+    Task<bool> GetIsMarriedAsync(Player player);
+    Task CreateBabyAsync(Baby baby);
+    Task CreateSpouseAsync(Player player);
+    Task CreateMarriageAsync(Marriage marriage);
+    Task<IAsyncDisposable> BeginTransactionAsync();
 }
