@@ -1,4 +1,4 @@
-﻿namespace BabyGame;
+﻿namespace BabyGame.Services;
 
 public class TimeProvider : ITimeProvider
 {

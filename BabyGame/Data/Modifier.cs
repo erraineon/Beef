@@ -1,4 +1,6 @@
-﻿namespace BabyGame.Data;
+﻿using BabyGame.Services;
+
+namespace BabyGame.Data;
 
 public class Modifier
 {

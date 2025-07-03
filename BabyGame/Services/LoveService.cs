@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-using System.Reflection;
-using BabyGame.Data;
+﻿using BabyGame.Data;
+using BabyGame.Events;
 using BabyGame.Exceptions;
-using BabyGame.Modifiers;
 using Humanizer;
 using Microsoft.Extensions.Options;
 
@@ -12,7 +10,7 @@ public class LoveService(
     IOptionsSnapshot<IBabyGameConfiguration> configuration,
     IBabyGameRepository babyGameRepository,
     IBabyGachaService babyGachaService,
-    IModifierService modifierService,
+    IEventDispatcher eventDispatcher,
     IBabyGameLogger logger,
     ITimeProvider timeProvider)
 {
@@ -27,12 +25,8 @@ public class LoveService(
         marriage.Chu -= loveCost;
         marriage.LastLovedOn = today;
         marriage.TimesLovedOnLastDate = timesLovedToday;
-        await modifierService.TryUseModifierAsync<SkipLoveCostBuff>(marriage);
         var baby = await babyGachaService.CreateBabyAsync(marriage, babyName);
 
-        var babyTypeName = baby.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ??
-                           baby.GetType().Name.Humanize();
-        logger.Log($"Mr. Stork delivered {baby.Name}, the {babyTypeName} ({baby.GetRank()})");
         var nextCost = GetLoveCost(marriage, today, out _);
         var tomorrow = timeProvider.Today.AddDays(1);
         logger.Log($"The next baby will cost {nextCost} until {tomorrow.Humanize()}");
@@ -43,10 +37,9 @@ public class LoveService(
         timesLovedToday = marriage.LastLovedOn != null && marriage.LastLovedOn.Value.Date <= today
             ? marriage.TimesLovedOnLastDate
             : 0;
-        var loveCost = (decimal)(modifierService.GetModifierOrNull<SkipLoveCostBuff>(marriage) != null
-            ? 0
-            : Math.Pow(configuration.Value.BaseLoveCost, ++timesLovedToday));
-        return loveCost;
+        var loveCostMultiplier = eventDispatcher.Aggregate<IChuCostMultiplierOnLove, double>(marriage).Sum();
+        var loveCost = Math.Pow(configuration.Value.BaseLoveCost, ++timesLovedToday) * loveCostMultiplier;
+        return (decimal)loveCost;
     }
 
     private void EnsureEnoughSpace(Marriage marriage)

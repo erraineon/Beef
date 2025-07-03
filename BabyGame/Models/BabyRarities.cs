@@ -1,4 +1,4 @@
-﻿namespace BabyGame;
+﻿namespace BabyGame.Models;
 
 public static class BabyRarities
 {

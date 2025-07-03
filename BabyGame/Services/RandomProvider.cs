@@ -1,6 +1,6 @@
 ﻿using BabyGame.Data;
 
-namespace BabyGame;
+namespace BabyGame.Services;
 
 public class RandomProvider : IRandomProvider
 {

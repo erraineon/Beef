@@ -98,7 +98,7 @@ public class MarriageServiceTests
         var marriage = await _marriageService.MarryAsync(spouse1, spouse2);
         await _modifierService
             .Received()
-            .AddModifierAsync(marriage, Arg.Is<SkipLoveCostBuff>(m => m.ChargesLeft == 1), false);
+            .AddModifierAsync(marriage, Arg.Is<SkipLoveCostModifier>(m => m.ChargesLeft == 1), false);
     }
 
     [TestMethod]

@@ -1,9 +1,16 @@
 ﻿using System.Reflection;
+using BabyGame.Attributes;
 using BabyGame.Data;
+using BabyGame.Extensions;
+using BabyGame.Models;
 
 namespace BabyGame.Services;
 
-public class BabyGachaService(IRandomProvider randomProvider, IBabyGameRepository babyGameRepository, ITimeProvider timeProvider) : IBabyGachaService
+public class BabyGachaService(
+    IRandomProvider randomProvider,
+    IBabyGameRepository babyGameRepository,
+    ITimeProvider timeProvider,
+    IBabyGameLogger logger) : IBabyGachaService
 {
     public async Task<Baby> CreateBabyAsync(Marriage marriage, string? babyName = null)
     {
@@ -12,6 +19,8 @@ public class BabyGachaService(IRandomProvider randomProvider, IBabyGameRepositor
         baby.Name = babyName ?? $"Baby{marriage.Babies.Count + 1}";
         marriage.Babies.Add(baby);
         await babyGameRepository.SaveChangesAsync();
+
+        logger.Log($"Mr. Stork delivered {baby.Name}, the {baby.GetTypeName()} (Rank {baby.GetRank()})");
         return baby;
     }
 
@@ -28,10 +37,12 @@ public class BabyGachaService(IRandomProvider randomProvider, IBabyGameRepositor
         if (resetPity)
             marriage.Pity = 0;
 
-        var eligibleTypes = typeof(Baby).Assembly.DefinedTypes
-            .Where(typeof(Baby).IsAssignableFrom)
-            .Select(x => (type: x.DeclaringType!,
-                rarity: x.GetCustomAttribute<RarityAttribute>()?.Rarity ?? BabyRarities.Common)
+        var eligibleTypes = typeof(Baby).Assembly.GetTypes()
+            .Where(x => x.IsSubclassOf(typeof(Baby)))
+            .Select(x => (
+                    type: x,
+                    rarity: x.GetCustomAttribute<RarityAttribute>()?.Rarity ?? BabyRarities.Common
+                )
             )
             .Where(t => Math.Abs(t.rarity - rarity) < double.Epsilon)
             .Select(t => t.type)
@@ -41,33 +52,40 @@ public class BabyGachaService(IRandomProvider randomProvider, IBabyGameRepositor
         return babyType;
     }
 
-    private double GetRandomRarity(Marriage marriage, out bool resetPity)
+    public double GetRandomRarity(Marriage marriage, out bool resetPity)
     {
         // TODO: rarity modifiers here
+        var rarities = new[] { BabyRarities.Common, BabyRarities.Rare, BabyRarities.SuperRare, BabyRarities.Legendary };
+        var accumulatedRarities = rarities
+            .Select((x, i) => (threshold: rarities.Take(i).Sum(), value: x))
+            .ToList();
+
         resetPity = false;
-        var pityTargetRarity = BabyRarities.Legendary;
+        var pityTargetThreshold = accumulatedRarities
+            .First(x => Math.Abs(x.value - BabyRarities.Legendary) < double.Epsilon).threshold;
         var roll = randomProvider.NextDouble(marriage);
-        if (roll < pityTargetRarity) roll = Math.Min(1, roll + marriage.Pity);
-        if (roll >= pityTargetRarity)
+        if (roll < pityTargetThreshold && roll + marriage.Pity >= pityTargetThreshold)
         {
+            roll += marriage.Pity;
             resetPity = true;
         }
 
-        var rarities = new[] { BabyRarities.Common, BabyRarities.Rare, BabyRarities.SuperRare, BabyRarities.Legendary };
-        var accumulatedRarities = rarities
-            .Select((x, i) => x + rarities.Take(i).Sum());
-
-        var rarity = accumulatedRarities.First(x => x >= roll);
-        return rarity;
+        var rarity = accumulatedRarities
+            .AsEnumerable()
+            .Reverse()
+            .First(x => roll >= x.threshold);
+        return rarity.value;
     }
 
     private Baby InstantiateBaby(Type type)
     {
-        var baby = (Baby)GetType().GetMethod(nameof(InstantiateBabyGeneric)).MakeGenericMethod(type).Invoke(this, null);
-        return baby;
+        var baby = (Baby)GetType()
+            .GetMethod(nameof(InstantiateBabyGeneric), BindingFlags.Instance | BindingFlags.NonPublic)
+            .MakeGenericMethod(type).Invoke(this, null);
+        return baby!;
     }
 
-    public TBaby InstantiateBabyGeneric<TBaby>() where TBaby : Baby, new()
+    private TBaby InstantiateBabyGeneric<TBaby>() where TBaby : Baby, new()
     {
         return new TBaby();
     }
