@@ -1,7 +1,6 @@
 ﻿using BabyGame.Data;
 using BabyGame.Events;
 using BabyGame.Exceptions;
-using BabyGame.Modifiers;
 using Microsoft.Extensions.Options;
 
 namespace BabyGame.Services;

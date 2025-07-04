@@ -6,7 +6,7 @@ namespace BabyGame;
 
 public interface IEventDispatcher
 {
-    EventAggregate<TResult> Aggregate<TEventHandler, TResult>(Marriage marriage)
+    IEventAggregate<TResult> Aggregate<TEventHandler, TResult>(Marriage marriage)
         where TEventHandler : IEventHandler<TEventHandler, TResult>
         where TResult : IAdditionOperators<TResult, TResult, TResult>;
 }

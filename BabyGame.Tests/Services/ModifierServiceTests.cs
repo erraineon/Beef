@@ -2,7 +2,7 @@
 using BabyGame.Services;
 using NSubstitute;
 
-namespace BabyGame.Tests;
+namespace BabyGame.Tests.Services;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 [TestClass]
@@ -135,7 +135,7 @@ public class ModifierServiceTests
         var marriage = MarriageUtils.GetMarriage();
         var modifier = new SkipLoveCostModifier { ChargesLeft = 3 };
         _modifierService.UseModifier(modifier);
-        await _babyGameRepository.Received().SaveChangesAsync();
         Assert.AreEqual(2, modifier.ChargesLeft);
+        Assert.AreEqual(1, modifier.TimesUsed);
     }
 }

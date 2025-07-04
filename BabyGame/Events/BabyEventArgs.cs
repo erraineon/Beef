@@ -3,8 +3,8 @@ using BabyGame.Data;
 
 namespace BabyGame.Events;
 
-public class BabyEventArgs<TEvent, T> where T : IAdditionOperators<T, T, T>
+public class BabyEventArgs<TEvent, TResult> where TResult : IAdditionOperators<TResult, TResult, TResult>
 {
     public Marriage Marriage { get; set; }
-    public EventAggregate<T> ProgressSoFar { get; set; }
+    public IEventAggregate<TResult> ProgressSoFar { get; set; }
 }

@@ -26,7 +26,10 @@ public class MarriageService(
             MarriedAt = now,
             Seed = randomProvider.NextInt(null, int.MinValue, int.MaxValue)
         };
+        // TODO: probably want to separate both these in their own services
         marriage.Affinity = randomProvider.NextInt(marriage, 1, configuration.MaxInitialAffinity);
+        marriage.Chu = randomProvider.NextInt(marriage, 1, 31);
+
         await babyGameRepository.CreateMarriageAsync(marriage);
         await modifierService.AddModifierAsync(marriage, new SkipLoveCostModifier { ChargesLeft = 1 }, false);
 

@@ -6,7 +6,7 @@ using NSubstitute;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
-namespace BabyGame.Tests;
+namespace BabyGame.Tests.Services;
 
 [TestClass]
 public class MarriageServiceTests
@@ -77,6 +77,9 @@ public class MarriageServiceTests
     {
         var spouse1 = PlayerUtils.GetAlice();
         var spouse2 = PlayerUtils.GetBob();
+        _randomProvider
+            .NextInt(Arg.Is<Marriage?>(x => x != null), Arg.Any<int>(), Arg.Any<int>())
+            .Returns(3);
         var marriage = await _marriageService.MarryAsync(spouse1, spouse2);
         Assert.AreEqual(3, marriage.Chu);
     }

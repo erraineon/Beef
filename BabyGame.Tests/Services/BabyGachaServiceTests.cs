@@ -1,9 +1,10 @@
-﻿using BabyGame.Data;
+﻿using BabyGame.Babies;
+using BabyGame.Data;
 using BabyGame.Models;
 using BabyGame.Services;
 using NSubstitute;
 
-namespace BabyGame.Tests;
+namespace BabyGame.Tests.Services;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 [TestClass]
@@ -57,7 +58,7 @@ public class BabyGachaServiceTests
     }
 
     [TestMethod]
-    public void GetRandomRarity_Pity_Works()
+    public async Task GetRandomRarity_Pity_Works()
     {
         var marriage = MarriageUtils.GetMarriage();
         marriage.Pity = 0.9;
@@ -67,7 +68,14 @@ public class BabyGachaServiceTests
         );
         Assert.AreEqual(BabyRarities.Common, _babyGachaService.GetRandomRarity(marriage, out var pityReset));
         Assert.IsFalse(pityReset);
-        Assert.AreEqual(BabyRarities.Legendary, _babyGachaService.GetRandomRarity(marriage, out pityReset));
-        Assert.IsTrue(pityReset);
+        var pityPullBaby = await _babyGachaService.CreateBabyAsync(marriage);
+        Assert.AreEqual(BabyRarities.Legendary, _babyGachaService.GetBabyRarity(pityPullBaby.GetType()));
+        Assert.AreEqual(0.00, marriage.Pity);
+    }
+
+    [TestMethod]
+    public void GetBabyRarity_Works()
+    {
+        Assert.AreEqual(BabyRarities.Common, _babyGachaService.GetBabyRarity(typeof(BetterKissesBaby)));
     }
 }

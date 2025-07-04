@@ -41,7 +41,7 @@ public class BabyGachaService(
             .Where(x => x.IsSubclassOf(typeof(Baby)))
             .Select(x => (
                     type: x,
-                    rarity: x.GetCustomAttribute<RarityAttribute>()?.Rarity ?? BabyRarities.Common
+                    rarity: GetBabyRarity(x)
                 )
             )
             .Where(t => Math.Abs(t.rarity - rarity) < double.Epsilon)
@@ -50,6 +50,11 @@ public class BabyGachaService(
 
         var babyType = randomProvider.NextItem(marriage, eligibleTypes);
         return babyType;
+    }
+
+    public double GetBabyRarity(Type babyType)
+    {
+        return babyType.GetCustomAttribute<RarityAttribute>()?.Rarity ?? BabyRarities.Common;
     }
 
     public double GetRandomRarity(Marriage marriage, out bool resetPity)
