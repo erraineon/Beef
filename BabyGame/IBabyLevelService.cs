@@ -4,5 +4,5 @@ namespace BabyGame;
 
 public interface IBabyLevelService
 {
-    Task GainExperienceAsync(Baby baby, double chu);
+    void GainExperience(Baby baby, double chu);
 }

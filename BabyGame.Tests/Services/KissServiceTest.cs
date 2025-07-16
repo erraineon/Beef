@@ -67,13 +67,12 @@ public class KissServiceTest
     [TestMethod]
     public async Task KissAsync_ChuCorrect_NoAffinity()
     {
-        _marriage.Affinity = 50;
         _eventDispatcherResults[typeof(IKissCooldownMultiplierOnKiss)] = 0.5;
         _eventDispatcherResults[typeof(IChuOnKiss)] = 20.0;
         _eventDispatcherResults[typeof(IChuMultiplierOnKiss)] = 0.75;
         await _kissService.KissAsync(_marriage.Spouse1);
-        // 20 + 10 (affinity) + 15 (aggregators)
-        Assert.AreEqual(45M, _marriage.Chu);
+        // 20 + 15 (aggregators)
+        Assert.AreEqual(35M, _marriage.Chu);
         await _transaction.Received().DisposeAsync();
     }
 }

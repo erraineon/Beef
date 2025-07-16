@@ -267,22 +267,26 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<IForumChannel> GetForumChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+    public Task<IForumChannel> GetForumChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IReadOnlyCollection<IForumChannel>> GetForumChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+    public Task<IReadOnlyCollection<IForumChannel>> GetForumChannelsAsync(CacheMode mode = CacheMode.AllowDownload,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IMediaChannel> GetMediaChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+    public Task<IMediaChannel> GetMediaChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IReadOnlyCollection<IMediaChannel>> GetMediaChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+    public Task<IReadOnlyCollection<IMediaChannel>> GetMediaChannelsAsync(CacheMode mode = CacheMode.AllowDownload,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -296,7 +300,8 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<INewsChannel> CreateNewsChannelAsync(string name, Action<TextChannelProperties> func = null, RequestOptions options = null)
+    public Task<INewsChannel> CreateNewsChannelAsync(string name, Action<TextChannelProperties> func = null,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -337,7 +342,8 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<IMediaChannel> CreateMediaChannelAsync(string name, Action<ForumChannelProperties> func = null, RequestOptions options = null)
+    public Task<IMediaChannel> CreateMediaChannelAsync(string name, Action<ForumChannelProperties> func = null,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -377,7 +383,8 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<IRole> CreateRoleAsync(string name, GuildPermissions? permissions = null, Color? color = null, bool isHoisted = false,
+    public Task<IRole> CreateRoleAsync(string name, GuildPermissions? permissions = null, Color? color = null,
+        bool isHoisted = false,
         bool isMentionable = false, RequestOptions options = null, Image? icon = null, Emoji emoji = null)
     {
         throw new NotImplementedException();
@@ -389,18 +396,6 @@ public class TelegramGuild : IGuild, ITextChannel
         Color? color = null,
         bool isHoisted = false,
         RequestOptions? options = null
-    )
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IRole> CreateRoleAsync(
-        string name,
-        GuildPermissions? permissions = null,
-        Color? color = null,
-        bool isHoisted = false,
-        bool isMentionable = false,
-        RequestOptions options = null
     )
     {
         throw new NotImplementedException();
@@ -438,8 +433,6 @@ public class TelegramGuild : IGuild, ITextChannel
         var user = await GetTelegramGuildUserAsync((int)id);
         return user;
     }
-
-    public ChannelType ChannelType { get; }
 
     public async Task<IGuildUser> GetCurrentUserAsync(
         CacheMode mode = CacheMode.AllowDownload,
@@ -481,25 +474,15 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<MemberSearchResult> SearchUsersAsyncV2(int limit = 1000, MemberSearchPropertiesV2 args = null, RequestOptions options = null)
+    public Task<MemberSearchResult> SearchUsersAsyncV2(int limit = 1000, MemberSearchPropertiesV2 args = null,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IReadOnlyCollection<IAuditLogEntry>> GetAuditLogsAsync(int limit = 100, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null,
+    public Task<IReadOnlyCollection<IAuditLogEntry>> GetAuditLogsAsync(int limit = 100,
+        CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null,
         ulong? beforeId = null, ulong? userId = null, ActionType? actionType = null, ulong? afterId = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyCollection<IAuditLogEntry>> GetAuditLogsAsync(
-        int limit = 100,
-        CacheMode mode = CacheMode.AllowDownload,
-        RequestOptions? options = null,
-        ulong? beforeId = null,
-        ulong? userId = null,
-        ActionType? actionType = null
-    )
     {
         throw new NotImplementedException();
     }
@@ -553,19 +536,9 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<ICustomSticker> CreateStickerAsync(string name, Image image, IEnumerable<string> tags, string description = null,
+    public Task<ICustomSticker> CreateStickerAsync(string name, Image image, IEnumerable<string> tags,
+        string description = null,
         RequestOptions options = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ICustomSticker> CreateStickerAsync(
-        string name,
-        string description,
-        IEnumerable<string> tags,
-        Image image,
-        RequestOptions options = null
-    )
     {
         throw new NotImplementedException();
     }
@@ -581,20 +554,9 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<ICustomSticker> CreateStickerAsync(string name, Stream stream, string filename, IEnumerable<string> tags, string description = null,
+    public Task<ICustomSticker> CreateStickerAsync(string name, Stream stream, string filename,
+        IEnumerable<string> tags, string description = null,
         RequestOptions options = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ICustomSticker> CreateStickerAsync(
-        string name,
-        string description,
-        IEnumerable<string> tags,
-        Stream stream,
-        string filename,
-        RequestOptions options = null
-    )
     {
         throw new NotImplementedException();
     }
@@ -716,17 +678,20 @@ public class TelegramGuild : IGuild, ITextChannel
         throw new NotImplementedException();
     }
 
-    public Task<IGuildOnboarding> ModifyOnboardingAsync(Action<GuildOnboardingProperties> props, RequestOptions options = null)
+    public Task<IGuildOnboarding> ModifyOnboardingAsync(Action<GuildOnboardingProperties> props,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<GuildIncidentsData> ModifyIncidentActionsAsync(Action<GuildIncidentsDataProperties> props, RequestOptions options = null)
+    public Task<GuildIncidentsData> ModifyIncidentActionsAsync(Action<GuildIncidentsDataProperties> props,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<BulkBanResult> BulkBanAsync(IEnumerable<ulong> userIds, int? deleteMessageSeconds = null, RequestOptions options = null)
+    public Task<BulkBanResult> BulkBanAsync(IEnumerable<ulong> userIds, int? deleteMessageSeconds = null,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -814,6 +779,8 @@ public class TelegramGuild : IGuild, ITextChannel
     public GuildIncidentsData IncidentsData { get; }
 
     public DateTimeOffset CreatedAt => throw new NotImplementedException();
+
+    public ChannelType ChannelType { get; }
 
     public Task<IInviteMetadata> CreateInviteToApplicationAsync(
         DefaultApplications application,
@@ -1018,7 +985,7 @@ public class TelegramGuild : IGuild, ITextChannel
             _chat.Id,
             htmlText,
             ParseMode.Html,
-            replyParameters: new ReplyParameters { MessageId = replyToMessageId }
+            new ReplyParameters { MessageId = replyToMessageId }
         );
         var userMessage = CacheMessage(apiMessage);
         return userMessage;
@@ -1067,7 +1034,7 @@ public class TelegramGuild : IGuild, ITextChannel
             ? await _client.SendAnimation(
                 _chat.Id,
                 InputFile.FromStream(stream, filename),
-                caption: htmlText,
+                htmlText,
                 replyParameters: new ReplyParameters { MessageId = replyToMessageId }
             )
             : await _client.SendPhoto(
@@ -1206,6 +1173,53 @@ public class TelegramGuild : IGuild, ITextChannel
 
     public string Mention => _chat.Title ?? _chat.Id.ToString();
 
+    public Task<IRole> CreateRoleAsync(
+        string name,
+        GuildPermissions? permissions = null,
+        Color? color = null,
+        bool isHoisted = false,
+        bool isMentionable = false,
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IReadOnlyCollection<IAuditLogEntry>> GetAuditLogsAsync(
+        int limit = 100,
+        CacheMode mode = CacheMode.AllowDownload,
+        RequestOptions? options = null,
+        ulong? beforeId = null,
+        ulong? userId = null,
+        ActionType? actionType = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ICustomSticker> CreateStickerAsync(
+        string name,
+        string description,
+        IEnumerable<string> tags,
+        Image image,
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ICustomSticker> CreateStickerAsync(
+        string name,
+        string description,
+        IEnumerable<string> tags,
+        Stream stream,
+        string filename,
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
     public IGuildUser CreateGuildUser(ChatMember chatMember)
     {
         var isAdmin = chatMember.Status is ChatMemberStatus.Administrator or ChatMemberStatus.Creator;
@@ -1217,7 +1231,7 @@ public class TelegramGuild : IGuild, ITextChannel
     public IGuildUser CreateGuildUser(User user)
     {
         var isAdmin = _cachedUsers.TryGetValue((ulong)user.Id, out var existingUser) &&
-            existingUser.GuildPermissions.Administrator;
+                      existingUser.GuildPermissions.Administrator;
         var telegramGuildUser = new TelegramGuildUser(this, user, isAdmin);
         _cachedUsers[telegramGuildUser.Id] = telegramGuildUser;
         return telegramGuildUser;

@@ -41,5 +41,8 @@ public class OpenAiService(
         await distributedCache.SetStringAsync(GetKey(contextKey), systemPrompt);
     }
 
-    private static string GetKey(string contextKey) => $"openai-system-{contextKey}";
+    private static string GetKey(string contextKey)
+    {
+        return $"openai-system-{contextKey}";
+    }
 }

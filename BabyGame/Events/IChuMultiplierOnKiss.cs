@@ -1,3 +1,3 @@
 ﻿namespace BabyGame.Events;
 
-public interface IChuMultiplierOnKiss : IEventHandler<IChuMultiplierOnKiss, double>;
+public interface IChuMultiplierOnKiss : IEvent<double>;

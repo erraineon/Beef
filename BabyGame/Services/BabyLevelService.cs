@@ -4,17 +4,15 @@ using BabyGame.Extensions;
 namespace BabyGame.Services;
 
 public class BabyLevelService(
-    IBabyGameRepository babyGameRepository,
     IBabyGameLogger logger
 ) : IBabyLevelService
 {
-    public async Task GainExperienceAsync(Baby baby, double chu)
+    public void GainExperience(Baby baby, double chu)
     {
         EnsureBabyBelowMaxRank(baby);
         var currentLevel = baby.Level;
         baby.TotalExperience += chu;
         baby.Level = RecalculateLevel(baby);
-        await babyGameRepository.SaveChangesAsync();
         if (currentLevel != baby.Level) logger.Log($"{baby.Name} has become rank {baby.GetRank()}!");
         logger.Log($"{baby.Name} needs {GetExperiencePointsUntilNextLevel(baby)} EXP to rank up.");
     }

@@ -10,6 +10,9 @@ public class TelegramApplication : IApplication
         Owner = new TelegramUser(new User { Id = ownerId });
     }
 
+    public bool IsBotPublic => throw new NotImplementedException();
+    public bool BotRequiresCodeGrant => throw new NotImplementedException();
+
     public string Name => throw new NotImplementedException();
     public string Description => throw new NotImplementedException();
     public IReadOnlyCollection<string> RPCOrigins => throw new NotImplementedException();
@@ -20,9 +23,6 @@ public class TelegramApplication : IApplication
     bool? IApplication.IsBotPublic => IsBotPublic;
 
     bool? IApplication.BotRequiresCodeGrant => BotRequiresCodeGrant;
-
-    public bool IsBotPublic => throw new NotImplementedException();
-    public bool BotRequiresCodeGrant => throw new NotImplementedException();
     public ITeam Team => throw new NotImplementedException();
     public IUser Owner { get; }
     public string TermsOfService => throw new NotImplementedException();

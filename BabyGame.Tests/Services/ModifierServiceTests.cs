@@ -22,7 +22,7 @@ public class ModifierServiceTests
         _babyGameLogger = new TestBabyGameLogger();
         _babyGameRepository = Substitute.For<IBabyGameRepository>();
 
-        _modifierService = new ModifierService(_timeProvider, _babyGameLogger, _babyGameRepository);
+        _modifierService = new ModifierService(_timeProvider, _babyGameLogger);
     }
 
     [TestMethod]
@@ -110,19 +110,18 @@ public class ModifierServiceTests
     }
 
     [TestMethod]
-    public async Task AddModifierAsync_Works()
+    public void AddModifier_Works()
     {
         var marriage = MarriageUtils.GetMarriage();
         var modifier = new SkipLoveCostModifier { ChargesLeft = 3 };
-        await _modifierService.AddModifierAsync(
+        _modifierService.AddModifier(
             marriage,
             modifier,
             true
         );
         CollectionAssert.Contains(marriage.Modifiers, modifier);
-        await _babyGameRepository.Received().SaveChangesAsync();
 
-        await _modifierService.AddModifierAsync(
+        _modifierService.AddModifier(
             marriage,
             new SkipKissCooldownModifier { EndsAt = _timeProvider.Now.AddDays(1.5)},
             true
@@ -130,7 +129,7 @@ public class ModifierServiceTests
     }
 
     [TestMethod]
-    public async Task UseModifierAsync_DepletesCharges()
+    public void UseModifier_DepletesCharges()
     {
         var marriage = MarriageUtils.GetMarriage();
         var modifier = new SkipLoveCostModifier { ChargesLeft = 3 };

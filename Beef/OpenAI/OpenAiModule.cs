@@ -17,7 +17,7 @@ public class OpenAiModule(IOpenAiService openAiService) : InteractionModuleBase<
         var generatedText = await openAiService.GenerateChatCompletionAsync(Context.Guild.Id.ToString(), prompt);
         return new SuccessResult(generatedText);
     }
-    
+
     [DefaultMemberPermissions(GuildPermission.Administrator)]
     [SlashCommand("system", "Set the system prompt.")]
     public async Task<RuntimeResult> SetSystemAsync([Remainder] string systemPrompt = "")

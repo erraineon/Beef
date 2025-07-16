@@ -14,52 +14,6 @@ public class BotInteraction : ISlashCommandInteraction
         CreatedAt = DateTimeOffset.Now;
     }
 
-    private static IEnumerable<string?> SplitLongText(string? contentToReplyWith)
-    {
-        // splits the string based off the last found line break, if any, to fit the character limit
-        var index = 0;
-        const int maxMessageLength = 2000;
-        while (contentToReplyWith?.Length > maxMessageLength + index)
-        {
-            var lastLineBreakIndex = contentToReplyWith.LastIndexOf('\n', index + maxMessageLength);
-            if (lastLineBreakIndex == -1) lastLineBreakIndex = maxMessageLength;
-            yield return contentToReplyWith.Substring(index, lastLineBreakIndex);
-            index += lastLineBreakIndex;
-        }
-
-        yield return contentToReplyWith?[index..];
-    }
-
-    public async Task<IUserMessage> FollowupAsync(
-        string? text = null,
-        Embed[]? embeds = null,
-        bool isTts = false,
-        bool ephemeral = false,
-        AllowedMentions? allowedMentions = null,
-        MessageComponent? components = null,
-        Embed? embed = null,
-        RequestOptions? options = null
-    )
-    {
-        var textComponents = SplitLongText(text);
-        IUserMessage? lastMessage = null;
-        foreach (var textComponent in textComponents)
-        {
-            lastMessage = await _textChannel.SendMessageAsync(
-                textComponent,
-                isTts,
-                embed,
-                options,
-                allowedMentions,
-                null,
-                components,
-                null,
-                embeds
-            );
-        }
-        return lastMessage ?? throw new InvalidOperationException($"No messages were sent for text: {text}");
-    }
-
     public Task RespondAsync(
         string text = null,
         Embed[] embeds = null,
@@ -179,4 +133,48 @@ public class BotInteraction : ISlashCommandInteraction
     public ulong AttachmentSizeLimit { get; }
     ulong IEntity<ulong>.Id => throw new NotImplementedException();
     public DateTimeOffset CreatedAt { get; }
+
+    private static IEnumerable<string?> SplitLongText(string? contentToReplyWith)
+    {
+        // splits the string based off the last found line break, if any, to fit the character limit
+        var index = 0;
+        const int maxMessageLength = 2000;
+        while (contentToReplyWith?.Length > maxMessageLength + index)
+        {
+            var lastLineBreakIndex = contentToReplyWith.LastIndexOf('\n', index + maxMessageLength);
+            if (lastLineBreakIndex == -1) lastLineBreakIndex = maxMessageLength;
+            yield return contentToReplyWith.Substring(index, lastLineBreakIndex);
+            index += lastLineBreakIndex;
+        }
+
+        yield return contentToReplyWith?[index..];
+    }
+
+    public async Task<IUserMessage> FollowupAsync(
+        string? text = null,
+        Embed[]? embeds = null,
+        bool isTts = false,
+        bool ephemeral = false,
+        AllowedMentions? allowedMentions = null,
+        MessageComponent? components = null,
+        Embed? embed = null,
+        RequestOptions? options = null
+    )
+    {
+        var textComponents = SplitLongText(text);
+        IUserMessage? lastMessage = null;
+        foreach (var textComponent in textComponents)
+            lastMessage = await _textChannel.SendMessageAsync(
+                textComponent,
+                isTts,
+                embed,
+                options,
+                allowedMentions,
+                null,
+                components,
+                null,
+                embeds
+            );
+        return lastMessage ?? throw new InvalidOperationException($"No messages were sent for text: {text}");
+    }
 }

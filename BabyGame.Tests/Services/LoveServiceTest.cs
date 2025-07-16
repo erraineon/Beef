@@ -1,4 +1,5 @@
-﻿using BabyGame.Services;
+﻿using BabyGame.Models;
+using BabyGame.Services;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -21,6 +22,8 @@ public class LoveServiceTest
     public void Initialize()
     {
         _optionsSnapshot = Substitute.For<IOptionsSnapshot<IBabyGameConfiguration>>();
+        _optionsSnapshot.Value.Returns(new BabyGameConfiguration());
+
         _babyGameRepository = Substitute.For<IBabyGameRepository>();
         _babyGachaService = Substitute.For<IBabyGachaService>();
         _eventDispatcher = Substitute.For<IEventDispatcher>();

@@ -12,9 +12,7 @@ public class TadmorMindThoughtProducer(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
-        {
             if (await tadmorMindThoughtsRepository.GetCountAsync() < 64)
-            {
                 try
                 {
                     logger.LogInformation("Generating thoughts...");
@@ -26,12 +24,8 @@ public class TadmorMindThoughtProducer(
                     logger.LogError(e, "Error while retrieving tadmor mind thoughts");
                     await GetDelayTask(stoppingToken);
                 }
-            }
             else
-            {
                 await GetDelayTask(stoppingToken);
-            }
-        }
     }
 
     private static Task GetDelayTask(CancellationToken stoppingToken)

@@ -25,8 +25,7 @@ public class InteractionFactory(InteractionService interactionService) : IIntera
 
             commandToRun = modulesToScan
                 .SelectMany(x => x.SlashCommands)
-                .FirstOrDefault(
-                    x => string.Equals(
+                .FirstOrDefault(x => string.Equals(
                         x.Name,
                         token,
                         StringComparison.OrdinalIgnoreCase
@@ -50,8 +49,7 @@ public class InteractionFactory(InteractionService interactionService) : IIntera
             if (commandToRun == null)
             {
                 var filteredModules = modulesToScan
-                    .Where(
-                        x => x.IsSlashGroup && string.Equals(
+                    .Where(x => x.IsSlashGroup && string.Equals(
                             x.SlashGroupName,
                             token,
                             StringComparison.OrdinalIgnoreCase
@@ -67,15 +65,14 @@ public class InteractionFactory(InteractionService interactionService) : IIntera
             throw new Exception($"No command was found for: {text}");
 
         var parameterOptions = commandToRun.Parameters
-            .Select(
-                (parameter, i) =>
+            .Select((parameter, i) =>
                 {
                     if (!parameter.IsRequired && i >= tokensQueue.Count) return null;
 
                     var token = parameter.DiscordOptionType == ApplicationCommandOptionType.String &&
-                        i == commandToRun.Parameters.Count - 1
-                            ? string.Join(" ", tokensQueue.Skip(i))
-                            : tokensQueue.ElementAt(i);
+                                i == commandToRun.Parameters.Count - 1
+                        ? string.Join(" ", tokensQueue.Skip(i))
+                        : tokensQueue.ElementAt(i);
 
                     if (parameter.ParameterType.IsEnum)
                         token = Enum.TryParse(parameter.ParameterType, token, true, out var x) && x != null

@@ -34,16 +34,16 @@ public class DiscordClientLauncher(
         await discordReady.Task;
     }
 
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await discordClient.StopAsync();
+    }
+
     private Task OnMessageReceivedAsync(SocketMessage message)
     {
         if (message is IUserMessage { Channel: IGuildChannel } userMessage)
             interactionHandler.HandleMessage(discordClient, userMessage);
         return Task.CompletedTask;
-    }
-
-    public async Task StopAsync(CancellationToken cancellationToken)
-    {
-        await discordClient.StopAsync();
     }
 
     private Task OnInteractionCreatedAsync(SocketInteraction interaction)

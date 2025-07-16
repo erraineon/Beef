@@ -6,7 +6,7 @@ using Humanizer;
 
 namespace BabyGame.Services;
 
-public class ModifierService(ITimeProvider timeProvider, IBabyGameLogger logger, IBabyGameRepository babyGameRepository)
+public class ModifierService(ITimeProvider timeProvider, IBabyGameLogger logger)
     : IModifierService
 {
     public bool TryUseModifier<TModifier>(Marriage marriage) where TModifier : Modifier
@@ -22,11 +22,10 @@ public class ModifierService(ITimeProvider timeProvider, IBabyGameLogger logger,
         modifier.TimesUsed++;
     }
 
-    public async Task AddModifierAsync(Marriage marriage, Modifier modifier, bool log)
+    public void AddModifier(Marriage marriage, Modifier modifier, bool log)
     {
         modifier.CreatedAt = timeProvider.Now;
         marriage.Modifiers.Add(modifier);
-        await babyGameRepository.SaveChangesAsync();
         if (log)
         {
             var description = modifier.GetType().GetCustomAttribute<DescriptionAttribute>()?.Description ??

@@ -8,7 +8,8 @@ public class TestEventDispatcher(Dictionary<Type, object> results) : IEventDispa
 {
     private Dictionary<Type, object> Results { get; } = results;
 
-    public IEventAggregate<TResult> Aggregate<TEventHandler, TResult>(Marriage marriage) where TEventHandler : IEventHandler<TEventHandler, TResult> where TResult : IAdditionOperators<TResult, TResult, TResult>
+    public IEventAggregate<TResult> Aggregate<TEventHandler, TResult>(Marriage marriage)
+        where TEventHandler : IEvent<TResult> where TResult : IAdditionOperators<TResult, TResult, TResult>
     {
         var aggregate = new EventAggregate<TResult>();
         if (Results.TryGetValue(typeof(TEventHandler), out var result))

@@ -2,7 +2,19 @@
 
 namespace BabyGame.Events;
 
-public interface IEventHandler<TEventHandler, TResult> where TResult : IAdditionOperators<TResult, TResult, TResult>
+public interface IEvent<TResult> : IEvent
 {
-    public IEnumerable<TResult> Handle(BabyEventArgs<TEventHandler, TResult> eventArgs);
+}
+
+public interface IEventHandler<TEvent, TResult> where TEvent : IEvent<TResult>
+    where TResult : IAdditionOperators<TResult, TResult, TResult>
+{
+    IEnumerable<TResult> Handle(BabyEventArgs<TEvent, TResult> eventArgs);
+}
+
+public interface IEventHandler<in TProxy, TEvent, TResult>
+    where TEvent : IEvent<TResult>
+    where TResult : IAdditionOperators<TResult, TResult, TResult>
+{
+    public IEnumerable<TResult> Handle(TProxy proxy, BabyEventArgs<TEvent, TResult> eventArgs);
 }

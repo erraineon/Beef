@@ -1,11 +1,11 @@
-﻿using BabyGame.Data;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using BabyGame.Data;
 using BabyGame.Events;
 
 namespace BabyGame.Babies;
 
 [Description("Earn more Chu")]
-public class BetterKissesBaby : Baby, IChuOnKiss
+public class BetterKissesBaby : Baby, IEventHandler<IChuOnKiss, double>
 {
     public IEnumerable<double> Handle(BabyEventArgs<IChuOnKiss, double> eventArgs)
     {

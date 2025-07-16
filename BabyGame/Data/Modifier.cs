@@ -1,6 +1,4 @@
-﻿using BabyGame.Services;
-
-namespace BabyGame.Data;
+﻿namespace BabyGame.Data;
 
 public class Modifier
 {
@@ -10,4 +8,5 @@ public class Modifier
     public int? ChargesLeft { get; set; }
     public int TimesUsed { get; set; }
     public Marriage Marriage { get; set; }
+    public double Effectiveness { get; set; }
 }

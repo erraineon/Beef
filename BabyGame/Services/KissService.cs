@@ -22,11 +22,9 @@ public class KissService(
         var chu = GetChu(marriage);
         marriage.Chu += chu;
         logger.Log($"You have earned {chu} Chu");
-        var now = timeProvider.Now;
-        var firstKiss = marriage.LastKissedAt == null;
-        if (firstKiss || now - marriage.LastKissedAt >= TimeSpan.FromDays(1)) marriage.Affinity++;
-        marriage.LastKissedAt = now;
-        await babyGameRepository.SaveChangesAsync();
+        eventDispatcher.Aggregate<IKissComplete, int>(marriage);
+        marriage.LastKissedAt = timeProvider.Now;
+        await babyGameRepository.SaveMarriageAsync(marriage);
     }
 
     private decimal GetChu(Marriage marriage)
@@ -40,11 +38,8 @@ public class KissService(
         var chuMultiplier = 1.0;
         chuMultiplier += eventDispatcher
             .Aggregate<IChuMultiplierOnKiss, double>(marriage)
-            .LogByType(logger, (x,y) => $"{x} earned you {chu * y} extra Chu")
+            .LogByType(logger, (x, y) => $"{x} earned you {chu * y} extra Chu")
             .Sum();
-
-        var affinityBonus = marriage.Affinity / 100.0;
-        chuMultiplier += affinityBonus;
 
         return (decimal)Math.Max(0, chu * chuMultiplier);
     }
@@ -62,21 +57,10 @@ public class KissService(
         var kissCooldownSeconds = Math.Max(
             configuration.Value.MinimumKissCooldown.TotalSeconds,
             (configuration.Value.BaseKissCooldown *
-             GetAffinityKissCooldownMultiplier(marriage) *
              eventDispatcher
                  .Aggregate<IKissCooldownMultiplierOnKiss, double>(marriage)
                  .Sum()).TotalSeconds
         );
         return TimeSpan.FromSeconds(kissCooldownSeconds);
-    }
-
-    private double GetAffinityKissCooldownMultiplier(Marriage marriage)
-    {
-        // f(x)=1-a+\frac{a}{1+b\cdot\frac{x}{1000}}
-        // At affinity 30, 90, 360, 100: 0.92, 0.8, 0.6, 0.4 
-        var a = configuration.Value.MaxAffinityKissCooldownMultiplier;
-        var b = configuration.Value.AffinityKissCooldownMultiplierRate;
-        var x = marriage.Affinity;
-        return 1 - a + a / (1 + b * (x / 1000.0));
     }
 }

@@ -9,7 +9,6 @@ public class Marriage
     public DateTimeOffset MarriedAt { get; init; }
     public decimal Chu { get; set; }
     public List<Baby> Babies { get; init; } = new();
-    public int Affinity { get; set; }
     public int Kisses { get; set; }
     public DateTimeOffset? LastKissedAt { get; set; }
     public double Pity { get; set; }

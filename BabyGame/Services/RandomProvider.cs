@@ -10,12 +10,14 @@ public class RandomProvider : IRandomProvider
         marriage.Seed = random.Next();
         return random.NextDouble();
     }
+
     public int NextInt(Marriage? marriage, int min, int max)
     {
         var random = marriage != null ? new Random(marriage.Seed) : Random.Shared;
         if (marriage != null) marriage.Seed = random.Next();
         return random.Next(min, max);
     }
+
     public T NextItem<T>(Marriage marriage, T[] values)
     {
         var random = new Random(marriage.Seed);

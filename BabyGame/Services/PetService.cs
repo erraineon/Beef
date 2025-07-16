@@ -20,7 +20,7 @@ public class PetService(
         var baby = marriage.GetBaby(babyName);
         EnsureEnoughChu(marriage, chu);
         // TODO: experience modifiers
-        await babyLevelService.GainExperienceAsync(baby, chu);
+        babyLevelService.GainExperience(baby, chu);
     }
 
     private void EnsureChuValid(int chu)

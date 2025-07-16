@@ -13,6 +13,7 @@ public abstract class Baby
     ///     Follows formula: f\left(x\right)=x^{3}
     /// </summary>
     public required int Level { get; set; } = 1;
+
     public required DateTimeOffset BirthDate { get; set; }
     public DateTimeOffset? GraduationDate { get; set; }
 }

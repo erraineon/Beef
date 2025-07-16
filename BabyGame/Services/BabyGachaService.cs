@@ -18,7 +18,7 @@ public class BabyGachaService(
         baby.BirthDate = timeProvider.Now;
         baby.Name = babyName ?? $"Baby{marriage.Babies.Count + 1}";
         marriage.Babies.Add(baby);
-        await babyGameRepository.SaveChangesAsync();
+        await babyGameRepository.SaveMarriageAsync(marriage);
 
         logger.Log($"Mr. Stork delivered {baby.Name}, the {baby.GetTypeName()} (Rank {baby.GetRank()})");
         return baby;

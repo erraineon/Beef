@@ -5,7 +5,8 @@ using Humanizer;
 
 namespace BabyGame.Events;
 
-public class EventAggregate<TResult> : IEventAggregate<TResult> where TResult : IAdditionOperators<TResult, TResult, TResult>
+public class EventAggregate<TResult> : IEventAggregate<TResult>
+    where TResult : IAdditionOperators<TResult, TResult, TResult>
 {
     public Dictionary<object, ICollection<TResult>> Contributions { get; set; } = new();
 
@@ -23,17 +24,6 @@ public class EventAggregate<TResult> : IEventAggregate<TResult> where TResult : 
             )
         );
 
-    private static string GetContributorName(object y)
-    {
-        return y switch
-        {
-            Baby baby => baby.Name,
-            Modifier modifier => modifier.GetDisplayName(),
-            string s => s,
-            _ => "A mysterious entity"
-        };
-    }
-
     public IEventAggregate<TResult> LogByType(IBabyGameLogger logger, string format)
     {
         return LogByType(logger, (x, y) => string.Format(format, x, y));
@@ -44,5 +34,16 @@ public class EventAggregate<TResult> : IEventAggregate<TResult> where TResult : 
         foreach (var (contributorNames, contribution) in ContributionsByType)
             logger.Log(format(contributorNames, contribution));
         return this;
+    }
+
+    private static string GetContributorName(object y)
+    {
+        return y switch
+        {
+            Baby baby => baby.Name,
+            Modifier modifier => modifier.GetDisplayName(),
+            string s => s,
+            _ => "A mysterious entity"
+        };
     }
 }

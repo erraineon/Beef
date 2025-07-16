@@ -5,6 +5,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+
 #pragma warning disable CS8625
 
 namespace Beef.Core.Telegram;
@@ -205,30 +206,10 @@ public class TelegramChatClient(
         throw new NotImplementedException();
     }
 
-    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(int limit = 100, ulong? afterId = null, ulong? beforeId = null,
+    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(int limit = 100,
+        ulong? afterId = null, ulong? beforeId = null,
         bool excludeEnded = false, ulong? guildId = null, ulong? userId = null, ulong[] skuIds = null,
         RequestOptions options = null, bool? excludeDeleted = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(
-        int limit = 100,
-        ulong? afterId = null,
-        ulong? beforeId = null,
-        bool excludeEnded = false,
-        ulong? guildId = null,
-        ulong? userId = null,
-        ulong[] skuIds = null,
-        RequestOptions options = null
-    )
-    {
-        throw new NotImplementedException();
-    }
-
-    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(int? limit, ulong? afterId = null, ulong? beforeId = null,
-        bool excludeEnded = false, ulong? guildId = null, ulong? userId = null, ulong[] skuIds = null,
-        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -270,7 +251,8 @@ public class TelegramChatClient(
         throw new NotImplementedException();
     }
 
-    public Task<Emote> ModifyApplicationEmoteAsync(ulong emoteId, Action<ApplicationEmoteProperties> args, RequestOptions options = null)
+    public Task<Emote> ModifyApplicationEmoteAsync(ulong emoteId, Action<ApplicationEmoteProperties> args,
+        RequestOptions options = null)
     {
         throw new NotImplementedException();
     }
@@ -295,6 +277,28 @@ public class TelegramChatClient(
     {
         GC.SuppressFinalize(this);
         return ValueTask.CompletedTask;
+    }
+
+    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(
+        int limit = 100,
+        ulong? afterId = null,
+        ulong? beforeId = null,
+        bool excludeEnded = false,
+        ulong? guildId = null,
+        ulong? userId = null,
+        ulong[] skuIds = null,
+        RequestOptions options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<IReadOnlyCollection<IEntitlement>> GetEntitlementsAsync(int? limit, ulong? afterId = null,
+        ulong? beforeId = null,
+        bool excludeEnded = false, ulong? guildId = null, ulong? userId = null, ulong[] skuIds = null,
+        RequestOptions options = null)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task<TelegramGuild> GetOrCreateTelegramGuildAsync(long chatId)

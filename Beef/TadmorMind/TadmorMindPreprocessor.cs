@@ -11,8 +11,10 @@ public class TadmorMindPreprocessor(IOptionsSnapshot<TadmorMindOptions> tadmorMi
         return value.Channel is IGuildChannel guildChannel &&
                tadmorMindOptions.Value.MonitoredGuildIds.Contains(guildChannel.GuildId) &&
                !value.Content.StartsWith('.') &&
-               (new[] { "tadmor", "taddy" }.Any(
-                    x => value.Content.Contains(x, StringComparison.InvariantCultureIgnoreCase)
+               (new[] { "tadmor", "taddy" }.Any(x => value.Content.Contains(
+                        x,
+                        StringComparison.InvariantCultureIgnoreCase
+                    )
                 ) ||
                 Random.Shared.NextDouble() <= tadmorMindOptions.Value.SpeakUpProbability)
             ? ".gen"

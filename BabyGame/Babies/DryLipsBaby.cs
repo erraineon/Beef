@@ -8,7 +8,7 @@ namespace BabyGame.Babies;
 
 [Rarity(BabyRarities.Legendary)]
 [Description("Earn no Chu when you kiss.")]
-public class DryLipsBaby : Baby, IChuMultiplierOnKiss
+public class DryLipsBaby : Baby, IEventHandler<IChuMultiplierOnKiss, double>
 {
     public IEnumerable<double> Handle(BabyEventArgs<IChuMultiplierOnKiss, double> eventArgs)
     {

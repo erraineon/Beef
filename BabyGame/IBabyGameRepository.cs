@@ -1,11 +1,10 @@
 ﻿using BabyGame.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace BabyGame;
 
 public interface IBabyGameRepository
 {
-    Task SaveChangesAsync();
+    Task SaveMarriageAsync(Marriage marriage);
     Task<Marriage> GetMarriageAsync(Player player);
     Task<bool> GetIsMarriedAsync(Player player);
     Task CreateSpouseAsync(Player player);

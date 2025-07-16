@@ -34,7 +34,8 @@ public class TelegramUserMessage : IUserMessage
         throw new NotImplementedException();
     }
 
-    public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emoji, int limit, RequestOptions options = null,
+    public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emoji, int limit,
+        RequestOptions options = null,
         ReactionType type = ReactionType.Normal)
     {
         throw new NotImplementedException();
@@ -116,15 +117,6 @@ public class TelegramUserMessage : IUserMessage
         throw new NotImplementedException();
     }
 
-    public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(
-        IEmote emoji,
-        int limit,
-        RequestOptions? options = null
-    )
-    {
-        throw new NotImplementedException();
-    }
-
     public string Resolve(
         TagHandling userHandling = TagHandling.Name,
         TagHandling channelHandling = TagHandling.Name,
@@ -157,4 +149,13 @@ public class TelegramUserMessage : IUserMessage
     public IMessageInteractionMetadata InteractionMetadata { get; }
     public IReadOnlyCollection<MessageSnapshot> ForwardedMessages { get; }
     public Poll? Poll { get; }
+
+    public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(
+        IEmote emoji,
+        int limit,
+        RequestOptions? options = null
+    )
+    {
+        throw new NotImplementedException();
+    }
 }

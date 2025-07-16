@@ -1,3 +1,3 @@
 ﻿namespace BabyGame.Events;
 
-public interface IChuCostMultiplierOnLove : IEventHandler<IChuCostMultiplierOnLove, double>;
+public interface IChuCostMultiplierOnLove : IEvent<double>;

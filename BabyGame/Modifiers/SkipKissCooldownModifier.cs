@@ -1,12 +1,12 @@
-﻿using BabyGame.Data;
+﻿using System.ComponentModel;
+using BabyGame.Data;
 using BabyGame.Events;
-using System.ComponentModel;
 
 namespace BabyGame.Modifiers;
 
 [Description("Kiss again")]
 [DisplayName("Buff: Another Kiss")]
-public class SkipKissCooldownModifier : Modifier, IKissCooldownMultiplierOnKiss
+public class SkipKissCooldownModifier : Modifier, IEventHandler<IKissCooldownMultiplierOnKiss, double>
 {
     public IEnumerable<double> Handle(BabyEventArgs<IKissCooldownMultiplierOnKiss, double> eventArgs)
     {

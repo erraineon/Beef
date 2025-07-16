@@ -1,6 +1,5 @@
 ﻿using BabyGame.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace BabyGame.Data;
@@ -11,12 +10,6 @@ public class BabyGameDbContext : DbContext, IBabyGameRepository
     public DbSet<Baby> Babies { get; set; }
     public DbSet<Player> Spouses { get; set; }
     public DbSet<Modifier> Modifiers { get; set; }
-
-    private Task<Marriage?> GetMarriageOrNullAsync(Player player)
-    {
-        return Marriages
-            .FirstOrDefaultAsync(x => x.Spouse1.Id == player.Id || x.Spouse2.Id == player.Id);
-    }
 
     public async Task<bool> GetIsMarriedAsync(Player player)
     {
@@ -45,6 +38,18 @@ public class BabyGameDbContext : DbContext, IBabyGameRepository
         return new BabyGameTransaction(await Database.BeginTransactionAsync());
     }
 
+    public async Task SaveMarriageAsync(Marriage marriage)
+    {
+        Marriages.Attach(marriage);
+        await base.SaveChangesAsync();
+    }
+
+    private Task<Marriage?> GetMarriageOrNullAsync(Player player)
+    {
+        return Marriages
+            .FirstOrDefaultAsync(x => x.Spouse1.Id == player.Id || x.Spouse2.Id == player.Id);
+    }
+
     private class BabyGameTransaction(IDbContextTransaction transaction) : IAsyncDisposable
     {
         public async ValueTask DisposeAsync()
@@ -52,10 +57,5 @@ public class BabyGameDbContext : DbContext, IBabyGameRepository
             await transaction.CommitAsync();
             await transaction.DisposeAsync();
         }
-    }
-
-    public async Task SaveChangesAsync()
-    {
-        await base.SaveChangesAsync();
     }
 }

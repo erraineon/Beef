@@ -62,11 +62,11 @@ public class TriggerListener(
                 ? discordSocketClient
                 : telegramChatClient;
             var guild = await chatClient.GetGuildAsync(trigger.GuildId) ??
-                throw new Exception($"Guild {trigger.GuildId} was not found.");
+                        throw new Exception($"Guild {trigger.GuildId} was not found.");
             var channel = await guild.GetTextChannelAsync(trigger.ChannelId) ??
-                throw new Exception($"Channel {trigger.ChannelId} was not found.");
+                          throw new Exception($"Channel {trigger.ChannelId} was not found.");
             var user = await guild.GetUserAsync(trigger.UserId) ??
-                throw new Exception($"User {trigger.UserId} was not found.");
+                       throw new Exception($"User {trigger.UserId} was not found.");
 
             var interaction = interactionFactory.CreateInteraction(user, channel, trigger.CommandToRun);
             interactionHandler.HandleInteractionContext(

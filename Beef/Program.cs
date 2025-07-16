@@ -28,16 +28,14 @@ using SQLitePCL;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(configurationBuilder => configurationBuilder.AddUserSecrets<Program>())
-    .ConfigureServices(
-        (context, services) =>
+    .ConfigureServices((context, services) =>
         {
             // Distributed cache
             services.AddSqliteCache("cache.db", new SQLite3Provider_e_sqlite3());
 
             // Interactions
             services
-                .AddSingleton(
-                    s => new InteractionService(
+                .AddSingleton(s => new InteractionService(
                         s.GetService<DiscordSocketClient>(),
                         new InteractionServiceConfig { DefaultRunMode = RunMode.Sync }
                     )
@@ -76,8 +74,7 @@ var host = Host.CreateDefaultBuilder(args)
             // Google
             services
                 .Configure<GoogleOptions>(context.Configuration.GetSection(nameof(GoogleOptions)))
-                .AddSingleton(
-                    s => new CustomsearchService(
+                .AddSingleton(s => new CustomsearchService(
                         new BaseClientService.Initializer
                         {
                             ApiKey = s.GetRequiredService<IOptions<GoogleOptions>>().Value.ApiKey
@@ -90,8 +87,7 @@ var host = Host.CreateDefaultBuilder(args)
             services
                 .Configure<OpenAiOptions>(context.Configuration.GetSection(nameof(OpenAiOptions)))
                 .AddTransient<IOpenAiService, OpenAiService>()
-                .AddSingleton<IOpenAIService>(
-                    s => new OpenAIService(
+                .AddSingleton<IOpenAIService>(s => new OpenAIService(
                         new OpenAIOptions
                         {
                             ApiKey = s.GetRequiredService<IOptions<OpenAiOptions>>().Value.ApiKey

@@ -67,11 +67,12 @@ public class InteractionHandler(
         var result = await interactionService.ExecuteCommandAsync(context, scope.ServiceProvider);
         if (!result.IsSuccess)
         {
-            var exception = (result is ExecuteResult executeResult)
+            var exception = result is ExecuteResult executeResult
                 ? executeResult.Exception
                 : new Exception($"{result.Error}: {result.ErrorReason}");
             logger.LogError(exception, "Error while executing an interaction.");
         }
+
         return result;
     }
 
@@ -111,7 +112,8 @@ public class InteractionHandler(
                 _ => errorMessage
             };
 
-            var suppressResponse = context.Interaction is BotInteraction && string.IsNullOrWhiteSpace(contentToReplyWith);
+            var suppressResponse =
+                context.Interaction is BotInteraction && string.IsNullOrWhiteSpace(contentToReplyWith);
 
             if (!suppressResponse)
             {
