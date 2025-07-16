@@ -1,10 +1,10 @@
 ﻿using BabyGame.Data;
 using BabyGame.Events;
+using BabyGame.Exceptions;
 using BabyGame.Services;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using NSubstitute.Extensions;
 
 namespace BabyGame.Tests.Services;
 
@@ -13,16 +13,13 @@ namespace BabyGame.Tests.Services;
 public class KissServiceTest
 {
     private IOptionsSnapshot<IBabyGameConfiguration> _optionsSnapshot;
-    private IModifierService _modifierService;
     private IBabyGameRepository _babyGameRepository;
     private IBabyGameLogger _babyGameLogger;
     private IEventDispatcher _eventDispatcher;
     private ITimeProvider _timeProvider;
     private KissService _kissService;
-    private IAsyncDisposable _transaction;
     private Marriage _marriage;
     private IBabyGameConfiguration _babyGameConfiguration;
-    private IEventAggregate<double> _cooldownMultiplierAggregate;
     private Dictionary<Type, object> _eventDispatcherResults;
 
     [TestInitialize]
@@ -38,16 +35,11 @@ public class KissServiceTest
         _babyGameConfiguration.AffinityKissCooldownMultiplierRate.Returns(4.5);
 
         _optionsSnapshot.Value.Returns(_babyGameConfiguration);
-        _modifierService = Substitute.For<IModifierService>();
-        _transaction = Substitute.For<IAsyncDisposable>();
 
         _babyGameRepository = Substitute.For<IBabyGameRepository>();
-        _babyGameRepository.BeginTransactionAsync().Returns(_transaction);
         _babyGameRepository.GetMarriageAsync(Arg.Any<Player>()).Returns(_marriage);
 
         _babyGameLogger = new TestBabyGameLogger();
-
-        _cooldownMultiplierAggregate = Substitute.For<IEventAggregate<double>>();
 
         _eventDispatcherResults = new Dictionary<Type, object>();
         _eventDispatcher = new TestEventDispatcher(_eventDispatcherResults);
@@ -57,15 +49,15 @@ public class KissServiceTest
 
         _kissService = new KissService(
             _optionsSnapshot,
-            _modifierService,
             _babyGameRepository,
             _babyGameLogger,
             _eventDispatcher,
             _timeProvider
         );
     }
+
     [TestMethod]
-    public async Task KissAsync_ChuCorrect_NoAffinity()
+    public async Task KissAsync_ChuCorrect()
     {
         _eventDispatcherResults[typeof(IKissCooldownMultiplierOnKiss)] = 0.5;
         _eventDispatcherResults[typeof(IChuOnKiss)] = 20.0;
@@ -73,6 +65,12 @@ public class KissServiceTest
         await _kissService.KissAsync(_marriage.Spouse1);
         // 20 + 15 (aggregators)
         Assert.AreEqual(35M, _marriage.Chu);
-        await _transaction.Received().DisposeAsync();
+    }
+
+    [TestMethod]
+    public async Task KissAsync_Throws_OnCooldown()
+    {
+        _marriage.LastKissedAt = _timeProvider.Now - _babyGameConfiguration.BaseKissCooldown / 2;
+        await Assert.ThrowsAsync<KissOnCooldownException>(() => _kissService.KissAsync(_marriage.Spouse1));
     }
 }

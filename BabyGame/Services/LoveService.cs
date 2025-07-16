@@ -25,11 +25,12 @@ public class LoveService(
         marriage.Chu -= loveCost;
         marriage.LastLovedOn = today;
         marriage.TimesLovedOnLastDate = timesLovedToday;
-        var baby = await babyGachaService.CreateBabyAsync(marriage, babyName);
+        var baby = babyGachaService.CreateBaby(marriage, babyName);
 
         var nextCost = GetLoveCost(marriage, today, out _);
         var tomorrow = timeProvider.Today.AddDays(1);
         logger.Log($"The next baby will cost {nextCost} until {tomorrow.Humanize()}");
+        await babyGameRepository.SaveMarriageAsync(marriage);
     }
 
     private decimal GetLoveCost(Marriage marriage, DateTime today, out int timesLovedToday)

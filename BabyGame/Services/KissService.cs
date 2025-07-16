@@ -7,7 +7,6 @@ namespace BabyGame.Services;
 
 public class KissService(
     IOptionsSnapshot<IBabyGameConfiguration> configuration,
-    IModifierService modifierService,
     IBabyGameRepository babyGameRepository,
     IBabyGameLogger logger,
     IEventDispatcher eventDispatcher,
@@ -15,7 +14,6 @@ public class KissService(
 {
     public async Task KissAsync(Player player)
     {
-        await using var transaction = await babyGameRepository.BeginTransactionAsync();
         // TODO: implement multi-kiss
         var marriage = await babyGameRepository.GetMarriageAsync(player);
         EnsureKissCooldownExpired(marriage);
@@ -57,9 +55,9 @@ public class KissService(
         var kissCooldownSeconds = Math.Max(
             configuration.Value.MinimumKissCooldown.TotalSeconds,
             (configuration.Value.BaseKissCooldown *
-             eventDispatcher
+             (1 - eventDispatcher
                  .Aggregate<IKissCooldownMultiplierOnKiss, double>(marriage)
-                 .Sum()).TotalSeconds
+                 .Sum())).TotalSeconds
         );
         return TimeSpan.FromSeconds(kissCooldownSeconds);
     }

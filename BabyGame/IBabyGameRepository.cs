@@ -9,5 +9,4 @@ public interface IBabyGameRepository
     Task<bool> GetIsMarriedAsync(Player player);
     Task CreateSpouseAsync(Player player);
     Task CreateMarriageAsync(Marriage marriage);
-    Task<IAsyncDisposable> BeginTransactionAsync();
 }

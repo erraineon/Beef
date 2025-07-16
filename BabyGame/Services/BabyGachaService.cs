@@ -8,21 +8,18 @@ namespace BabyGame.Services;
 
 public class BabyGachaService(
     IRandomProvider randomProvider,
-    IBabyGameRepository babyGameRepository,
     ITimeProvider timeProvider,
     IBabyGameLogger logger) : IBabyGachaService
 {
-    public async Task<Baby> CreateBabyAsync(Marriage marriage, string? babyName = null)
+    public Baby CreateBaby(Marriage marriage, string? babyName = null)
     {
         var baby = InstantiateRandomBaby(marriage);
         baby.BirthDate = timeProvider.Now;
         baby.Name = babyName ?? $"Baby{marriage.Babies.Count + 1}";
         marriage.Babies.Add(baby);
-        await babyGameRepository.SaveMarriageAsync(marriage);
-
         logger.Log($"Mr. Stork delivered {baby.Name}, the {baby.GetTypeName()} (Rank {baby.GetRank()})");
         return baby;
-    }
+    }   
 
     private Baby InstantiateRandomBaby(Marriage marriage)
     {

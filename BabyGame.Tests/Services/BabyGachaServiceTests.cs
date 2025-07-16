@@ -31,14 +31,14 @@ public class BabyGachaServiceTests
 
         _babyGameLogger = new TestBabyGameLogger();
 
-        _babyGachaService = new BabyGachaService(_randomProvider, _babyGameRepository, _timeProvider, _babyGameLogger);
+        _babyGachaService = new BabyGachaService(_randomProvider, _timeProvider, _babyGameLogger);
     }
 
     [TestMethod]
-    public async Task CreateBabyAsync_Works()
+    public void CreateBaby_Works()
     {
         var marriage = MarriageUtils.GetMarriage();
-        await _babyGachaService.CreateBabyAsync(marriage);
+        _babyGachaService.CreateBaby(marriage);
     }
 
     [TestMethod]
@@ -58,7 +58,7 @@ public class BabyGachaServiceTests
     }
 
     [TestMethod]
-    public async Task GetRandomRarity_Pity_Works()
+    public void GetRandomRarity_Pity_Works()
     {
         var marriage = MarriageUtils.GetMarriage();
         marriage.Pity = 0.9;
@@ -68,7 +68,7 @@ public class BabyGachaServiceTests
         );
         Assert.AreEqual(BabyRarities.Common, _babyGachaService.GetRandomRarity(marriage, out var pityReset));
         Assert.IsFalse(pityReset);
-        var pityPullBaby = await _babyGachaService.CreateBabyAsync(marriage);
+        var pityPullBaby = _babyGachaService.CreateBaby(marriage);
         Assert.AreEqual(BabyRarities.Legendary, _babyGachaService.GetBabyRarity(pityPullBaby.GetType()));
         Assert.AreEqual(0.00, marriage.Pity);
     }
