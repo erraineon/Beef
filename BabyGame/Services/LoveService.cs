@@ -28,8 +28,15 @@ public class LoveService(
         var baby = babyGachaService.CreateBaby(marriage, babyName);
 
         var nextCost = GetLoveCost(marriage, today, out _);
-        var tomorrow = timeProvider.Today.AddDays(1);
-        logger.Log($"The next baby will cost {nextCost} until {tomorrow.Humanize()}");
+        var tomorrow = timeProvider.Today.AddDays(1).Humanize(true, dateToCompareAgainst: timeProvider.Now.UtcDateTime);
+        logger.Log(
+            nextCost switch
+            {
+                > 0 => $"The next baby will cost {nextCost} until {tomorrow}",
+                0 => "The next baby will be free.",
+                _ => "The next baby will be free, and then some!"
+            }
+        );
         await babyGameRepository.SaveMarriageAsync(marriage);
     }
 
@@ -38,7 +45,7 @@ public class LoveService(
         timesLovedToday = marriage.LastLovedOn != null && marriage.LastLovedOn.Value.Date <= today
             ? marriage.TimesLovedOnLastDate
             : 0;
-        var loveCostMultiplier = eventDispatcher.Aggregate<IChuCostMultiplierOnLove, double>(marriage).Sum();
+        var loveCostMultiplier = 1 - eventDispatcher.Aggregate<IChuCostMultiplierOnLove, double>(marriage).Sum();
         var loveCost = Math.Pow(configuration.Value.BaseLoveCost, ++timesLovedToday) * loveCostMultiplier;
         return (decimal)loveCost;
     }

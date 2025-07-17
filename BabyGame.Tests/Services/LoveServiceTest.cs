@@ -1,4 +1,6 @@
-﻿using BabyGame.Models;
+﻿using BabyGame.Data;
+using BabyGame.Events;
+using BabyGame.Models;
 using BabyGame.Services;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
@@ -17,18 +19,35 @@ public class LoveServiceTest
     private IBabyGameLogger _babyGameLogger;
     private ITimeProvider _timeProvider;
     private LoveService _loveService;
+    private IBabyGameConfiguration _babyGameConfiguration;
+    private Marriage _marriage;
+    private Dictionary<Type, object> _eventDispatcherResults;
 
     [TestInitialize]
     public void Initialize()
     {
+        _marriage = MarriageUtils.GetMarriage();
         _optionsSnapshot = Substitute.For<IOptionsSnapshot<IBabyGameConfiguration>>();
-        _optionsSnapshot.Value.Returns(new BabyGameConfiguration());
+
+        _babyGameConfiguration = Substitute.For<IBabyGameConfiguration>();
+        _babyGameConfiguration.MaxBabies.Returns(20);
+        _babyGameConfiguration.BaseLoveCost.Returns(10);
+
+        _optionsSnapshot.Value.Returns(_babyGameConfiguration);
 
         _babyGameRepository = Substitute.For<IBabyGameRepository>();
+        _babyGameRepository.GetMarriageAsync(Arg.Any<Player>()).Returns(_marriage);
+
         _babyGachaService = Substitute.For<IBabyGachaService>();
-        _eventDispatcher = Substitute.For<IEventDispatcher>();
-        _babyGameLogger = Substitute.For<IBabyGameLogger>();
+
+        _eventDispatcherResults = new Dictionary<Type, object>();
+        _eventDispatcher = new TestEventDispatcher(_eventDispatcherResults);
+        _babyGameLogger = new TestBabyGameLogger();
+
         _timeProvider = Substitute.For<ITimeProvider>();
+        _timeProvider.Now.Returns(TimeUtils.AfterMarriage);
+        _timeProvider.Today.Returns(_ => _timeProvider.Now.Date);
+
         _loveService = new LoveService(
             _optionsSnapshot,
             _babyGameRepository,
@@ -41,6 +60,8 @@ public class LoveServiceTest
     [TestMethod]
     public async Task Test()
     {
-        await _loveService.LoveAsync(PlayerUtils.GetAlice(), "Johnny");
+        _marriage.Chu = 100;
+        _eventDispatcherResults[typeof(IChuCostMultiplierOnLove)] = 0.25;
+        await _loveService.LoveAsync(_marriage.Spouse1, "Johnny");
     }
 }
