@@ -10,7 +10,7 @@ public class E621SearchEngine(IDistributedCache distributedCache, IE621Client e6
         var key = $"e621-{contextKey}-{tags}";
         var lastSeenId = long.TryParse(await distributedCache.GetStringAsync(key), out var x) ? x : default(long?);
         var searchResults = await SearchLatestAsync(tags, lastSeenId);
-        var posts = (lastSeenId != default ? searchResults.Reverse().Take(8) : searchResults.Take(1))
+        var posts = (lastSeenId != default ? searchResults.Reverse().Take(4) : searchResults.Take(1))
             .ToList();
         if (posts.LastOrDefault() is { } latestPost)
             await distributedCache.SetStringAsync(key, latestPost.Id.ToString());
