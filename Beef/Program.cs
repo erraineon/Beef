@@ -1,5 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using BabyGame;
+using BabyGame.Data;
+using BabyGame.Events;
+using BabyGame.Models;
+using BabyGame.Modifiers;
+using BabyGame.Services;
 using Beef;
 using Beef.Core;
 using Beef.Core.Data;
@@ -25,6 +31,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NeoSmart.Caching.Sqlite;
 using SQLitePCL;
+using TimeProvider = BabyGame.Services.TimeProvider;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration(configurationBuilder => configurationBuilder.AddUserSecrets<Program>())
@@ -108,6 +115,28 @@ var host = Host.CreateDefaultBuilder(args)
                 .AddTransient<IMessageContentPreprocessor, TadmorMindPreprocessor>()
                 .AddSingleton<ITadmorMindThoughtsRepository, TadmorMindThoughtsRepository>()
                 .AddHostedService<TadmorMindThoughtProducer>();
+
+            // Baby game
+            services
+                .Configure<BabyGameOptions>(context.Configuration.GetSection(nameof(BabyGameOptions)))
+                .AddDbContextFactory<BabyGameDbContext>()
+                .AddScoped<IBabyGameRepository>(s => s.GetRequiredService<BabyGameDbContext>())
+                .AddScoped<IBabyGameLogger, BabyGameLogger>()
+                .AddTransient<IRandomProvider, RandomProvider>()
+                .AddTransient<ITimeProvider, TimeProvider>()
+                .AddTransient<IEventDispatcher, EventDispatcher>()
+                .AddTransient<IBabyGachaService, BabyGachaService>()
+                .AddTransient<IBabyLevelService, BabyLevelService>()
+                .AddTransient<IKissService, KissService>()
+                .AddTransient<IModifierService, ModifierService>()
+                .AddTransient<IPetService, PetService>()
+                .AddTransient<IMarriageService, MarriageService>()
+                // baby services
+                .AddTransient<IEventHandler<AffinityModifier, IKissComplete, int>, AffinityModifierService>()
+                .AddTransient<IEventHandler<AffinityModifier, IKissCooldownMultiplierOnKiss, double>,
+                    AffinityModifierService>()
+                .AddTransient<IEventHandler<IMarriageComplete, int>, AffinityModifierService>()
+                .AddTransient<IEventHandler<IMarriageComplete, int>, SkipLoveCostModifierService>();
         }
     )
     .Build();

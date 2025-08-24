@@ -1,17 +1,18 @@
 ﻿using BabyGame.Data;
 using BabyGame.Exceptions;
 using BabyGame.Extensions;
+using BabyGame.Models;
 using Microsoft.Extensions.Options;
 
 namespace BabyGame.Services;
 
 public class PetService(
-    IOptionsSnapshot<IBabyGameConfiguration> configuration,
+    IOptionsSnapshot<BabyGameOptions> configuration,
     IBabyGameRepository babyGameRepository,
     IBabyGachaService babyGachaService,
     IBabyLevelService babyLevelService,
     IBabyGameLogger logger,
-    ITimeProvider timeProvider)
+    ITimeProvider timeProvider) : IPetService
 {
     public async Task PetAsync(Player player, int chu, string babyName)
     {

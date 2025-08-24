@@ -1,11 +1,12 @@
 ﻿using BabyGame.Events;
+using BabyGame.Models;
 using Humanizer;
 using Microsoft.Extensions.Options;
 
 namespace BabyGame.Modifiers;
 
 public class AffinityModifierService(
-    IOptionsSnapshot<IBabyGameConfiguration> configuration,
+    IOptionsSnapshot<BabyGameOptions> configuration,
     ITimeProvider timeProvider,
     IModifierService modifierService,
     IBabyGameLogger babyGameLogger,

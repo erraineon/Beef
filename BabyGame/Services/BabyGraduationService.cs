@@ -5,6 +5,7 @@ namespace BabyGame.Services;
 
 public class BabyGraduationService(IBabyGameLogger logger)
 {
+    // TODO: implement
     public async Task GraduateAsync(Marriage marriage, string babyName)
     {
         var baby = marriage.GetBaby(babyName);
@@ -16,5 +17,6 @@ public class BabyGraduationService(IBabyGameLogger logger)
         // TODO: chance of not leaving based off Affinity
         marriage.Chu += (decimal)reward;
         logger.Log($"{baby.Name} has graduated, leaving {reward} Chu behind. Goodbye, {baby.Name}!");
+
     }
 }

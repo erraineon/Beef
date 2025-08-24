@@ -1,4 +1,5 @@
 ﻿using BabyGame.Data;
+using BabyGame.Services;
 
 namespace BabyGame;
 
@@ -8,5 +9,7 @@ public interface IBabyGameRepository
     Task<Marriage> GetMarriageAsync(Player player);
     Task<bool> GetIsMarriedAsync(Player player);
     Task CreateSpouseAsync(Player player);
-    Task CreateMarriageAsync(Marriage marriage);
+    Task<Proposal?> GetProposalOrNullAsync(Player proposer, Player fiance);
+    IQueryable<Proposal> GetProposals(Player proposer);
+    Task SaveProposalAsync(Proposal proposal);
 }

@@ -1,6 +1,7 @@
 ﻿using BabyGame.Data;
 using BabyGame.Events;
 using BabyGame.Exceptions;
+using BabyGame.Models;
 using BabyGame.Services;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
@@ -12,29 +13,29 @@ namespace BabyGame.Tests.Services;
 [TestSubject(typeof(KissService))]
 public class KissServiceTest
 {
-    private IOptionsSnapshot<IBabyGameConfiguration> _optionsSnapshot;
+    private IOptionsSnapshot<BabyGameOptions> _optionsSnapshot;
     private IBabyGameRepository _babyGameRepository;
     private IBabyGameLogger _babyGameLogger;
     private IEventDispatcher _eventDispatcher;
     private ITimeProvider _timeProvider;
     private KissService _kissService;
     private Marriage _marriage;
-    private IBabyGameConfiguration _babyGameConfiguration;
+    private BabyGameOptions _babyGameOptions;
     private Dictionary<Type, object> _eventDispatcherResults;
 
     [TestInitialize]
     public void Initialize()
     {
         _marriage = MarriageUtils.GetMarriage();
-        _optionsSnapshot = Substitute.For<IOptionsSnapshot<IBabyGameConfiguration>>();
+        _optionsSnapshot = Substitute.For<IOptionsSnapshot<BabyGameOptions>>();
 
-        _babyGameConfiguration = Substitute.For<IBabyGameConfiguration>();
-        _babyGameConfiguration.MinimumKissCooldown.Returns(TimeSpan.FromMinutes(1));
-        _babyGameConfiguration.BaseKissCooldown.Returns(TimeSpan.FromMinutes(10));
-        _babyGameConfiguration.MaxAffinityKissCooldownMultiplier.Returns(2);
-        _babyGameConfiguration.AffinityKissCooldownMultiplierRate.Returns(4.5);
+        _babyGameOptions = Substitute.For<BabyGameOptions>();
+        _babyGameOptions.MinimumKissCooldown.Returns(TimeSpan.FromMinutes(1));
+        _babyGameOptions.BaseKissCooldown.Returns(TimeSpan.FromMinutes(10));
+        _babyGameOptions.MaxAffinityKissCooldownMultiplier.Returns(2);
+        _babyGameOptions.AffinityKissCooldownMultiplierRate.Returns(4.5);
 
-        _optionsSnapshot.Value.Returns(_babyGameConfiguration);
+        _optionsSnapshot.Value.Returns(_babyGameOptions);
 
         _babyGameRepository = Substitute.For<IBabyGameRepository>();
         _babyGameRepository.GetMarriageAsync(Arg.Any<Player>()).Returns(_marriage);
@@ -70,7 +71,7 @@ public class KissServiceTest
     [TestMethod]
     public async Task KissAsync_Throws_OnCooldown()
     {
-        _marriage.LastKissedAt = _timeProvider.Now - _babyGameConfiguration.BaseKissCooldown / 2;
+        _marriage.LastKissedAt = _timeProvider.Now - _babyGameOptions.BaseKissCooldown / 2;
         await Assert.ThrowsAsync<KissOnCooldownException>(() => _kissService.KissAsync(_marriage.Spouse1));
     }
 }

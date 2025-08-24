@@ -1,16 +1,17 @@
 ﻿using BabyGame.Data;
 using BabyGame.Events;
 using BabyGame.Exceptions;
+using BabyGame.Models;
 using Microsoft.Extensions.Options;
 
 namespace BabyGame.Services;
 
 public class KissService(
-    IOptionsSnapshot<IBabyGameConfiguration> configuration,
+    IOptionsSnapshot<BabyGameOptions> configuration,
     IBabyGameRepository babyGameRepository,
     IBabyGameLogger logger,
     IEventDispatcher eventDispatcher,
-    ITimeProvider timeProvider)
+    ITimeProvider timeProvider) : IKissService
 {
     public async Task KissAsync(Player player)
     {

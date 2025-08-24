@@ -1,13 +1,14 @@
 ﻿using BabyGame.Data;
 using BabyGame.Events;
 using BabyGame.Exceptions;
+using BabyGame.Models;
 using Humanizer;
 using Microsoft.Extensions.Options;
 
 namespace BabyGame.Services;
 
 public class LoveService(
-    IOptionsSnapshot<IBabyGameConfiguration> configuration,
+    IOptionsSnapshot<BabyGameOptions> configuration,
     IBabyGameRepository babyGameRepository,
     IBabyGachaService babyGachaService,
     IEventDispatcher eventDispatcher,

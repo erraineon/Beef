@@ -1,6 +1,6 @@
 ﻿namespace BabyGame.Models;
 
-public class BabyGameConfiguration : IBabyGameConfiguration
+public class BabyGameOptions
 {
     public TimeSpan MinimumKissCooldown { get; set; } = TimeSpan.FromMinutes(1);
     public TimeSpan BaseKissCooldown { get; set; } = TimeSpan.FromMinutes(10);

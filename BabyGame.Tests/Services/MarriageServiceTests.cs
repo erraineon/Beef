@@ -1,5 +1,6 @@
 ﻿using BabyGame.Data;
 using BabyGame.Exceptions;
+using BabyGame.Models;
 using BabyGame.Modifiers;
 using BabyGame.Services;
 using NSubstitute;
@@ -11,7 +12,7 @@ namespace BabyGame.Tests.Services;
 [TestClass]
 public class MarriageServiceTests
 {
-    private IBabyGameConfiguration _babyGameConfiguration;
+    private BabyGameOptions _babyGameOptions;
     private IBabyGameRepository _babyGameRepository;
     private IRandomProvider _randomProvider;
     private ITimeProvider _timeProvider;
@@ -21,8 +22,8 @@ public class MarriageServiceTests
     [TestInitialize]
     public void Initialize()
     {
-        _babyGameConfiguration = Substitute.For<IBabyGameConfiguration>();
-        _babyGameConfiguration.MaxInitialAffinity = 10;
+        _babyGameOptions = Substitute.For<BabyGameOptions>();
+        _babyGameOptions.MaxInitialAffinity = 10;
 
         _babyGameRepository = Substitute.For<IBabyGameRepository>();
 
@@ -73,7 +74,7 @@ public class MarriageServiceTests
         var spouse1 = PlayerUtils.GetAlice();
         var spouse2 = PlayerUtils.GetBob();
         var marriage = await _marriageService.MarryAsync(spouse1, spouse2);
-        await _babyGameRepository.Received().CreateMarriageAsync(marriage);
+        await _babyGameRepository.Received().SaveMarriageAsync(marriage);
     }
 
     [TestMethod]
