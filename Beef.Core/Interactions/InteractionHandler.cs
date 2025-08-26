@@ -38,7 +38,7 @@ public class InteractionHandler(
             }
 
             if (message.Author.Id == 176791091767410688u)
-                message.AddReactionAsync(Emote.Parse(":thumbsdown:"));
+                message.AddReactionAsync(Emoji.Parse(":thumbsdown:"));
         }
         catch (Exception e)
         {
